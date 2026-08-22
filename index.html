@@ -684,17 +684,6 @@
             XLSX.utils.book_append_sheet(wb, ws, type.toUpperCase());
             XLSX.writeFile(wb, `Data_${type}_Kumon.xlsx`);
         }
-function loadQRSelect() {
-    const select = document.getElementById('qrSelectSiswa');
-    select.innerHTML = '<option value="">-- Pilih Siswa --</option>';
-    
-    db.ref('siswa').once('value', (snapshot) => {
-        snapshot.forEach((child) => {
-            const s = child.val();
-            select.innerHTML += <option value="${s.id}|${s.name}">${s.name} - Kelas ${s.kelas}</option>;
-        });
-    });
-}
 
     </script>
 </body>
