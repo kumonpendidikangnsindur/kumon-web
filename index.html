@@ -686,7 +686,7 @@
         }
 function loadQRSelect() {
     try {
-        const select = document.getElementById('qrSelectSiswa');
+        const select = document.getElementById('new-siswa-name');
         if(!select) return;
 
         select.innerHTML = '<option value="">-- Pilih Siswa --</option>';
@@ -707,7 +707,7 @@ function loadQRSelect() {
 
 function generateQR() {
     try {
-        const select = document.getElementById('qrSelectSiswa');
+        const select = document.getElementById('new-siswa-name');
         const qrcodeDiv = document.getElementById('qrcode');
         if(!select ||!qrcodeDiv) return;
 
