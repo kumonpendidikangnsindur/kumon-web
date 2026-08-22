@@ -382,5 +382,444 @@
 
         
     </script>
+    <!-- JavaScript & Firebase Logic -->
+    <script>
+        const firebaseConfig = {
+    apiKey: "AIzaSyCeOv9ML5JIMNZ9cID5vUZmWSW_WVHI5tI",
+    authDomain: "kumon-pendidikan-gunung-sindur.firebaseapp.com",
+    databaseURL: "https://kumon-pendidikan-gunung-sindur-default-rtdb.asia-southeast1.firebasedatabase.app", // GANTI INI
+    projectId: "kumon-pendidikan-gunung-sindur",
+    storageBucket: "kumon-pendidikan-gunung-sindur.firebasestorage.app",
+    messagingSenderId: "915307579186",
+    appId: "1:915307579186:web:6a3389b7c316abed4b792b"
+};
+
+        firebase.initializeApp(firebaseConfig);
+        const dbRef = firebase.database();
+
+        let db = {
+            assistants: [],
+            siswa: [],
+            pins: { payment: "5555", owner: "8888" },
+            absensiAst: [],
+            absensiSiswa: []
+        };
+
+        let currentAst = null;
+        let html5QrcodeScanner = null;
+        let isOwnerUnlocked = false;
+        let isPaymentUnlocked = false;
+
+        dbRef.ref('kumon_data').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                db.assistants = data.assistants || [];
+                db.siswa = data.siswa || [];
+                db.pins = data.pins || { payment: "5555", owner: "8888" };
+                db.absensiAst = data.absensiAst || [];
+                db.absensiSiswa = data.absensiSiswa || [];
+            } else {
+                saveDB();
+            }
+            renderAssistantOptions();
+            renderLists();
+            renderPaymentTable();
+            if (currentAst) updateAssistantUI();
+        });
+
+        function saveDB() {
+            dbRef.ref('kumon_data').set(db);
+        }
+
+        setInterval(() => {
+            const now = new Date();
+            const clockEl = document.getElementById('clock');
+            if(clockEl) clockEl.innerText = now.toLocaleTimeString('id-ID');
+        }, 1000);
+
+        function switchTab(tab) {
+            if (tab === 'payment' && !isPaymentUnlocked) {
+                const pin = prompt("Masukkan Kode PIN Payment:");
+                if (pin === db.pins.payment) {
+                    isPaymentUnlocked = true;
+                } else {
+                    alert("Kode PIN Payment Salah!");
+                    return;
+                }
+            }
+
+            if (tab === 'owner' && !isOwnerUnlocked) {
+                const pin = prompt("Masukkan Kode PIN Instructor:");
+                if (pin === db.pins.owner) {
+                    isOwnerUnlocked = true;
+                } else {
+                    alert("Kode PIN Instructor Salah!");
+                    return;
+                }
+            }
+
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tab}`).classList.remove('hidden');
+
+            if (tab === 'siswa') {
+                startQRScanner();
+            } else if (html5QrcodeScanner) {
+                try { html5QrcodeScanner.clear(); } catch(e){}
+            }
+
+            if (tab === 'payment') {
+                renderPaymentTable();
+            }
+        }
+
+        function changePin(type) {
+            const inputEl = document.getElementById(type === 'payment' ? 'input-pin-payment' : 'input-pin-owner');
+            const newPin = inputEl.value.trim();
+
+            if (!newPin) return alert("Masukkan PIN baru terlebih dahulu!");
+
+            db.pins[type] = newPin;
+            saveDB();
+            inputEl.value = '';
+            alert(`PIN Menu ${type === 'payment' ? 'Payment' : 'Instructor'} berhasil diperbarui!`);
+        }
+
+        function renderAssistantOptions() {
+            const select = document.getElementById('select-assistant');
+            select.innerHTML = '<option value="">-- Pilih Nama --</option>';
+            db.assistants.forEach(ast => {
+                select.innerHTML += `<option value="${ast.name}">${ast.name}</option>`;
+            });
+        }
+
+        function loginAssistant() {
+            const name = document.getElementById('select-assistant').value;
+            const pass = document.getElementById('pass-assistant').value;
+
+            if (!name || !pass) return alert("Pilih nama dan masukkan password!");
+
+            const ast = db.assistants.find(a => a.name === name);
+            if (ast && ast.pass === pass) {
+                currentAst = name;
+                document.getElementById('ast-name').innerText = currentAst;
+                document.getElementById('assistant-login-box').classList.add('hidden');
+                document.getElementById('assistant-dashboard').classList.remove('hidden');
+                document.getElementById('pass-assistant').value = '';
+                updateAssistantUI();
+            } else {
+                alert("Password salah!");
+            }
+        }
+
+        function logoutAssistant() {
+            currentAst = null;
+            document.getElementById('assistant-login-box').classList.remove('hidden');
+            document.getElementById('assistant-dashboard').classList.add('hidden');
+        }
+
+        function checkInAssistant() {
+            const today = new Date().toLocaleDateString('id-ID');
+            let log = db.absensiAst.find(a => a.nama === currentAst && a.tanggal === today);
+
+            if (log) return alert("Anda sudah Check In hari ini!");
+
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+            const isLate = (now.getHours() > 11) || (now.getHours() === 11 && now.getMinutes() >= 1);
+
+            db.absensiAst.push({
+                tanggal: today,
+                nama: currentAst,
+                masuk: timeStr,
+                keluar: "-",
+                status: isLate ? "Terlambat ⚠️" : "Tepat Waktu ✨",
+                totalJam: "-"
+            });
+
+            saveDB();
+        }
+
+        function checkOutAssistant() {
+            const today = new Date().toLocaleDateString('id-ID');
+            let log = db.absensiAst.find(a => a.nama === currentAst && a.tanggal === today);
+
+            if (!log) return alert("Anda belum Check In hari ini!");
+            if (log.keluar !== "-") return alert("Anda sudah Check Out hari ini!");
+
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+            const [hIn, mIn] = log.masuk.split(':').map(Number);
+            const totalMinutes = (now.getHours() * 60 + now.getMinutes()) - (hIn * 60 + mIn);
+            const hours = Math.floor(totalMinutes / 60);
+            const mins = totalMinutes % 60;
+
+            log.keluar = timeStr;
+            log.totalJam = `${hours} jam ${mins} menit`;
+
+            saveDB();
+        }
+
+        function updateAssistantUI() {
+            const today = new Date().toLocaleDateString('id-ID');
+            let log = db.absensiAst.find(a => a.nama === currentAst && a.tanggal === today);
+
+            if (log) {
+                document.getElementById('ast-date').innerText = log.tanggal;
+                document.getElementById('ast-in').innerText = log.masuk;
+                document.getElementById('ast-out').innerText = log.keluar;
+                document.getElementById('ast-status').innerText = log.status;
+                document.getElementById('ast-total').innerText = log.totalJam;
+            } else {
+                document.getElementById('ast-date').innerText = today;
+                document.getElementById('ast-in').innerText = "-";
+                document.getElementById('ast-out').innerText = "-";
+                document.getElementById('ast-status').innerText = "-";
+                document.getElementById('ast-total').innerText = "-";
+            }
+        }
+
+        function startQRScanner() {
+            html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 220 });
+            html5QrcodeScanner.render((decodedText) => {
+                const s = db.siswa.find(x => x.id === decodedText || x.name.toLowerCase() === decodedText.toLowerCase());
+
+                if (!s) {
+                    document.getElementById('qr-result').innerText = "❌ ID Siswa Tidak Ditemukan!";
+                    return;
+                }
+
+                const today = new Date().toLocaleDateString('id-ID');
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+                let log = db.absensiSiswa.find(a => a.id === s.id && a.tanggal === today && a.keluar === "-");
+
+                const subjectText = Array.isArray(s.subject) ? s.subject.join(", ") : (s.subject || "-");
+
+                if (!log) {
+                    db.absensiSiswa.push({
+                        tanggal: today, id: s.id, nama: s.name, kelas: s.kelas || "-", subject: subjectText, masuk: timeStr, keluar: "-", total: "-"
+                    });
+                    document.getElementById('qr-result').innerHTML = `✅ Datang (${today}): <b>${s.name}</b> (${timeStr})`;
+                } else {
+                    const [hIn, mIn] = log.masuk.split(':').map(Number);
+                    const totalMins = (now.getHours() * 60 + now.getMinutes()) - (hIn * 60 + mIn);
+                    log.keluar = timeStr;
+                    log.total = `${totalMins} menit`;
+                    document.getElementById('qr-result').innerHTML = `👋 Pulang (${today}): <b>${s.name}</b> (${totalMins} mnt)`;
+                }
+                saveDB();
+            });
+        }
+
+        // --- PAYMENT LOGIC ---
+        function renderPaymentTable() {
+            const tbody = document.getElementById('payment-table-body');
+            tbody.innerHTML = '';
+
+            db.siswa.forEach((s, i) => {
+                const isPaid = s.status === 'PAID';
+                const subjectStr = Array.isArray(s.subject) ? s.subject.join(", ") : (s.subject || '-');
+                const totalFormatted = (s.totalPayment || 0).toLocaleString('id-ID');
+                const payDate = s.payDate || '';
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-emerald-50/50">
+                        <td class="p-3 font-bold">${i + 1}</td>
+                        <td class="p-3">${s.id}</td>
+                        <td class="p-3 font-bold text-slate-700">${s.name}</td>
+                        <td class="p-3">${s.kelas || '-'}</td>
+                        <td class="p-3">${subjectStr}</td>
+                        <td class="p-3 font-semibold text-emerald-700">Rp ${totalFormatted}</td>
+                        <td class="p-3">
+                            <input type="date" value="${payDate}" onchange="updatePayDate(${i}, this.value)" class="p-1 border rounded-lg bg-white text-xs text-slate-600 focus:outline-none focus:border-emerald-400">
+                        </td>
+                        <td class="p-3 text-center">
+                            <button onclick="togglePaymentStatus(${i})" class="px-3 py-1 rounded-full text-[10px] font-bold ${isPaid ? 'bg-emerald-100 text-emerald-600 border border-emerald-300' : 'bg-rose-100 text-rose-600 border border-rose-300'}">
+                                ${s.status || 'UNPAID'}
+                            </button>
+                        </td>
+                        <td class="p-3 text-center">
+                            <button onclick="sendWAReminder(${i})" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-3 py-1.5 rounded-xl text-xs shadow flex items-center gap-1 mx-auto">
+                                💬 WA Reminder
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function updatePayDate(index, value) {
+            db.siswa[index].payDate = value;
+            saveDB();
+        }
+
+        function togglePaymentStatus(index) {
+            const s = db.siswa[index];
+            if (s.status === 'PAID') {
+                s.status = 'UNPAID';
+            } else {
+                s.status = 'PAID';
+                if (!s.payDate) {
+                    const todayStr = new Date().toISOString().split('T')[0];
+                    s.payDate = todayStr;
+                }
+            }
+            saveDB();
+        }
+
+        function sendWAReminder(index) {
+            const s = db.siswa[index];
+            if (!s.phone) return alert("Nomor HP siswa belum diisi!");
+
+            let phone = s.phone.replace(/[^0-9]/g, '');
+            if (phone.startsWith('0')) {
+                phone = '62' + phone.slice(1);
+            }
+
+            const subjectStr = Array.isArray(s.subject) ? s.subject.join(", ") : (s.subject || '-');
+            const totalFormatted = (s.totalPayment || 0).toLocaleString('id-ID');
+
+            let dateInfo = "";
+            if (s.payDate) {
+                const parts = s.payDate.split('-');
+                if (parts.length === 3) dateInfo = ` untuk tanggal ${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+
+            const message = `Halo Ayah/Bunda ${s.name}, Ingin mengingatkan pembayaran SPP Kumon Pendidikan - Gunung Sindur untuk bulan selanjutnya. Subject (${subjectStr}) dengan nominal Rp ${totalFormatted}. Mohon konfirmasinya jika sudah melakukan pembayaran.\n\nTerima Kasih\n_Kumon Pendidikan - Gunung Sindur_`;
+
+            const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+            window.open(url, '_blank');
+        }
+
+        // --- INSTRUCTOR LOGIC ---
+        function addAssistant() {
+            const name = document.getElementById('new-ast-name').value.trim();
+            const pass = document.getElementById('new-ast-pass').value.trim() || "1234";
+
+            if (name) {
+                db.assistants.push({ name, pass });
+                document.getElementById('new-ast-name').value = '';
+                document.getElementById('new-ast-pass').value = '';
+                saveDB();
+            }
+        }
+
+        function editPassAssistant(idx) {
+            const newPass = prompt(`Masukkan password baru untuk ${db.assistants[idx].name}:`);
+            if (newPass) {
+                db.assistants[idx].pass = newPass.trim();
+                saveDB();
+            }
+        }
+
+        function removeAssistant(idx) {
+            if (confirm(`Hapus ${db.assistants[idx].name}?`)) {
+                db.assistants.splice(idx, 1);
+                saveDB();
+            }
+        }
+
+        function addSiswa() {
+            const id = document.getElementById('new-siswa-id').value.trim();
+            const name = document.getElementById('new-siswa-name').value.trim();
+            const kelas = document.getElementById('new-siswa-kelas').value.trim();
+            const phone = document.getElementById('new-siswa-phone').value.trim();
+            const rate = parseInt(document.getElementById('new-siswa-rate').value) || 525000;
+
+            const selectedSubjects = [];
+            document.querySelectorAll('input[name="subject-choice"]:checked').forEach(cb => {
+                selectedSubjects.push(cb.value);
+            });
+
+            if (!id || !name) {
+                return alert("ID dan Nama Siswa wajib diisi!");
+            }
+
+            if (selectedSubjects.length === 0) {
+                return alert("Pilih minimal 1 Subject!");
+            }
+
+            const totalPayment = selectedSubjects.length * rate;
+
+            db.siswa.push({
+                id,
+                name,
+                kelas: kelas || "-",
+                subject: selectedSubjects,
+                rate,
+                totalPayment,
+                phone,
+                status: "UNPAID",
+                payDate: ""
+            });
+
+            document.getElementById('new-siswa-id').value = '';
+            document.getElementById('new-siswa-name').value = '';
+            document.getElementById('new-siswa-kelas').value = '';
+            document.getElementById('new-siswa-phone').value = '';
+            document.querySelectorAll('input[name="subject-choice"]').forEach(cb => cb.checked = false);
+
+            saveDB();
+        }
+
+        function removeSiswa(idx) {
+            if (confirm(`Hapus ${db.siswa[idx].name}?`)) {
+                db.siswa.splice(idx, 1);
+                saveDB();
+            }
+        }
+
+        function renderLists() {
+            const listAst = document.getElementById('list-assistant');
+            listAst.innerHTML = '';
+            db.assistants.forEach((ast, i) => {
+                listAst.innerHTML += `
+                    <div class="flex justify-between items-center bg-white p-2 rounded-xl border border-purple-100">
+                        <span><b>${ast.name}</b> (${ast.pass})</span>
+                        <div class="flex gap-1">
+                            <button onclick="editPassAssistant(${i})" class="bg-amber-400 text-white px-2 py-0.5 rounded-lg text-[10px]">Edit</button>
+                            <button onclick="removeAssistant(${i})" class="bg-rose-400 text-white px-2 py-0.5 rounded-lg text-[10px]">✕</button>
+                        </div>
+                    </div>`;
+            });
+
+            const listSiswa = document.getElementById('list-siswa');
+            listSiswa.innerHTML = '';
+            db.siswa.forEach((s, i) => {
+                const subjectStr = Array.isArray(s.subject) ? s.subject.join(", ") : (s.subject || '-');
+                const totalFormatted = (s.totalPayment || 0).toLocaleString('id-ID');
+
+                listSiswa.innerHTML += `
+                    <div class="flex justify-between items-center bg-white p-2 rounded-xl border border-pink-100">
+                        <div>
+                            <b>[${s.id}] ${s.name}</b> (${s.kelas || '-'})
+                            <p class="text-[10px] text-slate-500">${subjectStr} | Total: Rp ${totalFormatted} | HP: ${s.phone || '-'}</p>
+                        </div>
+                        <button onclick="removeSiswa(${i})" class="bg-rose-400 text-white px-2 py-0.5 rounded-lg text-[10px]">✕</button>
+                    </div>`;
+            });
+        }
+
+        function exportExcel(type) {
+            let data = [];
+            if (type === 'assistant') data = db.absensiAst;
+            else if (type === 'siswa') data = db.absensiSiswa;
+            else if (type === 'payment') data = db.siswa.map(s => ({
+                ID: s.id,
+                Nama: s.name,
+                Kelas: s.kelas || '-',
+                Subject: Array.isArray(s.subject) ? s.subject.join(", ") : (s.subject || '-'),
+                Total_SPP: s.totalPayment || 0,
+                Tgl_Bayar: s.payDate || '-',
+                Phone: s.phone || '-',
+                Status: s.status || 'UNPAID'
+            }));
+
+        
+    </script>
+ </body>
+</html>
 </body>
 </html>
