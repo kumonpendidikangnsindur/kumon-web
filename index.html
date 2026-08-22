@@ -380,6 +380,390 @@
             XLSX.writeFile(wb, `Absensi_${type}_Kumon_${new Date().toLocaleDateString('id-ID')}.xlsx`);
         }
 
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Absensi Kumon Gunung Sindur 🎈</title>
+    <!-- Tailwind CSS & Fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+    <!-- SheetJS untuk Export Excel & HTML5-QRCode Scanner -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        body { font-family: 'Fredoka', sans-serif; background-color: #EBF8FF; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <header class="text-center mb-6">
+        <h1 class="text-3xl md:text-4xl font-bold text-sky-600 drop-shadow">🎈 Kumon Gunung Sindur 🎈</h1>
+        <p class="text-sky-400 font-semibold">Sistem Absensi Assistant & Siswa</p>
+    </header>
+
+    <!-- Navigasi Tab -->
+    <div class="flex justify-center gap-2 mb-6">
+        <button onclick="switchTab('assistant')" class="bg-sky-400 hover:bg-sky-500 text-white font-bold py-2 px-4 rounded-full shadow-md">👩‍🏫 Assistant</button>
+        <button onclick="switchTab('siswa')" class="bg-pink-400 hover:bg-pink-500 text-white font-bold py-2 px-4 rounded-full shadow-md">🎒 Siswa (QR)</button>
+        <button onclick="switchTab('owner')" class="bg-purple-400 hover:bg-purple-500 text-white font-bold py-2 px-4 rounded-full shadow-md">👑 Owner / Instructor</button>
+    </div>
+
+    <!-- TAB 1: ASSISTANT -->
+    <div id="tab-assistant" class="tab-content max-w-md mx-auto bg-white p-6 rounded-3xl shadow-xl border-4 border-sky-200">
+        <h2 class="text-2xl font-bold text-sky-500 mb-4 text-center">Login Assistant 🌸</h2>
+        <div id="assistant-login-box">
+            <select id="select-assistant" class="w-full p-3 border-2 border-sky-300 rounded-2xl mb-3 bg-sky-50 focus:outline-none">
+                <option value="">-- Pilih Nama Assistant --</option>
+            </select>
+            <input type="password" id="pass-assistant" placeholder="Masukkan Password" class="w-full p-3 border-2 border-sky-300 rounded-2xl mb-4 bg-sky-50 focus:outline-none">
+            <button onclick="loginAssistant()" class="w-full bg-sky-400 hover:bg-sky-500 text-white font-bold py-3 rounded-2xl shadow-md">Masuk</button>
+        </div>
+
+        <div id="assistant-dashboard" class="hidden text-center">
+            <p class="text-lg">Halo, <b id="ast-name" class="text-sky-600"></b>! 👋</p>
+            <div id="clock" class="text-3xl font-bold my-4 text-sky-500">00:00:00</div>
+
+            <div class="flex gap-2 mb-4">
+                <button onclick="checkInAssistant()" class="w-1/2 bg-green-400 hover:bg-green-500 text-white font-bold py-3 rounded-2xl shadow">Check In ☀️</button>
+                <button onclick="checkOutAssistant()" class="w-1/2 bg-orange-400 hover:bg-orange-500 text-white font-bold py-3 rounded-2xl shadow">Check Out 🌙</button>
+            </div>
+            <button onclick="logoutAssistant()" class="text-sm text-gray-400 underline">Ganti Akun / Logout</button>
+
+            <div class="mt-4 text-left text-sm bg-sky-50 p-3 rounded-xl border border-sky-200">
+                <p>Status Hari Ini:</p>
+                <p><b>Masuk:</b> <span id="ast-in">-</span> | <b>Keluar:</b> <span id="ast-out">-</span></p>
+                <p><b>Status:</b> <span id="ast-status" class="font-bold">-</span></p>
+                <p><b>Total Kerja:</b> <span id="ast-total">-</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 2: SISWA (QR CODE) -->
+    <div id="tab-siswa" class="tab-content hidden max-w-md mx-auto bg-white p-6 rounded-3xl shadow-xl border-4 border-pink-200 text-center">
+        <h2 class="text-2xl font-bold text-pink-500 mb-4">Scan QR Code Siswa 🎒</h2>
+        <div id="reader" class="w-full bg-gray-100 rounded-2xl overflow-hidden mb-4 border-2 border-pink-300"></div>
+        <p id="qr-result" class="text-pink-600 font-bold mb-4">Arahkan QR Code ke Kamera</p>
+    </div>
+
+    <!-- TAB 3: OWNER / INSTRUCTOR -->
+    <div id="tab-owner" class="tab-content hidden max-w-4xl mx-auto bg-white p-6 rounded-3xl shadow-xl border-4 border-purple-200">
+        <h2 class="text-2xl font-bold text-purple-600 mb-4 text-center">Panel Instructor 👑</h2>
+
+        <!-- Tambah Master Data -->
+        <div class="grid md:grid-cols-2 gap-4 mb-6">
+            <div class="bg-purple-50 p-4 rounded-2xl border border-purple-200">
+                <h3 class="font-bold text-purple-600 mb-2">Tambah / Atur Assistant</h3>
+                <input type="text" id="new-ast-name" placeholder="Nama Assistant Baru" class="w-full p-2 border rounded-xl mb-2">
+                <input type="password" id="new-ast-pass" placeholder="Password (Default: 1234)" class="w-full p-2 border rounded-xl mb-2">
+                <button onclick="addAssistant()" class="w-full bg-purple-400 text-white font-bold py-2 rounded-xl mb-4">Tambah Assistant</button>
+
+                <h4 class="font-bold text-sm text-purple-600 mb-1">Daftar Assistant & Password:</h4>
+                <ul id="list-assistant" class="text-sm space-y-2 max-h-40 overflow-y-auto"></ul>
+            </div>
+
+            <div class="bg-pink-50 p-4 rounded-2xl border border-pink-200">
+                <h3 class="font-bold text-pink-600 mb-2">Tambah Siswa</h3>
+                <input type="text" id="new-siswa-id" placeholder="ID Siswa (Contoh: KUMON01)" class="w-full p-2 border rounded-xl mb-1">
+                <input type="text" id="new-siswa-name" placeholder="Nama Siswa" class="w-full p-2 border rounded-xl mb-2">
+                <button onclick="addSiswa()" class="w-full bg-pink-400 text-white font-bold py-2 rounded-xl mb-4">Tambah Siswa</button>
+
+                <h4 class="font-bold text-sm text-pink-600 mb-1">Daftar Siswa:</h4>
+                <ul id="list-siswa" class="text-sm space-y-1 max-h-40 overflow-y-auto"></ul>
+            </div>
+        </div>
+
+        <!-- Export Data -->
+        <div class="text-center border-t border-purple-100 pt-4">
+            <h3 class="font-bold text-purple-600 mb-3">Unduh Rekap Absensi (.XLSX)</h3>
+            <div class="flex justify-center gap-4">
+                <button onclick="exportExcel('assistant')" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 px-6 rounded-2xl shadow">📥 Export Absensi Assistant</button>
+                <button onclick="exportExcel('siswa')" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 px-6 rounded-2xl shadow">📥 Export Absensi Siswa</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Database Sederhana via LocalStorage
+        let db = {
+            assistants: JSON.parse(localStorage.getItem('kumon_ast')) || [
+                { name: "Mbak Dian", pass: "1234" },
+                { name: "Mbak Maya", pass: "1234" }
+            ],
+            siswa: JSON.parse(localStorage.getItem('kumon_siswa')) || [{id: "KUMON01", name: "Budi"}],
+            absensiAst: JSON.parse(localStorage.getItem('kumon_abs_ast')) || [],
+            absensiSiswa: JSON.parse(localStorage.getItem('kumon_abs_siswa')) || []
+        };
+
+        let currentAst = null;
+        let html5QrcodeScanner = null;
+        let isOwnerUnlocked = false;
+
+        // Jam Realtime
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString('id-ID');
+        }, 1000);
+
+        function saveDB() {
+            localStorage.setItem('kumon_ast', JSON.stringify(db.assistants));
+            localStorage.setItem('kumon_siswa', JSON.stringify(db.siswa));
+            localStorage.setItem('kumon_abs_ast', JSON.stringify(db.absensiAst));
+            localStorage.setItem('kumon_abs_siswa', JSON.stringify(db.absensiSiswa));
+            renderLists();
+        }
+
+        function switchTab(tab) {
+            // Jika memilih tab owner dan belum unlocked, minta PIN 8888
+            if (tab === 'owner' && !isOwnerUnlocked) {
+                const pin = prompt("Masukkan PIN Owner / Instructor:");
+                if (pin === "8888") {
+                    isOwnerUnlocked = true;
+                } else {
+                    alert("PIN Salah! Akses ditolak.");
+                    return;
+                }
+            }
+
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tab}`).classList.remove('hidden');
+
+            if (tab === 'siswa') {
+                startQRScanner();
+            } else if (html5QrcodeScanner) {
+                html5QrcodeScanner.clear();
+            }
+        }
+
+        // --- LOGIC ASSISTANT ---
+        function renderAssistantOptions() {
+            const select = document.getElementById('select-assistant');
+            select.innerHTML = '<option value="">-- Pilih Nama Assistant --</option>';
+            db.assistants.forEach(ast => {
+                select.innerHTML += `<option value="${ast.name}">${ast.name}</option>`;
+            });
+        }
+
+        function loginAssistant() {
+            const name = document.getElementById('select-assistant').value;
+            const pass = document.getElementById('pass-assistant').value;
+
+            if (!name) return alert("Pilih nama terlebih dahulu!");
+            if (!pass) return alert("Masukkan password!");
+
+            const ast = db.assistants.find(a => a.name === name);
+            if (ast && ast.pass === pass) {
+                currentAst = name;
+                document.getElementById('ast-name').innerText = currentAst;
+                document.getElementById('assistant-login-box').classList.add('hidden');
+                document.getElementById('assistant-dashboard').classList.remove('hidden');
+                document.getElementById('pass-assistant').value = '';
+                updateAssistantUI();
+            } else {
+                alert("Password salah! Silakan coba lagi.");
+            }
+        }
+
+        function logoutAssistant() {
+            currentAst = null;
+            document.getElementById('assistant-login-box').classList.remove('hidden');
+            document.getElementById('assistant-dashboard').classList.add('hidden');
+        }
+
+        function checkInAssistant() {
+            const today = new Date().toLocaleDateString('id-ID');
+            let log = db.absensiAst.find(a => a.nama === currentAst && a.tanggal === today);
+
+            if (log) return alert("Anda sudah Check In hari ini!");
+
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+            // Logika Terlambat (lewat jam 11:00)
+            const isLate = (now.getHours() > 11) || (now.getHours() === 11 && now.getMinutes() >= 1);
+
+            db.absensiAst.push({
+                tanggal: today,
+                nama: currentAst,
+                masuk: timeStr,
+                keluar: "-",
+                status: isLate ? "Terlambat ⚠️" : "Tepat Waktu 📱",
+                totalJam: "-"
+            });
+
+            saveDB();
+            updateAssistantUI();
+        }
+
+        function checkOutAssistant() {
+            const today = new Date().toLocaleDateString('id-ID');
+            let log = db.absensiAst.find(a => a.nama === currentAst && a.tanggal === today);
+
+            if (!log) return alert("Anda belum Check In hari ini!");
+            if (log.keluar !== "-") return alert("Anda sudah Check Out hari ini!");
+
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+            // Hitung Durasi Kerja
+            const [hIn, mIn] = log.masuk.split('.').map(Number);
+            const totalMinutes = (now.getHours() * 60 + now.getMinutes()) - (hIn * 60 + mIn);
+            const hours = Math.floor(totalMinutes / 60);
+            const mins = totalMinutes % 60;
+
+            log.keluar = timeStr;
+            log.totalJam = `${hours} jam ${mins} menit`;
+
+            saveDB();
+            updateAssistantUI();
+        }
+
+        function updateAssistantUI() {
+            const today = new Date().toLocaleDateString('id-ID');
+            let log = db.absensiAst.find(a => a.nama === currentAst && a.tanggal === today);
+
+            if (log) {
+                document.getElementById('ast-in').innerText = log.masuk;
+                document.getElementById('ast-out').innerText = log.keluar;
+                document.getElementById('ast-status').innerText = log.status;
+                document.getElementById('ast-total').innerText = log.totalJam;
+            } else {
+                document.getElementById('ast-in').innerText = "-";
+                document.getElementById('ast-out').innerText = "-";
+                document.getElementById('ast-status').innerText = "-";
+                document.getElementById('ast-total').innerText = "-";
+            }
+        }
+
+        // --- LOGIC SISWA (QR CODE) ---
+        function startQRScanner() {
+            html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+            html5QrcodeScanner.render((decodedText) => {
+                const s = db.siswa.find(x => x.id === decodedText || x.name.toLowerCase() === decodedText.toLowerCase());
+
+                if (!s) {
+                    document.getElementById('qr-result').innerText = "❌ Siswa Tidak Ditemukan!";
+                    return;
+                }
+
+                const today = new Date().toLocaleDateString('id-ID');
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+                let log = db.absensiSiswa.find(a => a.id === s.id && a.tanggal === today && a.keluar === "-");
+
+                if (!log) {
+                    // Masuk
+                    db.absensiSiswa.push({
+                        tanggal: today,
+                        id: s.id,
+                        nama: s.name,
+                        masuk: timeStr,
+                        keluar: "-",
+                        total: "-"
+                    });
+                    document.getElementById('qr-result').innerText = `✅ Datang: ${s.name} (${timeStr})`;
+                } else {
+                    // Pulang
+                    const [hIn, mIn] = log.masuk.split('.').map(Number);
+                    const totalMins = (now.getHours() * 60 + now.getMinutes()) - (hIn * 60 + mIn);
+                    log.keluar = timeStr;
+                    log.total = `${totalMins} menit`;
+                    document.getElementById('qr-result').innerText = `👋 Pulang: ${s.name} (Durasi: ${totalMins} mnt)`;
+                }
+                saveDB();
+            });
+        }
+
+        // --- LOGIC OWNER / INSTRUCTOR ---
+        function addAssistant() {
+            const name = document.getElementById('new-ast-name').value.trim();
+            const pass = document.getElementById('new-ast-pass').value.trim() || "1234";
+
+            if (name) {
+                db.assistants.push({ name, pass });
+                document.getElementById('new-ast-name').value = '';
+                document.getElementById('new-ast-pass').value = '';
+                saveDB();
+                renderAssistantOptions();
+            }
+        }
+
+        function editPassAssistant(idx) {
+            const newPass = prompt(`Masukkan password baru untuk ${db.assistants[idx].name}:`);
+            if (newPass) {
+                db.assistants[idx].pass = newPass.trim();
+                saveDB();
+                alert("Password berhasil diperbarui!");
+            }
+        }
+
+        function removeAssistant(idx) {
+            if (confirm(`Yakin ingin menghapus ${db.assistants[idx].name}?`)) {
+                db.assistants.splice(idx, 1);
+                saveDB();
+                renderAssistantOptions();
+            }
+        }
+
+        function addSiswa() {
+            const id = document.getElementById('new-siswa-id').value.trim();
+            const name = document.getElementById('new-siswa-name').value.trim();
+            if (id && name) {
+                db.siswa.push({ id, name });
+                document.getElementById('new-siswa-id').value = '';
+                document.getElementById('new-siswa-name').value = '';
+                saveDB();
+            }
+        }
+
+        function removeSiswa(idx) {
+            if (confirm(`Yakin ingin menghapus ${db.siswa[idx].name}?`)) {
+                db.siswa.splice(idx, 1);
+                saveDB();
+            }
+        }
+
+        function renderLists() {
+            const listAst = document.getElementById('list-assistant');
+            listAst.innerHTML = '';
+            db.assistants.forEach((ast, i) => {
+                listAst.innerHTML += `
+                    <li class="flex justify-between items-center border-b pb-1">
+                        <span><b>${ast.name}</b> (Pass: <code class="bg-purple-100 px-1 rounded">${ast.pass}</code>)</span>
+                        <div class="flex gap-2">
+                            <button onclick="editPassAssistant(${i})" class="text-xs bg-yellow-400 text-white px-2 py-1 rounded">Ubah Pass</button>
+                            <button onclick="removeAssistant(${i})" class="text-xs bg-red-400 text-white px-2 py-1 rounded">✕</button>
+                        </div>
+                    </li>`;
+            });
+
+            const listSiswa = document.getElementById('list-siswa');
+            listSiswa.innerHTML = '';
+            db.siswa.forEach((s, i) => {
+                listSiswa.innerHTML += `
+                    <li class="flex justify-between items-center border-b pb-1">
+                        <span>[${s.id}] ${s.name}</span>
+                        <button onclick="removeSiswa(${i})" class="text-xs bg-red-400 text-white px-2 py-1 rounded">✕</button>
+                    </li>`;
+            });
+        }
+
+        // EXPORT TO EXCEL
+        function exportExcel(type) {
+            const data = type === 'assistant' ? db.absensiAst : db.absensiSiswa;
+            if (data.length === 0) return alert("Belum ada data absensi!");
+
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Absensi");
+            XLSX.writeFile(wb, `Absensi_${type}_Kumon_${new Date().toLocaleDateString('id-ID')}.xlsx`);
+        }
+
         
     </script>
     <!-- JavaScript & Firebase Logic -->
