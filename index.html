@@ -112,22 +112,11 @@
         <div id="reader" class="w-full bg-slate-50 rounded-2xl overflow-hidden mb-3 border-2 border-pink-200"></div>
         <p id="qr-result" class="text-pink-500 font-bold text-sm bg-pink-50 p-3 rounded-2xl border border-pink-200">Arahkan QR Code ke Kamera</p>
     </div>
-<div style="margin-top:20px; padding:15px; background:#f8f9ff; border-radius:12px">
-    <h3 style="text-align:center; color:#4a6cf7">Data Kehadiran Hari Ini</h3>
-    
-    <table id="tabelAbsenHariIni" style="width:100%; border-collapse:collapse; font-size:14px">
-        <thead style="background:#4a6cf7; color:white">
-            <tr>
-                <th style="padding:8px">ID</th>
-                <th style="padding:8px">Nama</th>
-                <th style="padding:8px">Kelas</th>
-                <th style="padding:8px">Status</th>
-                <th style="padding:8px">Jam</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr><td colspan="5" style="text-align:center; padding:10px">Belum ada yang absen</td></tr>
-        </tbody>
+<div id="boxTabelAbsen" style="display:none; margin-top:20px;">
+    <h3>📋 Data Kehadiran Hari Ini</h3>
+    <table id="tabelKehadiranHariIni">
+        <thead>...</thead>
+        <tbody>...</tbody>
     </table>
 </div>
     <!-- TAB 3: PAYMENT -->
