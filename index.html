@@ -691,7 +691,7 @@ function loadQRSelect() {
 
         select.innerHTML = '<option value="">-- Pilih Siswa --</option>';
 
-        db.ref('siswa').once('value').then((snapshot) => {
+        db.ref('/').once('value').then((snapshot) => {
             snapshot.forEach((child) => {
                 const s = child.val();
                 const opt = document.createElement('option');
