@@ -685,45 +685,35 @@
             XLSX.writeFile(wb, `Data_${type}_Kumon.xlsx`);
         }
 function loadQRSelect() {
-    try {
-        const select = document.getElementById('new-siswa-name');
-        if(!select) return;
+    const select = document.getElementById('qrSelectSiswa'); // <-- BENERIN ID
+    if(!select) return;
 
-        select.innerHTML = '<option value="">-- Pilih Siswa --</option>';
+    select.innerHTML = '<option value="">-- Pilih Siswa --</option>';
 
-        db.ref('/').once('value').then((snapshot) => {
-            snapshot.forEach((child) => {
-                const s = child.val();
-                const opt = document.createElement('option');
-                opt.value = s.id + '|' + s.name;
-                opt.textContent = s.name + ' - Kelas ' + s.kelas;
-                select.appendChild(opt);
-            });
-        });
-    } catch(e) {
-        console.log("Error loadQR:", e);
-    }
+    // TINGGAL TARIK DARI db.siswa LANGSUNG. GA USAH db.ref
+    db.siswa.forEach((s) => {
+        select.innerHTML += `<option value="${s.id}|${s.name}">${s.name} - Kelas ${s.kelas}</option>`;
+    });
 }
 
 function generateQR() {
-    try {
-        const select = document.getElementById('new-siswa-name');
-        const qrcodeDiv = document.getElementById('qrcode');
-        if(!select ||!qrcodeDiv) return;
+    const select = document.getElementById('qrSelectSiswa'); // <-- BENERIN ID
+    const qrcodeDiv = document.getElementById('qrcode');
+    if(!select || !qrcodeDiv) return;
 
-        if(select.value === '') { alert('Pilih siswa dulu!'); return; }
-
-        qrcodeDiv.innerHTML = '';
-        const [id] = select.value.split('|');
-
-        new QRCode(qrcodeDiv, {
-            text: id,
-            width: 200,
-            height: 200
-        });
-    } catch(e) {
-        alert("Error: " + e.message);
+    if(select.value === '') {
+        alert('Pilih siswa dulu!');
+        return;
     }
+
+    qrcodeDiv.innerHTML = '';
+    const [id, name] = select.value.split('|');
+
+    new QRCode(qrcodeDiv, {
+        text: id, // QR nya isi ID siswa aja
+        width: 200,
+        height: 200
+    });
 }
 </script>
 </body>
