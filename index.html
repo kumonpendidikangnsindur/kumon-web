@@ -633,5 +633,25 @@
         renderAssistantOptions();
         renderLists();
     </script>
+    <!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+  // Tempelkan konfigurasimu dari Console Firebase di sini
+  const firebaseConfig = {
+    apiKey: "PASTE_API_KEY_DI_SINI",
+    authDomain: "PASTE_AUTH_DOMAIN_DI_SINI",
+    databaseURL: "PASTE_DATABASE_URL_DI_SINI",
+    projectId: "PASTE_PROJECT_ID_DI_SINI",
+    storageBucket: "PASTE_STORAGE_BUCKET_DI_SINI",
+    messagingSenderId: "PASTE_SENDER_ID_DI_SINI",
+    appId: "PASTE_APP_ID_DI_SINI"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+</script>
+
 </body>
 </html>
