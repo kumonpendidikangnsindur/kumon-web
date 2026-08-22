@@ -684,18 +684,31 @@
             XLSX.utils.book_append_sheet(wb, ws, type.toUpperCase());
             XLSX.writeFile(wb, `Data_${type}_Kumon.xlsx`);
         }
+function switchTab(tab) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.getElementById(tab).classList.add('active');
+    
+    // Cuma load QR kalau tab nya qr
+    if(tab === 'qr') {
+        loadQRSelect();
+    }
+}
+
 function loadQRSelect() {
     const select = document.getElementById('qrSelectSiswa');
-    if(!select) return; // <-- pengaman. kalau id gaada dia berhenti
+    if(!select) { console.error("ID qrSelectSiswa tidak ditemukan"); return; } // pengaman
     
     select.innerHTML = '<option value="">-- Pilih Siswa --</option>';
     
     db.ref('siswa').once('value', (snapshot) => {
         snapshot.forEach((child) => {
             const s = child.val();
-            select.innerHTML += '<option value="${s.id}|${s.name}">${s.name} - Kelas ${s.kelas}</option>';
+            // pengaman kalau data kosong
+            if(s.name && s.id) {
+                select.innerHTML += <option value="${s.id}|${s.name}">${s.name} - Kelas ${s.kelas}</option>;
+            }
         });
-    }).catch(err => console.log(err));
+    }).catch(err => console.log("Error load siswa:", err));
 }
     </script>
 </body>
