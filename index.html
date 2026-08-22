@@ -713,13 +713,16 @@ function loadQRSelect() {
     });
 }
 
-const originalSwitchTab = window.switchTab;
-window.switchTab = function(tab) {
-    originalSwitchTab(tab);
-    if(tab === 'qr') {
-        setTimeout(loadQRSelect, 100); // kasih delay dikit biar tab nya kebuka dulu
+// Tunggu sampai semua JS ke-load baru override
+document.addEventListener('DOMContentLoaded', function() {
+    const originalSwitchTab = window.switchTab;
+    window.switchTab = function(tab) {
+        originalSwitchTab(tab);
+        if(tab === 'qr') {
+            setTimeout(loadQRSelect, 100); 
+        }
     }
-}
+});
     </script>
 </body>
 </html>
