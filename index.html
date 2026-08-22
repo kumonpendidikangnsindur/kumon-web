@@ -693,7 +693,7 @@ function loadQRSelect() {
     db.ref('siswa').once('value').then(snapshot => {
         snapshot.forEach(child => {
             const s = child.val();
-            select.innerHTML += <option value="${child.key}|${s.nama}">${s.nama}</option>;
+            select.innerHTML += `<option value="${child.key}|${s.nama}">${s.nama}</option>`;
         });
     });
 }
