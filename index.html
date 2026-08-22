@@ -111,12 +111,13 @@
         <h2 class="text-xl font-bold text-pink-500 mb-4 border-b-2 border-pink-100 pb-2">Scan QR Code Siswa 🎒</h2>
         <div id="reader" class="w-full bg-slate-50 rounded-2xl overflow-hidden mb-3 border-2 border-pink-200"></div>
         <p id="qr-result" class="text-pink-500 font-bold text-sm bg-pink-50 p-3 rounded-2xl border border-pink-200">Arahkan QR Code ke Kamera</p>
-
-<div id="boxHasilScan" style="display:none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9999; pointer-events: none;">
-    <div id="idCard" style="background: linear-gradient(135deg, #4CAF50, #2E7D32); color:white; border-radius:15px; padding:20px; box-shadow:0 8px 25px rgba(0,0,0,0.3); width: 350px; pointer-events: auto; animation: pop 0.3s ease;">
-        <div style="text-align:center; font-size:18px; font-weight:bold; margin-bottom:10px;">✅ ABSENSI BERHASIL</div>
-        <hr style="border:1px solid rgba(255,255,255,0.3);">
-        <div style="font-size:14px; line-height:2;">
+</div>
+        <!-- ID CARD HASIL SCAN -->
+<div id="boxHasilScan" style="display:none; position: fixed; top: 20px; right: 20px; z-index: 9999; pointer-events: none;">
+    <div id="idCard" style="background: linear-gradient(135deg, #4CAF50, #2E7D32); color:white; border-radius:15px; padding:15px; box-shadow:0 8px 25px rgba(0,0,0,0.3); width: 320px; border: 3px solid white;">
+        <div style="text-align:center; font-size:16px; font-weight:bold; margin-bottom:8px;">✅ ABSENSI BERHASIL</div>
+        <hr style="border:1px solid rgba(255,255,255,0.3); margin: 8px 0;">
+        <div style="font-size:13px; line-height:1.8;">
             <div><b>ID</b> : <span id="cardID"></span></div>
             <div><b>Nama</b> : <span id="cardNama"></span></div>
             <div><b>Kelas</b> : <span id="cardKelas"></span></div>
@@ -127,12 +128,6 @@
     </div>
 </div>
 
-<style>
-@keyframes pop {
-    0% { transform: scale(0.8); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
-}
-</style>
     <!-- TAB 3: PAYMENT -->
     <div id="tab-payment" class="tab-content hidden max-w-5xl mx-auto card-cute p-6 rounded-3xl border-emerald-200">
         <h2 class="text-xl font-bold text-emerald-600 mb-4 text-center border-b-2 border-emerald-100 pb-2">Status Pembayaran SPP Siswa 💳</h2>
