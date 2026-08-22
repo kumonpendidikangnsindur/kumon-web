@@ -684,31 +684,46 @@
             XLSX.utils.book_append_sheet(wb, ws, type.toUpperCase());
             XLSX.writeFile(wb, `Data_${type}_Kumon.xlsx`);
         }
-function switchTab(tab) {
-    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-    document.getElementById(tab).classList.add('active');
-    
-    // Cuma load QR kalau tab nya qr
-    if(tab === 'qr') {
-        loadQRSelect();
+function loadQRSelect() {
+    try {
+        const select = document.getElementById('qrSelectSiswa');
+        if(!select) return;
+
+        select.innerHTML = '<option value="">-- Pilih Siswa --</option>';
+
+        db.ref('siswa').once('value').then((snapshot) => {
+            snapshot.forEach((child) => {
+                const s = child.val();
+                const opt = document.createElement('option');
+                opt.value = s.id + '|' + s.name;
+                opt.textContent = s.name + ' - Kelas ' + s.kelas;
+                select.appendChild(opt);
+            });
+        });
+    } catch(e) {
+        console.log("Error loadQR:", e);
     }
 }
 
-function loadQRSelect() {
-    const select = document.getElementById('qrSelectSiswa');
-    if(!select) { console.error("ID qrSelectSiswa tidak ditemukan"); return; } // pengaman
-    
-    select.innerHTML = '<option value="">-- Pilih Siswa --</option>';
-    
-    db.ref('siswa').once('value', (snapshot) => {
-        snapshot.forEach((child) => {
-            const s = child.val();
-            // pengaman kalau data kosong
-            if(s.name && s.id) {
-                select.innerHTML += '<option value="${s.id}|${s.name}">${s.name} - Kelas ${s.kelas}</option>';
-            }
+function generateQR() {
+    try {
+        const select = document.getElementById('qrSelectSiswa');
+        const qrcodeDiv = document.getElementById('qrcode');
+        if(!select ||!qrcodeDiv) return;
+
+        if(select.value === '') { alert('Pilih siswa dulu!'); return; }
+
+        qrcodeDiv.innerHTML = '';
+        const [id] = select.value.split('|');
+
+        new QRCode(qrcodeDiv, {
+            text: id,
+            width: 200,
+            height: 200
         });
-    }).catch(err => console.log("Error load siswa:", err));
+    } catch(e) {
+        alert("Error: " + e.message);
+    }
 }
 </script>
 </body>
