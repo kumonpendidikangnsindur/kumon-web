@@ -447,11 +447,13 @@
             }
         }
 
-        function onScanSuccess(decodedText, decodedResult) {
+        const beepSound = new Audio("https://www.soundjay.com/buttons/sounds/beep-07.mp3");
+
+function onScanSuccess(decodedText, decodedResult) {
     const s = db.siswa.find(x => x.id === decodedText);
     if(!s){ 
         document.getElementById('qr-result').innerHTML = '❌ ID tidak dikenal';
-        beepSound.play(); // tetep bunyi walau salah
+        beepSound.play(); 
         return; 
     }
 
@@ -462,13 +464,17 @@
     let log = db.absensiSiswa.find(x => x.id === s.id && x.tanggal === today);
 
     if(!log){
-        // INI DATANG
+        // SCAN PERTAMA = DATANG
         db.absensiSiswa.push({
-            tanggal: today, id: s.id, nama: s.name, kelas: s.kelas || "-", masuk: timeStr
+            tanggal: today, 
+            id: s.id, 
+            nama: s.name,  // <-- pake "nama" biar sama ID Card
+            kelas: s.kelas || "-", 
+            masuk: timeStr
         });
         document.getElementById('qr-result').innerHTML = ✅ Datang (${today}): <b>${s.name}</b> (${timeStr});
     } else {
-        // INI PULANG
+        // SCAN KEDUA = PULANG
         const [hIn, mIn] = log.masuk.split(':').map(Number);
         const totalMins = (now.getHours() * 60 + now.getMinutes()) - (hIn * 60 + mIn);
         log.keluar = timeStr;
@@ -476,13 +482,9 @@
         document.getElementById('qr-result').innerHTML = 👋 Pulang (${today}): <b>${s.name}</b> (${timeStr});
     }
 
-    // INI 4 BARIS WAJIB ADA DI BAWAH
-    beepSound.play(); // 1. BUNYI TUT
-    saveDB(); // 2. SIMPAN
-    tampilkanHasilScanTerakhir(); // 3. MUNCULIN ID CARD
-    html5QrcodeScanner.clear(); // 4. STOP SCAN
-    setTimeout(()=> html5QrcodeScanner.render(onScanSuccess), 2000); // 5. NYALAIN LAGI 2 DETIK
-}
+    // 5 LANGKAH WAJIB
+    beepSound.play(); 
+    saveDB(); // INI WAJIB BIAR MASUK
 
         // --- PAYMENT LOGIC ---
         function renderPaymentTable() {
