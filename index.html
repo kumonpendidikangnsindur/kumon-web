@@ -478,8 +478,10 @@
                     document.getElementById('qr-result').innerHTML = `👋 Pulang (${today}): <b>${s.name}</b> (${totalMins} mnt)`;
                 }
                 saveDB();
-            });
-        }
+tampilkanHasilScanTerakhir();
+html5QrcodeScanner.clear();
+setTimeout(()=> html5QrcodeScanner.render(onScanSuccess), 2000);
+});
 
         // --- PAYMENT LOGIC ---
         function renderPaymentTable() {
