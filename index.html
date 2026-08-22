@@ -732,6 +732,33 @@ function generateQR() {
         height: 200
     });
 }
-</script>
+function loadTabelAbsenHariIni(){
+    let tbody = document.querySelector("#tabelAbsenHariIni tbody");
+    let tanggalHariIni = new Date().toLocaleDateString('id-ID');
+    
+    let dataHariIni = db.absensi.filter(a => a.tanggal === tanggalHariIni);
+    
+    if(dataHariIni.length === 0){
+        tbody.innerHTML = <tr><td colspan="5" style="text-align:center; padding:10px">Belum ada yang absen</td></tr>;
+        return;
+    }
+
+    tbody.innerHTML = "";
+    dataHariIni.forEach(a => {
+        tbody.innerHTML += `
+        <tr style="border-bottom:1px solid #ddd">
+            <td style="padding:8px">${a.siswaId}</td>
+            <td style="padding:8px">${a.nama}</td>
+            <td style="padding:8px">${a.kelas}</td>
+            <td style="padding:8px; color:green"><b>${a.status}</b></td>
+            <td style="padding:8px">${a.jamMasuk}</td>
+        </tr>`;
+    });
+}
+
+// Panggil pas halaman dibuka
+loadTabelAbsenHariIni();
+// === SELESAI STEP 2 ===
+    </script>
 </body>
 </html>
