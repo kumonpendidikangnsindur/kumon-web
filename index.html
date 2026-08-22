@@ -710,24 +710,6 @@ function loadQRSelect() {
         });
     }).catch(err => console.log("Error load siswa:", err));
 }
-    function generateQR() {
-    const select = document.getElementById('qrSelectSiswa');
-    const qrcodeDiv = document.getElementById('qrcode');
-    
-    if(select.value === '') {
-        alert('Pilih siswa dulu!');
-        return;
-    }
-    
-    const [id, nama] = select.value.split('|');
-    qrcodeDiv.innerHTML = ''; // hapus QR lama
-    
-    new QRCode(qrcodeDiv, {
-        text: id, // QR nya isinya ID siswa: "2"
-        width: 200,
-        height: 200
-    });
-}
     </script>
 </body>
 </html>
