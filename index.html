@@ -660,7 +660,13 @@
                 Phone: s.phone || '-',
                 Status: s.status || 'UNPAID'
             }));
-
+ if (data.length === 0) return alert("Belum ada data untuk di-export!");
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, type.toUpperCase());
+            XLSX.writeFile(wb, Data_${type}_Kumon.xlsx);
+        } // <-- TAMBAH INI
+    </script> // <-- TAMBAH INI
         
     </script>
  </body>
