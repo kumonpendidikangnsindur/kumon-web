@@ -229,14 +229,14 @@
     <!-- JavaScript & Firebase Logic -->
     <script>
         const firebaseConfig = {
-    apiKey: "AIzaSyCeOv9ML5JIMNZ9cID5vUZmWSW_WVHI5tI",
-    authDomain: "kumon-pendidikan-gunung-sindur.firebaseapp.com",
-    databaseURL: "https://kumon-pendidikan-gunung-sindur-default-rtdb.asia-southeast1.firebasedatabase.app", // GANTI INI
-    projectId: "kumon-pendidikan-gunung-sindur",
-    storageBucket: "kumon-pendidikan-gunung-sindur.firebasestorage.app",
-    messagingSenderId: "915307579186",
-    appId: "1:915307579186:web:6a3389b7c316abed4b792b"
-};
+            apiKey: "AIzaSyCeOv9ML5JIMNZ9cID5vUZmWSW_WVHI5tI",
+            authDomain: "kumon-app.firebaseapp.com",
+            databaseURL: "https://kumon-app-default-rtdb.firebaseio.com",
+            projectId: "kumon-app",
+            storageBucket: "kumon-app.appspot.com",
+            messagingSenderId: "915307579186",
+            appId: "1:915307579186:web:6a3389b7c316abed4b792b"
+        };
 
         firebase.initializeApp(firebaseConfig);
         const dbRef = firebase.database();
@@ -393,7 +393,7 @@
             const now = new Date();
             const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
 
-            const [hIn, mIn] = log.masuk.split(':').map(Number);
+            const [hIn, mIn] = log.masuk.split('.').map(Number);
             const totalMinutes = (now.getHours() * 60 + now.getMinutes()) - (hIn * 60 + mIn);
             const hours = Math.floor(totalMinutes / 60);
             const mins = totalMinutes % 60;
@@ -447,7 +447,7 @@
                     });
                     document.getElementById('qr-result').innerHTML = `✅ Datang (${today}): <b>${s.name}</b> (${timeStr})`;
                 } else {
-                    const [hIn, mIn] = log.masuk.split(':').map(Number);
+                    const [hIn, mIn] = log.masuk.split('.').map(Number);
                     const totalMins = (now.getHours() * 60 + now.getMinutes()) - (hIn * 60 + mIn);
                     log.keluar = timeStr;
                     log.total = `${totalMins} menit`;
@@ -661,7 +661,192 @@
                 Status: s.status || 'UNPAID'
             }));
 
-        
+            if (data.length === 0) return alert("Belum ada data untuk di-export!");
+
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, type.toUpperCase());
+            XLSX.writeFile(wb, `Data_${type}_Kumon.xlsx`);
+        }
     </script>
- </body>
+ <!-- Firebase SDK (ES Module) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue, push, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // Firebase Configuration milik Kumon Pendidikan Gunung Sindur
+        const firebaseConfig = {
+            apiKey: "AIzaSyCeOv9ML5JIMNZ9cID5vUZmWSW_WVHI5tI",
+            authDomain: "kumon-pendidikan-gunung-sindur.firebaseapp.com",
+            databaseURL: "https://kumon-pendidikan-gunung-sindur-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "kumon-pendidikan-gunung-sindur",
+            storageBucket: "kumon-pendidikan-gunung-sindur.firebasestorage.app",
+            messagingSenderId: "915307579186",
+            appId: "1:915307579186:web:6a3389b7c316abed4b792b",
+            measurementId: "G-VKEDQ2XNP1"
+        };
+
+        // Inisialisasi Firebase & Database
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // --- 1. SINKRONISASI REALTIME SISWA & SPP ---
+        const siswaRef = ref(db, 'siswa');
+        onValue(siswaRef, (snapshot) => {
+            const data = snapshot.val();
+            const tbody = document.getElementById("tbodySiswa");
+            tbody.innerHTML = "";
+
+            if (data) {
+                let no = 1;
+                Object.keys(data).forEach((key) => {
+                    const item = data[key];
+                    const tr = document.createElement("tr");
+
+                    const isLunas = item.status === 'Lunas';
+                    const badgeClass = isLunas ? 'bg-success' : 'bg-danger';
+
+                    tr.innerHTML = `
+                        <td>${no++}</td>
+                        <td><strong>${item.idSiswa || '-'}</strong></td>
+                        <td>${item.nama || '-'}</td>
+                        <td>${item.kelas || '-'}</td>
+                        <td>${item.subject || '-'}</td>
+                        <td>Rp ${Number(item.spp || 0).toLocaleString('id-ID')}</td>
+                        <td>
+                            <span class="badge ${badgeClass} status-badge p-2" onclick="toggleSPP('${key}', '${item.status}')">
+                                ${item.status || 'Belum Lunas'}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-danger" onclick="hapusSiswa('${key}')">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } else {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">Belum ada data siswa. Silakan tambah siswa di bawah.</td></tr>`;
+            }
+        });
+
+        // --- 2. SINKRONISASI REALTIME DAFTAR ASSISTANT ---
+        const assistantRef = ref(db, 'assistant');
+        onValue(assistantRef, (snapshot) => {
+            const data = snapshot.val();
+            const select = document.getElementById("selectAssistant");
+            select.innerHTML = `<option value="">-- Pilih Nama --</option>`;
+
+            if (data) {
+                Object.keys(data).forEach(key => {
+                    const option = document.createElement("option");
+                    option.value = data[key].nama;
+                    option.textContent = data[key].nama;
+                    select.appendChild(option);
+                });
+            }
+        });
+
+        // --- 3. FUNGSI TAMBAH SISWA BARU ---
+        document.getElementById("formTambahSiswa").addEventListener("submit", (e) => {
+            e.preventDefault();
+            const idSiswa = document.getElementById("addIdSiswa").value.trim();
+            const nama = document.getElementById("addNamaSiswa").value.trim();
+            const kelas = document.getElementById("addKelasSiswa").value.trim();
+            const subject = document.getElementById("addSubject").value.trim();
+            const spp = document.getElementById("addSpp").value;
+
+            set(ref(db, 'siswa/' + idSiswa), {
+                idSiswa: idSiswa,
+                nama: nama,
+                kelas: kelas,
+                subject: subject,
+                spp: spp,
+                status: 'Belum Lunas',
+                updatedAt: new Date().toISOString()
+            }).then(() => {
+                alert("✨ Siswa berhasil ditambahkan ke database!");
+                document.getElementById("formTambahSiswa").reset();
+            }).catch(err => alert("Gagal menyimpan: " + err.message));
+        });
+
+        // --- 4. FUNGSI TOGGLE STATUS SPP & HAPUS SISWA ---
+        window.toggleSPP = function(key, currentStatus) {
+            const statusNew = currentStatus === 'Lunas' ? 'Belum Lunas' : 'Lunas';
+            set(ref(db, `siswa/${key}/status`), statusNew);
+        };
+
+        window.hapusSiswa = function(key) {
+            if (confirm("Apakah Anda yakin ingin menghapus data siswa ini?")) {
+                remove(ref(db, `siswa/${key}`));
+            }
+        };
+
+        // --- 5. FUNGSI TAMBAH ASSISTANT ---
+        document.getElementById("btnTambahAssistant").addEventListener("click", () => {
+            const namaAss = document.getElementById("inputNamaAssistantBaru").value.trim();
+            if (!namaAss) return alert("Masukkan nama assistant!");
+
+            const newRef = push(ref(db, 'assistant'));
+            set(newRef, { nama: namaAss }).then(() => {
+                document.getElementById("inputNamaAssistantBaru").value = "";
+            });
+        });
+
+        // --- 6. FUNGSI ABSENSI (SCAN QR & CHECK IN/OUT) ---
+        window.catatAbsensi = function(idSiswa, statusCheck) {
+            const hariIni = new Date().toISOString().split('T')[0];
+            const newAbsenRef = push(ref(db, `absensi/${hariIni}`));
+
+            set(newAbsenRef, {
+                idSiswa: idSiswa,
+                waktu: new Date().toLocaleTimeString('id-ID'),
+                status: statusCheck
+            }).then(() => {
+                alert(`✅ Absensi ${statusCheck} untuk ${idSiswa} berhasil dicatat!`);
+            });
+        };
+
+        // QR Scanner Setup
+        function onScanSuccess(decodedText) {
+            catatAbsensi(decodedText, 'Check In');
+        }
+        let html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+        html5QrcodeScanner.render(onScanSuccess);
+
+        // --- 7. EXPORT DATA KE EXCEL (.XLSX) ---
+        document.getElementById("btnDownloadExcel").addEventListener("click", () => {
+            onValue(ref(db, 'siswa'), (snapshot) => {
+                const data = snapshot.val();
+                if (!data) return alert("Tidak ada data untuk diunduh!");
+
+                const rows = [];
+                let no = 1;
+                Object.keys(data).forEach(key => {
+                    const item = data[key];
+                    rows.push({
+                        "No": no++,
+                        "ID Siswa": item.idSiswa,
+                        "Nama Siswa": item.nama,
+                        "Kelas": item.kelas,
+                        "Subject": item.subject,
+                        "Total SPP (Rp)": item.spp,
+                        "Status Pembayaran": item.status
+                    });
+                });
+
+                const worksheet = XLSX.utils.json_to_sheet(rows);
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, "Rekap SPP");
+                XLSX.writeFile(workbook, "Rekap_SPP_Kumon_Gunung_Sindur.xlsx");
+            }, { onlyOnce: true });
+        });
+
+        // Jam Digital
+        setInterval(() => {
+            document.getElementById("jamClock").textContent = new Date().toLocaleTimeString('id-ID');
+        }, 1000);
+    </script>
+</body>
 </html>
