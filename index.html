@@ -724,5 +724,140 @@
     });
   };
 </script>
+    <!-- Library SheetJS untuk fitur Download Excel -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<!-- Script Firebase Realtime Integrasi -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getDatabase, ref, onValue, set, push, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+  // Configuration dari Firebase Console Anda
+  const firebaseConfig = {
+    apiKey: "AIzaSyCeOv9ML5JIMNZ9cID5vUZmWSW_WVHI5tI",
+    authDomain: "kumon-pendidikan-gunung-sindur.firebaseapp.com",
+    databaseURL: "https://kumon-pendidikan-gunung-sindur-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "kumon-pendidikan-gunung-sindur",
+    storageBucket: "kumon-pendidikan-gunung-sindur.firebasestorage.app",
+    messagingSenderId: "915307579186",
+    appId: "1:915307579186:web:6a3389b7c316abed4b792b",
+    measurementId: "G-VKEDQ2XNP1"
+  };
+
+  // Inisialisasi Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // ========================================================
+  // 1. OTOMATIS RENDER TABEL SPP / SISWA SECARA REALTIME
+  // ========================================================
+  const siswaRef = ref(db, 'siswa');
+
+  onValue(siswaRef, (snapshot) => {
+    const data = snapshot.val();
+    const tbody = document.querySelector("table tbody"); // Targetkan elemen tbody pada tabel SPP
+
+    if (!tbody) return;
+    tbody.innerHTML = ""; // Bersihkan tabel sebelum diisi ulang
+
+    if (data) {
+      let no = 1;
+      Object.keys(data).forEach((key) => {
+        const item = data[key];
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+          <td>${no++}</td>
+          <td>${item.idSiswa || '-'}</td>
+          <td>${item.nama || '-'}</td>
+          <td>${item.kelas || '-'}</td>
+          <td>${item.subject || '-'}</td>
+          <td>Rp ${Number(item.spp || 0).toLocaleString('id-ID')}</td>
+          <td>
+            <span class="badge ${item.status === 'Lunas' ? 'bg-success' : 'bg-danger'}">
+              ${item.status || 'Belum Lunas'}
+            </span>
+          </td>
+          <td>
+            <button onclick="toggleStatusSPP('${key}', '${item.status}')" class="btn btn-sm btn-outline-primary">
+              Ubah Status
+            </button>
+            <button onclick="hapusSiswa('${key}')" class="btn btn-sm btn-outline-danger">
+              Hapus
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    } else {
+      tbody.innerHTML = `<tr><td colspan="8" class="text-center">Belum ada data siswa.</td></tr>`;
+    }
+  });
+
+  // ========================================================
+  // 2. FUNGSI TAMBAH SISWA BARU KE FIREBASE
+  // ========================================================
+  window.tambahSiswaFirebase = function(idSiswa, nama, kelas, subject, spp) {
+    const newSiswaRef = ref(db, 'siswa/' + idSiswa);
+    set(newSiswaRef, {
+      idSiswa: idSiswa,
+      nama: nama,
+      kelas: kelas,
+      subject: subject,
+      spp: spp,
+      status: 'Belum Lunas',
+      createdAt: new Date().toISOString()
+    }).then(() => {
+      alert("Data siswa berhasil ditambahkan & ter-update di semua device!");
+    }).catch(err => alert("Gagal menyimpan: " + err.message));
+  };
+
+  // ========================================================
+  // 3. FUNGSI UBAH STATUS SPP & HAPUS DATA
+  // ========================================================
+  window.toggleStatusSPP = function(key, statusSekarang) {
+    const statusBaru = statusSekarang === 'Lunas' ? 'Belum Lunas' : 'Lunas';
+    set(ref(db, `siswa/${key}/status`), statusBaru);
+  };
+
+  window.hapusSiswa = function(key) {
+    if (confirm("Apakah Anda yakin ingin menghapus data siswa ini?")) {
+      remove(ref(db, `siswa/${key}`));
+    }
+  };
+
+  // ========================================================
+  // 4. UNDUH REKAP SPP & ABSENSI KE FILE EXCEL (.XLSX)
+  // ========================================================
+  window.unduhRekapExcel = function() {
+    onValue(ref(db, 'siswa'), (snapshot) => {
+      const data = snapshot.val();
+      if (!data) {
+        alert("Tidak ada data untuk diunduh!");
+        return;
+      }
+
+      const rows = [];
+      let no = 1;
+      Object.keys(data).forEach(key => {
+        const item = data[key];
+        rows.push({
+          "No": no++,
+          "ID Siswa": item.idSiswa,
+          "Nama Siswa": item.nama,
+          "Kelas": item.kelas,
+          "Subject": item.subject,
+          "Total SPP": item.spp,
+          "Status Payment": item.status
+        });
+      });
+
+      const worksheet = XLSX.utils.json_to_sheet(rows);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Rekap SPP Siswa");
+      XLSX.writeFile(workbook, "Rekap_Kumon_Gunung_Sindur.xlsx");
+    }, { onlyOnce: true });
+  };
+</script>
 </body>
 </html>
