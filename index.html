@@ -732,26 +732,33 @@ function generateQR() {
     });
 }
    function tampilkanHasilScanTerakhir(){
-    const box = document.getElementById("boxHasilScan");
+    const box = document.getElementById("boxHasilScan"); // fix typo l
     const dataTerakhir = db.absensiSiswa[db.absensiSiswa.length - 1];
-
-    if(!dataTerakhir) {
-        box.style.display = "none";
-        return;
+    
+    if(!dataTerakhir) { 
+        box.style.display = "none"; 
+        return; 
     }
-
+    
     box.style.display = "block"; // munculin kartu
-
+    
     const tgl = dataTerakhir.tanggal || new Date().toISOString().split('T')[0];
+    const status = dataTerakhir.keluar? "Pulang" : "Hadir"; // cek pulang/hadir
+    const jam = dataTerakhir.keluar || dataTerakhir.masuk; // kalau pulang pake jam keluar
 
     // Isi data ke kartu
     document.getElementById("cardID").innerText = dataTerakhir.id;
-    document.getElementById("cardNama").innerText = dataTerakhir.name;
+    document.getElementById("cardNama").innerText = dataTerakhir.name; // kalau di DB kamu "nama" ganti jadi dataTerakhir.nama
     document.getElementById("cardKelas").innerText = dataTerakhir.kelas;
     document.getElementById("cardTanggal").innerText = tgl;
-    document.getElementById("cardStatus").innerText = "Hadir";
-    document.getElementById("cardJam").innerText = dataTerakhir.masuk;
-} //
+    document.getElementById("cardStatus").innerText = status;
+    document.getElementById("cardJam").innerText = jam;
+    
+    // AUTO ILANG 3 DETIK
+    setTimeout(() => { 
+        box.style.display = "none"; 
+    }, 3000); 
+}
     </script>
 </body>
 </html>
