@@ -447,15 +447,16 @@
             }
         }
 function startQRScanner() {
-    if (html5QrcodeScanner) {
+    if (html5QrcodeScanner) { // FIX: l bukan angka 1
         try { html5QrcodeScanner.clear(); } catch(e){}
     }
-    html5QrcodeScanner = new Html5QrcodeScanner(
+    html5QrcodeScanner = new Html5QrcodeScanner( // FIX: l bukan angka 1
         "reader", { fps: 10, qrbox: 250 }
     );
     html5QrcodeScanner.render(onScanSuccess);
 }
-        const beepSound = new Audio("https://www.soundjay.com/buttons/sounds/beep-07.mp3");
+
+const beepSound = new Audio("https://www.soundjay.com/buttons/sounds/beep-07.mp3");
 
 function onScanSuccess(decodedText, decodedResult) {
     const s = db.siswa.find(x => x.id === decodedText);
@@ -472,17 +473,15 @@ function onScanSuccess(decodedText, decodedResult) {
     let log = db.absensiSiswa.find(x => x.id === s.id && x.tanggal === today);
 
     if(!log){
-        // SCAN PERTAMA = DATANG
         db.absensiSiswa.push({
             tanggal: today, 
             id: s.id, 
-            nama: s.name,  // <-- pake "nama" biar sama ID Card
+            nama: s.name, 
             kelas: s.kelas || "-", 
             masuk: timeStr
         });
         document.getElementById('qr-result').innerHTML = ✅ Datang (${today}): <b>${s.name}</b> (${timeStr});
     } else {
-        // SCAN KEDUA = PULANG
         const [hIn, mIn] = log.masuk.split(':').map(Number);
         const totalMins = (now.getHours() * 60 + now.getMinutes()) - (hIn * 60 + mIn);
         log.keluar = timeStr;
@@ -492,7 +491,11 @@ function onScanSuccess(decodedText, decodedResult) {
 
     // 5 LANGKAH WAJIB
     beepSound.play(); 
-    saveDB(); // INI WAJIB BIAR MASUK
+    saveDB(); 
+    tampilkanHasilScanTerakhir(); 
+    html5QrcodeScanner.clear(); 
+    setTimeout(()=> html5QrcodeScanner.render(onScanSuccess), 2000);
+} // <- INI KURUNG PENUTUP WAJIB
 
         // --- PAYMENT LOGIC ---
         function renderPaymentTable() {
