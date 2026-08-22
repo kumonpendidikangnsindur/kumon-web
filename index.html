@@ -447,41 +447,42 @@
             }
         }
 
-        function startQRScanner() {
-            html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 220 });
-            html5QrcodeScanner.render((decodedText) => {
-                const s = db.siswa.find(x => x.id === decodedText || x.name.toLowerCase() === decodedText.toLowerCase());
-                
-                if (!s) {
-                    document.getElementById('qr-result').innerText = "❌ ID Siswa Tidak Ditemukan!";
-                    return;
-                }
+        function onScanSuccess(decodedText, decodedResult) {
+    const s = db.siswa.find(x => x.id === decodedText);
+    if(!s){ 
+        document.getElementById('qr-result').innerHTML = '❌ ID tidak dikenal';
+        beepSound.play(); // tetep bunyi walau salah
+        return; 
+    }
 
-                const today = new Date().toLocaleDateString('id-ID');
-                const now = new Date();
-                const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+    const now = new Date();
+    const today = now.toLocaleDateString('id-ID');
+    const timeStr = now.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
 
-                let log = db.absensiSiswa.find(a => a.id === s.id && a.tanggal === today && a.keluar === "-");
+    let log = db.absensiSiswa.find(x => x.id === s.id && x.tanggal === today);
 
-                const subjectText = Array.isArray(s.subject) ? s.subject.join(", ") : (s.subject || "-");
+    if(!log){
+        // INI DATANG
+        db.absensiSiswa.push({
+            tanggal: today, id: s.id, nama: s.name, kelas: s.kelas || "-", masuk: timeStr
+        });
+        document.getElementById('qr-result').innerHTML = ✅ Datang (${today}): <b>${s.name}</b> (${timeStr});
+    } else {
+        // INI PULANG
+        const [hIn, mIn] = log.masuk.split(':').map(Number);
+        const totalMins = (now.getHours() * 60 + now.getMinutes()) - (hIn * 60 + mIn);
+        log.keluar = timeStr;
+        log.total = ${totalMins} menit;
+        document.getElementById('qr-result').innerHTML = 👋 Pulang (${today}): <b>${s.name}</b> (${timeStr});
+    }
 
-                if (!log) {
-                    db.absensiSiswa.push({
-                        tanggal: today, id: s.id, nama: s.name, kelas: s.kelas || "-", subject: subjectText, masuk: timeStr, keluar: "-", total: "-"
-                    });
-                    document.getElementById('qr-result').innerHTML = `✅ Datang (${today}): <b>${s.name}</b> (${timeStr})`;
-                } else {
-                    const [hIn, mIn] = log.masuk.split('.').map(Number);
-                    const totalMins = (now.getHours() * 60 + now.getMinutes()) - (hIn * 60 + mIn);
-                    log.keluar = timeStr;
-                    log.total = `${totalMins} menit`;
-                    document.getElementById('qr-result').innerHTML = `👋 Pulang (${today}): <b>${s.name}</b> (${totalMins} mnt)`;
-                }
-                saveDB();
-tampilkanHasilScanTerakhir();
-html5QrcodeScanner.clear();
-setTimeout(()=> html5QrcodeScanner.render(onScanSuccess), 2000);
-});
+    // INI 4 BARIS WAJIB ADA DI BAWAH
+    beepSound.play(); // 1. BUNYI TUT
+    saveDB(); // 2. SIMPAN
+    tampilkanHasilScanTerakhir(); // 3. MUNCULIN ID CARD
+    html5QrcodeScanner.clear(); // 4. STOP SCAN
+    setTimeout(()=> html5QrcodeScanner.render(onScanSuccess), 2000); // 5. NYALAIN LAGI 2 DETIK
+}
 
         // --- PAYMENT LOGIC ---
         function renderPaymentTable() {
