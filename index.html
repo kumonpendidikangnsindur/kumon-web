@@ -713,11 +713,12 @@ function loadQRSelect() {
     });
 }
 
-// biar pas buka tab QR, dropdown nya otomatis keisi
-const oldSwitchTab = switchTab;
-switchTab = function(tab) {
-    oldSwitchTab(tab);
-    if(tab === 'qr') loadQRSelect();
+const originalSwitchTab = window.switchTab;
+window.switchTab = function(tab) {
+    originalSwitchTab(tab);
+    if(tab === 'qr') {
+        setTimeout(loadQRSelect, 100); // kasih delay dikit biar tab nya kebuka dulu
+    }
 }
     </script>
 </body>
