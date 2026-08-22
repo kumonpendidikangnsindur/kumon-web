@@ -683,46 +683,7 @@
             XLSX.utils.book_append_sheet(wb, ws, type.toUpperCase());
             XLSX.writeFile(wb, `Data_${type}_Kumon.xlsx`);
         }
-        // === QR CODE GENERATE ===
-function generateQR() {
-    const select = document.getElementById('qrSelectSiswa');
-    const siswaId = select.value;
-    const siswa = db.siswa.find(s => s.id === siswaId);
-    if (!siswa) return alert("Pilih siswa dulu!");
-    
-    document.getElementById('qrcode').innerHTML = ""; 
-    
-    // FORMAT QR: harus sama dengan scanner kamu
-    // Kalau scanner baca "ID|NAMA" pake ini:
-    const qrData = siswa.id + "|" + siswa.name; 
 
-    new QRCode(document.getElementById("qrcode"), {
-        text: qrData,
-        width: 256,
-        height: 256,
-        colorDark : "#000",
-        colorLight : "#ffffff"
-    });
-}
-
-function loadQRSelect() {
-    const select = document.getElementById('qrSelectSiswa');
-    select.innerHTML = '<option value="">-- Pilih Siswa --</option>';
-    db.siswa.forEach(s => {
-        select.innerHTML += <option value="${s.id}">${s.id} - ${s.name}</option>;
-    });
-}
-
-// Tunggu sampai semua JS ke-load baru override
-document.addEventListener('DOMContentLoaded', function() {
-    const originalSwitchTab = window.switchTab;
-    window.switchTab = function(tab) {
-        originalSwitchTab(tab);
-        if(tab === 'qr') {
-            setTimeout(loadQRSelect, 100); 
-        }
-    }
-});
     </script>
 </body>
 </html>
