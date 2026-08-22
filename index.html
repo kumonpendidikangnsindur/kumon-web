@@ -531,7 +531,12 @@
                 if (parts.length === 3) dateInfo = ` untuk tanggal ${parts[2]}/${parts[1]}/${parts[0]}`;
             }
 
-            const message = `Halo Ayah/Bunda ${s.name}, Ingin mengingatkan pembayaran SPP Kumon Pendidikan - Gunung Sindur bulan selanjutnya. Subject (${subjectStr}) dengan nominal Rp ${totalFormatted}. Mohon konfirmasinya jika sudah melakukan pembayaran.\n\nTerima Kasih\n_Kumon Pendidikan - Gunung Sindur_`;
+            const message = `Halo Ayah/Bunda ${s.name}, Ingin mengingatkan pembayaran SPP Kumon Pendidikan - Gunung Sindur bulan selanjutnya. 
+            Subject (${subjectStr}) dengan nominal Rp ${totalFormatted} dapat di transfer ke Rek BCA 8691948544 a/n Ardini Suciati.
+            
+            Mohon konfirmasinya jika sudah melakukan pembayaran.
+            \n\nTerima Kasih\n
+            _Kumon Pendidikan - Gunung Sindur_`;
             
             const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
             window.open(url, '_blank');
