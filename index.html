@@ -55,6 +55,9 @@
         <button onclick="switchTab('owner')" id="btn-owner" class="bg-purple-400 hover:bg-purple-500 text-white font-bold py-2.5 px-4 rounded-2xl shadow-md transition transform hover:-translate-y-0.5 text-sm">
             👑 Instructor 
         </button>
+        <button onclick="switchTab('qr')" id="btn-qr" class="bg-orange-400 hover:bg-orange-500 text-white font-bold py-2 px-4 rounded-lg shadow">
+    📱 QR Absensi
+</button>
     </div>
 
     <!-- TAB 1: ASSISTANT -->
@@ -225,7 +228,14 @@
             </div>
         </div>
     </div>
-
+<!-- TAB QR GENERATE -->
+<div id="tab-qr" class="tab-content max-w-md mx-auto card-cute p-6 rounded-3xl hidden">
+    <h2 class="text-xl font-bold text-orange-500 mb-4 text-center">Generate QR Absensi Siswa</h2>
+    <label class="font-semibold">Pilih Siswa:</label>
+    <select id="qrSelectSiswa" class="w-full p-2 border rounded-lg mb-3"></select>
+    <button onclick="generateQR()" class="w-full bg-orange-400 hover:bg-orange-500 text-white font-bold py-2 px-4 rounded-lg">Buat QR</button>
+    <div id="qrcode" class="mt-5 flex justify-center p-4 bg-white rounded-xl"></div>
+</div>
     <!-- JavaScript & Firebase Logic -->
     <script>
         const firebaseConfig = {
@@ -673,6 +683,42 @@
             XLSX.utils.book_append_sheet(wb, ws, type.toUpperCase());
             XLSX.writeFile(wb, `Data_${type}_Kumon.xlsx`);
         }
+        // === QR CODE GENERATE ===
+function generateQR() {
+    const select = document.getElementById('qrSelectSiswa');
+    const siswaId = select.value;
+    const siswa = db.siswa.find(s => s.id === siswaId);
+    if (!siswa) return alert("Pilih siswa dulu!");
+    
+    document.getElementById('qrcode').innerHTML = ""; 
+    
+    // FORMAT QR: harus sama dengan scanner kamu
+    // Kalau scanner baca "ID|NAMA" pake ini:
+    const qrData = siswa.id + "|" + siswa.name; 
+
+    new QRCode(document.getElementById("qrcode"), {
+        text: qrData,
+        width: 256,
+        height: 256,
+        colorDark : "#000",
+        colorLight : "#ffffff"
+    });
+}
+
+function loadQRSelect() {
+    const select = document.getElementById('qrSelectSiswa');
+    select.innerHTML = '<option value="">-- Pilih Siswa --</option>';
+    db.siswa.forEach(s => {
+        select.innerHTML += <option value="${s.id}">${s.id} - ${s.name}</option>;
+    });
+}
+
+// biar pas buka tab QR, dropdown nya otomatis keisi
+const oldSwitchTab = switchTab;
+switchTab = function(tab) {
+    oldSwitchTab(tab);
+    if(tab === 'qr') loadQRSelect();
+}
     </script>
 </body>
 </html>
