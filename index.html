@@ -633,13 +633,24 @@
         renderAssistantOptions();
         renderLists();
     </script>
-    <!-- Firebase SDK -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+  // Import the functions you need from the SDKs you need
 
-  const firebaseConfig = {
-   apiKey: "AIzaSyCeOv9ML5JIMNZ9cID5vUZmWSW_WVHI5tI",
+import { initializeApp } from "firebase/app";
+
+import { getAnalytics } from "firebase/analytics";
+
+// TODO: Add SDKs for Firebase products that you want to use
+
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+
+// Your web app's Firebase configuration
+
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+
+const firebaseConfig = {
+
+  apiKey: "AIzaSyCeOv9ML5JIMNZ9cID5vUZmWSW_WVHI5tI",
 
   authDomain: "kumon-pendidikan-gunung-sindur.firebaseapp.com",
 
@@ -658,8 +669,11 @@
 };
 
 
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
+// Initialize Firebase
+
+const app = initializeApp(firebaseConfig);
+
+const analytics = getAnalytics(app);
 </script>
 
 </body>
