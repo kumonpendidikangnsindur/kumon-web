@@ -634,45 +634,85 @@
         renderLists();
  </script>
 </script>
-   <!-- Firebase SDK -->
+<!-- Firebase App (Core) & Realtime Database Module -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+  import { getDatabase, ref, set, onValue, push, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-  // Konfigurasi milik Anda
+  // Konfigurasi menggunakan Project ID & URL Database dari screenshot Anda
   const firebaseConfig = {
-    apiKey: "API_KEY_ANDA",
+    // Ganti API Key di bawah dari Project Settings di Firebase Console Anda
+    apiKey: "YOUR_API_KEY_HERE",
     authDomain: "kumon-pendidikan-gunung-sindur.firebaseapp.com",
     databaseURL: "https://kumon-pendidikan-gunung-sindur-default-rtdb.asia-southeast1.firebasedatabase.app",
     projectId: "kumon-pendidikan-gunung-sindur",
     storageBucket: "kumon-pendidikan-gunung-sindur.appspot.com",
-    messagingSenderId: "...",
-    appId: "..."
+    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+    appId: "YOUR_APP_ID"
   };
 
+  // Inisialisasi Firebase
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  // KUNCI REAL-TIME: Menyimak perubahan data dari cloud
-  const kumonRef = ref(db, 'kumon_data');
+  // ==========================================
+  // 1. MENDENGARKAN DATA REALTIME (Siswa & SPP)
+  // ==========================================
+  const siswaRef = ref(db, 'siswa');
 
-  onValue(kumonRef, (snapshot) => {
+  // Setiap kali ada perubahan data di HP lain, fungsi ini otomatis jalan
+  onValue(siswaRef, (snapshot) => {
     const data = snapshot.val();
     if (data) {
-      window.db = data; // Memperbarui variabel data lokal
-
-      // Jalankan ulang fungsi pembaru tampilan web
-      if (typeof renderLists === 'function') renderLists();
-      if (typeof renderPaymentTable === 'function') renderPaymentTable();
-      if (typeof renderAssistantOptions === 'function') renderAssistantOptions();
+      console.log("Data siswa terupdate realtime:", data);
+      // Panggil fungsi render tabel web Anda di sini, misalnya:
+      // updateTabelSiswa(data);
     }
   });
 
-  // Buat fungsi simpan global
-  window.saveToFirebase = function(newData) {
-    set(ref(db, 'kumon_data'), newData);
+  // ==========================================
+  // 2. MENDENGARKAN DATA REALTIME (Absensi)
+  // ==========================================
+  const absensiRef = ref(db, 'absensi');
+  onValue(absensiRef, (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      console.log("Data absensi terupdate realtime:", data);
+      // updateTabelAbsensi(data);
+    }
+  });
+
+  // ==========================================
+  // 3. FUNGSI UNTUK SIMPAN DATA BARU
+  // ==========================================
+
+  // Fungsi Tambah/Update Siswa
+  window.simpanDataSiswa = function(idSiswa, namaSiswa, kelas, subject, statusSPP) {
+    set(ref(db, 'siswa/' + idSiswa), {
+      nama: namaSiswa,
+      kelas: kelas,
+      subject: subject,
+      statusSPP: statusSPP,
+      updatedAt: new Date().toISOString()
+    }).then(() => {
+      alert("Data siswa berhasil disimpan dan ter-update di semua device!");
+    }).catch((error) => {
+      console.error("Gagal menyimpan data:", error);
+    });
+  };
+
+  // Fungsi Record Absensi (Hasil Scan QR)
+  window.catatAbsensi = function(idSiswa, namaSiswa, statusCheck) {
+    const hariIni = new Date().toISOString().split('T')[0]; // Format YYYY-MM-DD
+    const newAbsenRef = push(ref(db, `absensi/${hariIni}`));
+
+    set(newAbsenRef, {
+      idSiswa: idSiswa,
+      nama: namaSiswa,
+      waktu: new Date().toLocaleTimeString('id-ID'),
+      status: statusCheck // 'Check In' / 'Check Out'
+    });
   };
 </script>
-
 </body>
 </html>
