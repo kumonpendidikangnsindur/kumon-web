@@ -175,7 +175,7 @@
                         <div class="flex justify-between items-center"><span class="text-slate-500 font-medium">Subject:</span><b id="popup-siswa-subject" class="text-slate-800 font-bold text-right max-w-[200px] truncate">-</b></div>
                         <div class="flex justify-between items-center border-t border-pink-100 pt-2"><span class="text-slate-500 font-medium">Waktu Datang:</span><b id="popup-siswa-time" class="text-emerald-600 font-bold">-</b></div>
                     </div>
-                    <p class="text-xs text-slate-400 italic font-semibold">Kembali otomatis dalam 5 detik...</p>
+                    <p class="text-xs text-slate-400 italic font-semibold">Kembali otomatis dalam 3 detik...</p>
                 </div>
 
             </div>
@@ -183,7 +183,7 @@
             <div class="bg-white p-4 rounded-2xl border-2 border-pink-100 flex flex-col justify-center">
                 <h3 class="font-bold text-sm text-pink-600 mb-2">Informasi Jadwal Kelas</h3>
                 <p class="text-xs text-slate-600 leading-relaxed mb-3">
-                    Kelas bimbingan Kumon Gunung Sindur rutin dilaksanakan setiap hari <b>Senin</b> dan <b>Kamis</b>.
+                    Kelas bimbingan Kumon Pendidikan - Gunung Sindur rutin dilaksanakan setiap hari <b>Senin</b> dan <b>Kamis</b>.
                     Gunakan kamera di samping untuk memindai QR Code student. Scan di luar hari kelas akan menampilkan ID Card student tanpa masuk rekap absen.
                 </p>
                 <div class="bg-pink-50 p-3 rounded-xl border border-pink-200 text-xs text-pink-700 font-semibold">
@@ -860,7 +860,7 @@
                     }
                 }
 
-                // Tampilkan pop-up kartu ID Student selama 5 detik dengan desain solid & font lebih besar
+                // Tampilkan pop-up kartu ID Student selama 3 detik dengan desain solid & font lebih besar
                 const popup = document.getElementById('qris-card-popup');
                 document.getElementById('popup-siswa-name').innerText = s.name;
                 document.getElementById('popup-siswa-id').innerText = `ID: ${s.id}`;
@@ -874,7 +874,7 @@
                     popup.classList.add('hidden');
                     document.getElementById('qr-result').innerHTML = `Arahkan QR Code ke Kamera`;
                     isProcessingScan = false;
-                }, 5000);
+                }, 3000);
             });
         }
 
