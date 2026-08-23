@@ -161,21 +161,21 @@
                     <p id="qr-result" class="text-pink-500 font-bold text-xs bg-white p-2.5 rounded-xl border border-pink-200">Arahkan QR Code ke Kamera</p>
                 </div>
 
-                <!-- QRIS Style Card Pop-up (Hidden by default) -->
-                <div id="qris-card-popup" class="hidden absolute inset-0 bg-white/95 backdrop-blur-md p-6 flex flex-col items-center justify-center text-center transition-all duration-300 z-20">
-                    <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-3xl mb-3 shadow-inner animate-bounce">
+                <!-- QRIS Style Card Pop-up (Hidden by default) - TAMPILAN LEBIH BESAR & JELAS -->
+                <div id="qris-card-popup" class="hidden absolute inset-0 bg-white/98 backdrop-blur-md p-6 flex flex-col items-center justify-center text-center transition-all duration-300 z-20 shadow-2xl">
+                    <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-4xl mb-3 shadow-md animate-bounce">
                         ✅
                     </div>
-                    <span class="bg-emerald-500 text-white text-[10px] uppercase font-extrabold px-3 py-1 rounded-full mb-2 tracking-wider">Scan Berhasil ✨</span>
-                    <h3 id="popup-siswa-name" class="text-xl font-extrabold text-slate-800 mb-1">Nama Siswa</h3>
-                    <p class="text-xs font-bold text-pink-500 mb-3" id="popup-siswa-id">ID: KUMON01</p>
+                    <span class="bg-emerald-500 text-white text-xs uppercase font-extrabold px-4 py-1.5 rounded-full mb-3 tracking-wider shadow">Scan Berhasil ✨</span>
+                    <h3 id="popup-siswa-name" class="text-2xl sm:text-3xl font-extrabold text-slate-800 mb-1 leading-snug">Nama Siswa</h3>
+                    <p class="text-sm font-bold text-pink-600 mb-4 bg-pink-50 px-3 py-1 rounded-full border border-pink-200" id="popup-siswa-id">ID: KUMON01</p>
 
-                    <div class="w-full max-w-xs bg-pink-50 border border-pink-200 rounded-2xl p-3 text-xs space-y-1.5 text-left mb-2">
-                        <div class="flex justify-between"><span>Kelas:</span><b id="popup-siswa-kelas" class="text-slate-700">-</b></div>
-                        <div class="flex justify-between"><span>Subject:</span><b id="popup-siswa-subject" class="text-slate-700">-</b></div>
-                        <div class="flex justify-between"><span>Waktu:</span><b id="popup-siswa-time" class="text-emerald-600">-</b></div>
+                    <div class="w-full max-w-sm bg-gradient-to-br from-pink-50 to-white border-2 border-pink-200 rounded-2xl p-4 text-sm space-y-2 text-left mb-3 shadow-inner">
+                        <div class="flex justify-between items-center"><span class="text-slate-500 font-medium">Kelas:</span><b id="popup-siswa-kelas" class="text-slate-800 text-base">-</b></div>
+                        <div class="flex justify-between items-center"><span class="text-slate-500 font-medium">Subject:</span><b id="popup-siswa-subject" class="text-slate-800 text-base text-right max-w-[200px] truncate">-</b></div>
+                        <div class="flex justify-between items-center border-t border-pink-100 pt-1.5"><span class="text-slate-500 font-medium">Waktu Datang:</span><b id="popup-siswa-time" class="text-emerald-600 text-base font-bold">-</b></div>
                     </div>
-                    <p class="text-[10px] text-slate-400 italic">Kembali otomatis dalam 5 detik...</p>
+                    <p class="text-xs text-slate-400 italic font-medium">Kembali otomatis dalam 5 detik...</p>
                 </div>
 
             </div>
@@ -861,7 +861,7 @@
                     }
                 }
 
-                // Tampilkan pop-up kartu ID Siswa selama 5 detik
+                // Tampilkan pop-up kartu ID Siswa selama 5 detik dengan desain baru
                 const popup = document.getElementById('qris-card-popup');
                 document.getElementById('popup-siswa-name').innerText = s.name;
                 document.getElementById('popup-siswa-id').innerText = `ID: ${s.id}`;
