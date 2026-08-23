@@ -161,21 +161,21 @@
                     <p id="qr-result" class="text-pink-500 font-bold text-xs bg-white p-2.5 rounded-xl border border-pink-200">Arahkan QR Code ke Kamera</p>
                 </div>
 
-                <!-- QRIS Style Card Pop-up (Hidden by default) - TAMPILAN LEBIH BESAR & JELAS -->
-                <div id="qris-card-popup" class="hidden absolute inset-0 bg-white/98 backdrop-blur-md p-6 flex flex-col items-center justify-center text-center transition-all duration-300 z-20 shadow-2xl">
-                    <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-4xl mb-3 shadow-md animate-bounce">
+                <!-- QRIS Style Card Pop-up (Hidden by default) - TAMPILAN SOLID, LUCU, & FONT LEBIH BESAR -->
+                <div id="qris-card-popup" class="hidden absolute inset-0 bg-[#FFFDF9] border-[6px] border-[#FF7B9C] rounded-2xl p-6 flex flex-col items-center justify-center text-center transition-all duration-300 z-20 shadow-2xl">
+                    <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-4xl mb-2 shadow-md animate-bounce">
                         ✅
                     </div>
                     <span class="bg-emerald-500 text-white text-xs uppercase font-extrabold px-4 py-1.5 rounded-full mb-3 tracking-wider shadow">Scan Berhasil ✨</span>
                     <h3 id="popup-siswa-name" class="text-2xl sm:text-3xl font-extrabold text-slate-800 mb-1 leading-snug">Nama Siswa</h3>
-                    <p class="text-sm font-bold text-pink-600 mb-4 bg-pink-50 px-3 py-1 rounded-full border border-pink-200" id="popup-siswa-id">ID: KUMON01</p>
+                    <p class="text-base font-bold text-pink-600 mb-3 bg-pink-50 px-4 py-1 rounded-full border border-pink-200" id="popup-siswa-id">ID: KUMON01</p>
 
-                    <div class="w-full max-w-sm bg-gradient-to-br from-pink-50 to-white border-2 border-pink-200 rounded-2xl p-4 text-sm space-y-2 text-left mb-3 shadow-inner">
-                        <div class="flex justify-between items-center"><span class="text-slate-500 font-medium">Kelas:</span><b id="popup-siswa-kelas" class="text-slate-800 text-base">-</b></div>
-                        <div class="flex justify-between items-center"><span class="text-slate-500 font-medium">Subject:</span><b id="popup-siswa-subject" class="text-slate-800 text-base text-right max-w-[200px] truncate">-</b></div>
-                        <div class="flex justify-between items-center border-t border-pink-100 pt-1.5"><span class="text-slate-500 font-medium">Waktu Datang:</span><b id="popup-siswa-time" class="text-emerald-600 text-base font-bold">-</b></div>
+                    <div class="w-full max-w-sm bg-white border-2 border-pink-200 rounded-2xl p-4 text-base space-y-2 text-left mb-3 shadow-inner">
+                        <div class="flex justify-between items-center"><span class="text-slate-500 font-medium">Kelas:</span><b id="popup-siswa-kelas" class="text-slate-800 font-bold">-</b></div>
+                        <div class="flex justify-between items-center"><span class="text-slate-500 font-medium">Subject:</span><b id="popup-siswa-subject" class="text-slate-800 font-bold text-right max-w-[200px] truncate">-</b></div>
+                        <div class="flex justify-between items-center border-t border-pink-100 pt-2"><span class="text-slate-500 font-medium">Waktu Datang:</span><b id="popup-siswa-time" class="text-emerald-600 font-bold">-</b></div>
                     </div>
-                    <p class="text-xs text-slate-400 italic font-medium">Kembali otomatis dalam 5 detik...</p>
+                    <p class="text-xs text-slate-400 italic font-semibold">Kembali otomatis dalam 5 detik...</p>
                 </div>
 
             </div>
@@ -842,7 +842,6 @@
                 const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
                 const subjectText = Array.isArray(s.subject) ? s.subject.join(", ") : (s.subject || "-");
 
-                // Hanya masukkan data ke absensi siswa jika hari kelas (Senin/Kamis)
                 if (isClassDay) {
                     let log = db.absensiSiswa.find(a => a.id === s.id && a.tanggal === todayStr);
                     if (!log) {
@@ -861,7 +860,7 @@
                     }
                 }
 
-                // Tampilkan pop-up kartu ID Siswa selama 5 detik dengan desain baru
+                // Tampilkan pop-up kartu ID Siswa selama 5 detik dengan desain solid & font lebih besar
                 const popup = document.getElementById('qris-card-popup');
                 document.getElementById('popup-siswa-name').innerText = s.name;
                 document.getElementById('popup-siswa-id').innerText = `ID: ${s.id}`;
@@ -1226,7 +1225,7 @@
 
                     db.siswa.forEach((s, i) => {
                         if (s.id.toLowerCase() === targetId.toLowerCase() || s.name.toLowerCase().includes(searchSiswaVal)) {
-                            listSiswa.innerHTML += `<div class="flex justify-between items-center bg-white p-2 rounded-xl border"><span><b>[${s.id}] ${s.name}</b></span><div class="flex gap-1"><button onclick="openEditSiswa(${i})" class="bg-amber-400 text-white px-2 py-0.5 rounded text-[10px]">Edit</button><button onclick="removeSiswa(${i})" class="bg-rose-400 text-white px-2 py-0.5 rounded text-[10px]">✕</button></div></div>`;
+                            listSsiswa.innerHTML += `<div class="flex justify-between items-center bg-white p-2 rounded-xl border"><span><b>[${s.id}] ${s.name}</b></span><div class="flex gap-1"><button onclick="openEditSiswa(${i})" class="bg-amber-400 text-white px-2 py-0.5 rounded text-[10px]">Edit</button><button onclick="removeSiswa(${i})" class="bg-rose-400 text-white px-2 py-0.5 rounded text-[10px]">✕</button></div></div>`;
                         }
                     });
                 }
