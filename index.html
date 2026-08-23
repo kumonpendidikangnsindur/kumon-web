@@ -175,7 +175,7 @@
                         <div class="flex justify-between"><span>Subject:</span><b id="popup-siswa-subject" class="text-slate-700">-</b></div>
                         <div class="flex justify-between"><span>Waktu:</span><b id="popup-siswa-time" class="text-emerald-600">-</b></div>
                     </div>
-                    <p class="text-[10px] text-slate-400 italic">Kembali otomatis dalam 3 detik...</p>
+                    <p class="text-[10px] text-slate-400 italic">Kembali otomatis dalam 5 detik...</p>
                 </div>
 
             </div>
@@ -861,7 +861,7 @@
                     }
                 }
 
-                // Tampilkan pop-up kartu ID Siswa selama 3 detik (berlaku untuk semua hari)
+                // Tampilkan pop-up kartu ID Siswa selama 5 detik
                 const popup = document.getElementById('qris-card-popup');
                 document.getElementById('popup-siswa-name').innerText = s.name;
                 document.getElementById('popup-siswa-id').innerText = `ID: ${s.id}`;
@@ -875,7 +875,7 @@
                     popup.classList.add('hidden');
                     document.getElementById('qr-result').innerHTML = `Arahkan QR Code ke Kamera`;
                     isProcessingScan = false;
-                }, 3000);
+                }, 5000);
             });
         }
 
