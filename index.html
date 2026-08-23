@@ -47,7 +47,7 @@
             👩‍🏫 Assistant
         </button>
         <button onclick="switchTab('siswa')" id="btn-siswa" class="bg-pink-400 hover:bg-pink-500 text-white font-bold py-2.5 px-4 rounded-2xl shadow-md transition transform hover:-translate-y-0.5 text-sm">
-            🎒 Siswa
+            🎒 Student
         </button>
         <button onclick="switchTab('payment')" id="btn-payment" class="bg-emerald-400 hover:bg-emerald-500 text-white font-bold py-2.5 px-4 rounded-2xl shadow-md transition transform hover:-translate-y-0.5 text-sm">
             💳 Payment
@@ -56,7 +56,7 @@
             👑 Instructor
         </button>
         <button onclick="switchTab('qr');loadQRSelect()" id="btn-qr" class="bg-orange-400 hover:bg-orange-500 text-white font-bold py-2.5 px-4 rounded-2xl shadow-md transition transform hover:-translate-y-0.5 text-sm">
-            📱 QR Absensi
+            📱 QR
         </button>
     </div>
 
@@ -147,9 +147,9 @@
         </div>
     </div>
 
-    <!-- TAB 2: SISWA -->
+    <!-- TAB 2: STUDENT -->
     <div id="tab-siswa" class="tab-content hidden max-w-5xl mx-auto card-cute p-6 rounded-3xl border-pink-200">
-        <h2 class="text-xl font-bold text-pink-500 mb-4 text-center border-b-2 border-pink-100 pb-2">Scan & History Absensi Siswa 🎒</h2>
+        <h2 class="text-xl font-bold text-pink-500 mb-4 text-center border-b-2 border-pink-100 pb-2">Scan & History Absensi Student 🎒</h2>
 
         <div class="grid md:grid-cols-2 gap-6 mb-6">
             <div class="bg-pink-50/50 p-4 rounded-2xl border border-pink-200 text-center relative overflow-hidden min-h-[340px] flex flex-col justify-center">
@@ -175,7 +175,7 @@
                         <div class="flex justify-between items-center"><span class="text-slate-500 font-medium">Subject:</span><b id="popup-siswa-subject" class="text-slate-800 font-bold text-right max-w-[200px] truncate">-</b></div>
                         <div class="flex justify-between items-center border-t border-pink-100 pt-2"><span class="text-slate-500 font-medium">Waktu Datang:</span><b id="popup-siswa-time" class="text-emerald-600 font-bold">-</b></div>
                     </div>
-                    <p class="text-xs text-slate-400 italic font-semibold">Kembali otomatis dalam 3 detik...</p>
+                    <p class="text-xs text-slate-400 italic font-semibold">Kembali otomatis dalam 5 detik...</p>
                 </div>
 
             </div>
@@ -183,19 +183,19 @@
             <div class="bg-white p-4 rounded-2xl border-2 border-pink-100 flex flex-col justify-center">
                 <h3 class="font-bold text-sm text-pink-600 mb-2">Informasi Jadwal Kelas</h3>
                 <p class="text-xs text-slate-600 leading-relaxed mb-3">
-                    Kelas bimbingan Kumon Pendidikan - Gunung Sindur rutin dilaksanakan setiap hari <b>Senin</b> dan <b>Kamis</b>.
-                    Gunakan kamera di samping untuk memindai QR Code siswa. Scan di luar hari kelas akan menampilkan ID Card siswa tanpa masuk rekap absen.
+                    Kelas bimbingan Kumon Gunung Sindur rutin dilaksanakan setiap hari <b>Senin</b> dan <b>Kamis</b>.
+                    Gunakan kamera di samping untuk memindai QR Code student. Scan di luar hari kelas akan menampilkan ID Card student tanpa masuk rekap absen.
                 </p>
                 <div class="bg-pink-50 p-3 rounded-xl border border-pink-200 text-xs text-pink-700 font-semibold">
-                    💡 Tip: Pastikan pencahayaan cukup saat melakukan scan QR Code siswa.
+                    💡 Tip: Pastikan pencahayaan cukup saat melakukan scan QR Code student.
                 </div>
             </div>
         </div>
 
-        <!-- History Absensi Siswa Bulanan -->
+        <!-- History Absensi Student Bulanan -->
         <div class="bg-white p-4 rounded-2xl border-2 border-pink-100 shadow-sm space-y-3">
             <div class="flex flex-col sm:flex-row justify-between items-center gap-2 border-b pb-2">
-                <h4 class="font-bold text-sm text-pink-600">📜 History Absensi Siswa Bulanan (Senin & Kamis)</h4>
+                <h4 class="font-bold text-sm text-pink-600">📜 History Absensi Student Bulanan (Senin & Kamis)</h4>
                 <div class="flex items-center gap-2 text-xs flex-wrap">
                     <select id="filter-siswa-month" class="p-1.5 border rounded-xl bg-pink-50 font-semibold text-pink-700 focus:outline-none">
                         <option value="01">Januari</option><option value="02">Februari</option><option value="03">Maret</option>
@@ -207,7 +207,7 @@
                         <option value="2026">2026</option><option value="2027">2027</option>
                     </select>
                     <div class="relative">
-                        <input list="filter-siswa-list-options" id="filter-siswa-input" placeholder="Semua Siswa (Ketik/Pilih)" class="p-1.5 border rounded-xl bg-pink-50 font-semibold text-pink-700 focus:outline-none w-44" autocomplete="off">
+                        <input list="filter-siswa-list-options" id="filter-siswa-input" placeholder="Semua Student (Ketik/Pilih)" class="p-1.5 border rounded-xl bg-pink-50 font-semibold text-pink-700 focus:outline-none w-44" autocomplete="off">
                         <datalist id="filter-siswa-list-options"></datalist>
                     </div>
                     <button onclick="renderSiswaHistory()" class="bg-pink-500 hover:bg-pink-600 text-white font-bold px-3 py-1.5 rounded-xl shadow transition">🔍 Search</button>
@@ -221,8 +221,8 @@
                             <th class="p-2 rounded-l-lg">No</th>
                             <th class="p-2">Tanggal</th>
                             <th class="p-2">Hari Kelas</th>
-                            <th class="p-2">ID Siswa</th>
-                            <th class="p-2">Nama Siswa</th>
+                            <th class="p-2">ID Student</th>
+                            <th class="p-2">Nama Student</th>
                             <th class="p-2">Kelas</th>
                             <th class="p-2">Subject</th>
                             <th class="p-2">Jam Kedatangan</th>
@@ -238,7 +238,7 @@
 
     <!-- TAB 3: PAYMENT -->
     <div id="tab-payment" class="tab-content hidden max-w-6xl mx-auto card-cute p-6 rounded-3xl border-emerald-200">
-        <h2 class="text-xl font-bold text-emerald-600 mb-4 text-center border-b-2 border-emerald-100 pb-2">Status Pembayaran SPP Siswa 💳</h2>
+        <h2 class="text-xl font-bold text-emerald-600 mb-4 text-center border-b-2 border-emerald-100 pb-2">Status Pembayaran SPP Student 💳</h2>
 
         <div class="flex flex-col sm:flex-row justify-between items-center gap-2 mb-4 bg-emerald-50/50 p-3 rounded-2xl border border-emerald-200">
             <h4 class="font-bold text-xs text-emerald-700">🔍 Filter Pembayaran</h4>
@@ -253,7 +253,7 @@
                     <option value="2026">2026</option><option value="2027">2027</option>
                 </select>
                 <div class="relative">
-                    <input list="filter-payment-list-options" id="filter-payment-input" placeholder="Semua Siswa (Ketik/Pilih)" class="p-1.5 border rounded-xl bg-white font-semibold text-emerald-700 focus:outline-none w-44" autocomplete="off">
+                    <input list="filter-payment-list-options" id="filter-payment-input" placeholder="Semua Student (Ketik/Pilih)" class="p-1.5 border rounded-xl bg-white font-semibold text-emerald-700 focus:outline-none w-44" autocomplete="off">
                     <datalist id="filter-payment-list-options"></datalist>
                 </div>
                 <button onclick="renderPaymentTable()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-3 py-1.5 rounded-xl shadow transition">🔍 Search</button>
@@ -265,8 +265,8 @@
                 <thead class="text-xs uppercase bg-emerald-100 text-emerald-700">
                     <tr>
                         <th class="p-3 rounded-l-xl">No</th>
-                        <th class="p-3">ID Siswa</th>
-                        <th class="p-3">Nama Siswa</th>
+                        <th class="p-3">ID Student</th>
+                        <th class="p-3">Nama Student</th>
                         <th class="p-3">Kelas</th>
                         <th class="p-3">Subject</th>
                         <th class="p-3">Total SPP</th>
@@ -303,10 +303,10 @@
             </div>
 
             <div class="bg-pink-50/50 p-4 rounded-2xl border border-pink-200 space-y-3">
-                <h3 class="font-bold text-sm text-pink-600">Kelola Siswa</h3>
+                <h3 class="font-bold text-sm text-pink-600">Kelola Student</h3>
                 <div class="space-y-2">
-                    <input type="text" id="new-siswa-id" placeholder="ID Siswa (Contoh: KUMON01)" class="w-full p-2 text-sm border rounded-xl bg-white focus:outline-none">
-                    <input type="text" id="new-siswa-name" placeholder="Nama Siswa" class="w-full p-2 text-sm border rounded-xl bg-white focus:outline-none">
+                    <input type="text" id="new-siswa-id" placeholder="ID Student (Contoh: KUMON01)" class="w-full p-2 text-sm border rounded-xl bg-white focus:outline-none">
+                    <input type="text" id="new-siswa-name" placeholder="Nama Student" class="w-full p-2 text-sm border rounded-xl bg-white focus:outline-none">
                     <input type="text" id="new-siswa-kelas" placeholder="Kelas/Level" class="w-full p-2 text-sm border rounded-xl bg-white focus:outline-none">
 
                     <div class="bg-white p-2 border rounded-xl text-xs space-y-1">
@@ -327,12 +327,12 @@
                     </div>
 
                     <input type="text" id="new-siswa-phone" placeholder="No. HP Ortu" class="w-full p-2 text-sm border rounded-xl bg-white focus:outline-none">
-                    <button onclick="addSiswa()" class="w-full bg-pink-400 hover:bg-pink-500 text-white font-bold py-2 text-sm rounded-xl transition">+ Tambah Siswa</button>
+                    <button onclick="addSiswa()" class="w-full bg-pink-400 hover:bg-pink-500 text-white font-bold py-2 text-sm rounded-xl transition">+ Tambah Student</button>
                 </div>
 
                 <div class="pt-2 border-t space-y-2">
-                    <label class="font-bold text-xs text-pink-600 block">Cari Siswa:</label>
-                    <input list="list-options-instructor-siswa" id="search-instructor-siswa" placeholder="Ketik nama atau ID siswa..." oninput="renderLists()" class="w-full p-2 text-xs border rounded-xl bg-white focus:outline-none" autocomplete="off">
+                    <label class="font-bold text-xs text-pink-600 block">Cari Student:</label>
+                    <input list="list-options-instructor-siswa" id="search-instructor-siswa" placeholder="Ketik nama atau ID student..." oninput="renderLists()" class="w-full p-2 text-xs border rounded-xl bg-white focus:outline-none" autocomplete="off">
                     <datalist id="list-options-instructor-siswa"></datalist>
                     <div id="list-siswa" class="space-y-1.5 max-h-40 overflow-y-auto text-xs"></div>
                 </div>
@@ -374,7 +374,7 @@
             </div>
             <div class="flex justify-center flex-wrap gap-2 pt-2">
                 <button onclick="exportExcel('assistant')" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 px-4 text-xs rounded-xl shadow transition">📥 Rekap Assistant</button>
-                <button onclick="exportExcel('siswa')" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 px-4 text-xs rounded-xl shadow transition">📥 Rekap Absensi Siswa</button>
+                <button onclick="exportExcel('siswa')" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 px-4 text-xs rounded-xl shadow transition">📥 Rekap Absensi Student</button>
                 <button onclick="exportExcel('payment')" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 px-4 text-xs rounded-xl shadow transition">📥 Rekap Payment</button>
             </div>
         </div>
@@ -382,9 +382,9 @@
 
     <!-- TAB 5: QR GENERATE -->
     <div id="tab-qr" class="tab-content max-w-md mx-auto card-cute p-6 rounded-3xl hidden border-orange-200">
-        <h2 class="text-xl font-bold text-orange-500 mb-4 text-center border-b-2 border-orange-100 pb-2">Generate QR Absensi Siswa 📱</h2>
-        <label class="font-semibold text-xs text-orange-600 block mb-1">Cari / Pilih Siswa:</label>
-        <input list="list-options-qr-siswa" id="input-search-qr-siswa" placeholder="Ketik nama atau ID siswa..." class="w-full p-3 border-2 border-orange-200 rounded-2xl bg-orange-50 focus:outline-none focus:border-orange-400 mb-3 text-sm" autocomplete="off">
+        <h2 class="text-xl font-bold text-orange-500 mb-4 text-center border-b-2 border-orange-100 pb-2">Generate QR Absensi Student 📱</h2>
+        <label class="font-semibold text-xs text-orange-600 block mb-1">Cari / Pilih Student:</label>
+        <input list="list-options-qr-siswa" id="input-search-qr-siswa" placeholder="Ketik nama atau ID student..." class="w-full p-3 border-2 border-orange-200 rounded-2xl bg-orange-50 focus:outline-none focus:border-orange-400 mb-3 text-sm" autocomplete="off">
         <datalist id="list-options-qr-siswa"></datalist>
 
         <button onclick="generateQR()" class="w-full bg-orange-400 hover:bg-orange-500 text-white font-bold py-3 rounded-2xl shadow-md transition mb-3">Buat QR Code ✨</button>
@@ -397,14 +397,14 @@
     <!-- MODAL EDIT SISWA -->
     <div id="modal-edit-siswa" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl p-6 max-w-md w-full border-4 border-pink-200 space-y-4 shadow-xl">
-            <h3 class="font-bold text-base text-pink-600 border-b pb-2">Edit Data Siswa 🎒</h3>
+            <h3 class="font-bold text-base text-pink-600 border-b pb-2">Edit Data Student 🎒</h3>
             <input type="hidden" id="edit-siswa-index">
             <div class="space-y-1 text-xs">
-                <label class="font-bold text-slate-600">ID Siswa:</label>
+                <label class="font-bold text-slate-600">ID Student:</label>
                 <input type="text" id="edit-siswa-id" class="w-full p-2 border rounded-xl bg-slate-50 focus:outline-none">
             </div>
             <div class="space-y-1 text-xs">
-                <label class="font-bold text-slate-600">Nama Siswa:</label>
+                <label class="font-bold text-slate-600">Nama Student:</label>
                 <input type="text" id="edit-siswa-name" class="w-full p-2 border rounded-xl bg-slate-50 focus:outline-none">
             </div>
             <div class="space-y-1 text-xs">
@@ -827,7 +827,7 @@
 
                 const s = db.siswa.find(x => x.id.toLowerCase() === scannedId.toLowerCase() || x.name.toLowerCase() === decodedText.toLowerCase());
                 if (!s) {
-                    document.getElementById('qr-result').innerText = "❌ ID Siswa Tidak Ditemukan!";
+                    document.getElementById('qr-result').innerText = "❌ ID Student Tidak Ditemukan!";
                     return;
                 }
 
@@ -860,7 +860,7 @@
                     }
                 }
 
-                // Tampilkan pop-up kartu ID Siswa selama 3 detik dengan desain solid & font lebih besar
+                // Tampilkan pop-up kartu ID Student selama 5 detik dengan desain solid & font lebih besar
                 const popup = document.getElementById('qris-card-popup');
                 document.getElementById('popup-siswa-name').innerText = s.name;
                 document.getElementById('popup-siswa-id').innerText = `ID: ${s.id}`;
@@ -874,7 +874,7 @@
                     popup.classList.add('hidden');
                     document.getElementById('qr-result').innerHTML = `Arahkan QR Code ke Kamera`;
                     isProcessingScan = false;
-                }, 3000);
+                }, 5000);
             });
         }
 
@@ -924,7 +924,7 @@
             const daysName = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 
             let targetSiswaList = db.siswa;
-            if (inputVal !== "" && inputVal.toLowerCase() !== "semua siswa") {
+            if (inputVal !== "" && inputVal.toLowerCase() !== "semua student") {
                 let targetId = inputVal;
                 const match = inputVal.match(/\(([^)]+)\)/);
                 if (match) targetId = match[1];
@@ -1011,7 +1011,7 @@
             const inputVal = document.getElementById('filter-payment-input').value.trim();
 
             let targetSiswaList = db.siswa;
-            if (inputVal !== "" && inputVal.toLowerCase() !== "semua siswa") {
+            if (inputVal !== "" && inputVal.toLowerCase() !== "semua student") {
                 let targetId = inputVal;
                 const match = inputVal.match(/\(([^)]+)\)/);
                 if (match) targetId = match[1];
@@ -1121,7 +1121,7 @@
             const subjects = [];
             document.querySelectorAll('input[name="subject-choice"]:checked').forEach(cb => subjects.push(cb.value));
 
-            if (!id || !name) return alert("ID Siswa dan Nama Siswa wajib diisi!");
+            if (!id || !name) return alert("ID Student dan Nama Student wajib diisi!");
             if (subjects.length === 0) return alert("Pilih minimal 1 subject!");
 
             if (!Array.isArray(db.siswa)) db.siswa = [];
@@ -1135,7 +1135,7 @@
             saveDB();
             idInput.value = ''; nameInput.value = ''; kelasInput.value = ''; phoneInput.value = '';
             document.querySelectorAll('input[name="subject-choice"]').forEach(cb => cb.checked = false);
-            alert("Siswa baru berhasil ditambahkan! ✨");
+            alert("Student baru berhasil ditambahkan! ✨");
         }
 
         function removeSiswa(idx) { if (confirm("Hapus?")) { db.siswa.splice(idx, 1); saveDB(); } }
@@ -1172,7 +1172,7 @@
             const subjects = [];
             document.querySelectorAll('input[name="edit-subject-choice"]:checked').forEach(cb => subjects.push(cb.value));
 
-            if (!id || !name) return alert("ID dan Nama Siswa wajib diisi!");
+            if (!id || !name) return alert("ID dan Nama Student wajib diisi!");
             if (subjects.length === 0) return alert("Pilih minimal 1 subject!");
 
             db.siswa[idx].id = id;
@@ -1185,7 +1185,7 @@
 
             saveDB();
             closeModalEditSiswa();
-            alert("Data siswa berhasil diperbarui!");
+            alert("Data student berhasil diperbarui!");
         }
 
         function renderLists() {
@@ -1225,7 +1225,7 @@
 
                     db.siswa.forEach((s, i) => {
                         if (s.id.toLowerCase() === targetId.toLowerCase() || s.name.toLowerCase().includes(searchSiswaVal)) {
-                            listSsiswa.innerHTML += `<div class="flex justify-between items-center bg-white p-2 rounded-xl border"><span><b>[${s.id}] ${s.name}</b></span><div class="flex gap-1"><button onclick="openEditSiswa(${i})" class="bg-amber-400 text-white px-2 py-0.5 rounded text-[10px]">Edit</button><button onclick="removeSiswa(${i})" class="bg-rose-400 text-white px-2 py-0.5 rounded text-[10px]">✕</button></div></div>`;
+                            listSiswa.innerHTML += `<div class="flex justify-between items-center bg-white p-2 rounded-xl border"><span><b>[${s.id}] ${s.name}</b></span><div class="flex gap-1"><button onclick="openEditSiswa(${i})" class="bg-amber-400 text-white px-2 py-0.5 rounded text-[10px]">Edit</button><button onclick="removeSiswa(${i})" class="bg-rose-400 text-white px-2 py-0.5 rounded text-[10px]">✕</button></div></div>`;
                         }
                     });
                 }
@@ -1251,8 +1251,8 @@
             } else if (type === 'siswa') {
                 data = db.absensiSiswa.filter(a => a.tanggal.startsWith(prefix)).map(a => ({
                     Tanggal: a.tanggal.split('-').reverse().join('/'),
-                    ID_Siswa: a.id,
-                    Nama_Siswa: a.nama,
+                    ID_Student: a.id,
+                    Nama_Student: a.nama,
                     Kelas: a.kelas,
                     Subject: a.subject,
                     Jam_Kedatangan: a.masuk,
@@ -1294,14 +1294,14 @@
             const qrcodeDiv = document.getElementById('qrcode');
             const btnDownload = document.getElementById('btn-download-qr');
 
-            if(!inputVal) return alert("Silakan pilih atau ketik nama siswa terlebih dahulu!");
+            if(!inputVal) return alert("Silakan pilih atau ketik nama student terlebih dahulu!");
 
             let idSiswa = inputVal;
             const match = inputVal.match(/\(([^)]+)\)/);
             if (match) idSiswa = match[1];
 
             const foundSiswa = db.siswa.find(s => s.id.toLowerCase() === idSiswa.toLowerCase() || s.name.toLowerCase() === inputVal.toLowerCase());
-            if (!foundSiswa) return alert('Data siswa tidak ditemukan di database!');
+            if (!foundSiswa) return alert('Data student tidak ditemukan di database!');
 
             const subjectStr = Array.isArray(foundSiswa.subject) ? foundSiswa.subject.join(", ") : (foundSiswa.subject || "-");
             const qrPayload = `ID: ${foundSiswa.id} | Nama: ${foundSiswa.name} | Kelas: ${foundSiswa.kelas || "-"} | Subject: ${subjectStr}`;
@@ -1336,7 +1336,7 @@
 
             const link = document.createElement('a');
             link.href = imageUrl;
-            link.download = `QR_Absensi_Siswa.png`;
+            link.download = `QR_Absensi_Student.png`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
