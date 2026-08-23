@@ -166,14 +166,14 @@
                     <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-3xl mb-3 shadow-inner animate-bounce">
                         ✅
                     </div>
-                    <span class="bg-emerald-500 text-white text-[10px] uppercase font-extrabold px-3 py-1 rounded-full mb-2 tracking-wider">Absen Berhasil ✨</span>
+                    <span class="bg-emerald-500 text-white text-[10px] uppercase font-extrabold px-3 py-1 rounded-full mb-2 tracking-wider">Scan Berhasil ✨</span>
                     <h3 id="popup-siswa-name" class="text-xl font-extrabold text-slate-800 mb-1">Nama Siswa</h3>
                     <p class="text-xs font-bold text-pink-500 mb-3" id="popup-siswa-id">ID: KUMON01</p>
 
                     <div class="w-full max-w-xs bg-pink-50 border border-pink-200 rounded-2xl p-3 text-xs space-y-1.5 text-left mb-2">
                         <div class="flex justify-between"><span>Kelas:</span><b id="popup-siswa-kelas" class="text-slate-700">-</b></div>
                         <div class="flex justify-between"><span>Subject:</span><b id="popup-siswa-subject" class="text-slate-700">-</b></div>
-                        <div class="flex justify-between"><span>Jam Masuk:</span><b id="popup-siswa-time" class="text-emerald-600">-</b></div>
+                        <div class="flex justify-between"><span>Waktu:</span><b id="popup-siswa-time" class="text-emerald-600">-</b></div>
                     </div>
                     <p class="text-[10px] text-slate-400 italic">Kembali otomatis dalam 3 detik...</p>
                 </div>
@@ -184,7 +184,7 @@
                 <h3 class="font-bold text-sm text-pink-600 mb-2">Informasi Jadwal Kelas</h3>
                 <p class="text-xs text-slate-600 leading-relaxed mb-3">
                     Kelas bimbingan Kumon Gunung Sindur rutin dilaksanakan setiap hari <b>Senin</b> dan <b>Kamis</b>.
-                    Gunakan kamera di samping untuk memindai QR Code siswa saat datang. Status kehadiran, kedatangan, serta pilihan PR akan tercatat otomatis pada rekap di bawah.
+                    Gunakan kamera di samping untuk memindai QR Code siswa. Scan di luar hari kelas akan menampilkan ID Card siswa tanpa masuk rekap absen.
                 </p>
                 <div class="bg-pink-50 p-3 rounded-xl border border-pink-200 text-xs text-pink-700 font-semibold">
                     💡 Tip: Pastikan pencahayaan cukup saat melakukan scan QR Code siswa.
@@ -200,13 +200,12 @@
                     <select id="filter-siswa-month" class="p-1.5 border rounded-xl bg-pink-50 font-semibold text-pink-700 focus:outline-none">
                         <option value="01">Januari</option><option value="02">Februari</option><option value="03">Maret</option>
                         <option value="04">April</option><option value="05">Mei</option><option value="06">Juni</option>
-                        <option value="07">Juli</option><option value="08" selected>Agustus</option><option value="09">September</option>
+                        <option value="07">Juli</option><option value="08">Agustus</option><option value="09">September</option>
                         <option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
                     </select>
                     <select id="filter-siswa-year" class="p-1.5 border rounded-xl bg-pink-50 font-semibold text-pink-700 focus:outline-none">
                         <option value="2026">2026</option><option value="2027">2027</option>
                     </select>
-                    <!-- Input Ketik & Pilih Siswa -->
                     <div class="relative">
                         <input list="filter-siswa-list-options" id="filter-siswa-input" placeholder="Semua Siswa (Ketik/Pilih)" class="p-1.5 border rounded-xl bg-pink-50 font-semibold text-pink-700 focus:outline-none w-44" autocomplete="off">
                         <datalist id="filter-siswa-list-options"></datalist>
@@ -241,14 +240,13 @@
     <div id="tab-payment" class="tab-content hidden max-w-6xl mx-auto card-cute p-6 rounded-3xl border-emerald-200">
         <h2 class="text-xl font-bold text-emerald-600 mb-4 text-center border-b-2 border-emerald-100 pb-2">Status Pembayaran SPP Siswa 💳</h2>
 
-        <!-- Filter & Search Payment -->
         <div class="flex flex-col sm:flex-row justify-between items-center gap-2 mb-4 bg-emerald-50/50 p-3 rounded-2xl border border-emerald-200">
             <h4 class="font-bold text-xs text-emerald-700">🔍 Filter Pembayaran</h4>
             <div class="flex items-center gap-2 text-xs flex-wrap">
                 <select id="filter-payment-month" class="p-1.5 border rounded-xl bg-white font-semibold text-emerald-700 focus:outline-none">
                     <option value="01">Januari</option><option value="02">Februari</option><option value="03">Maret</option>
                     <option value="04">April</option><option value="05">Mei</option><option value="06">Juni</option>
-                    <option value="07">Juli</option><option value="08" selected>Agustus</option><option value="09">September</option>
+                    <option value="07">Juli</option><option value="08">Agustus</option><option value="09">September</option>
                     <option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
                 </select>
                 <select id="filter-payment-year" class="p-1.5 border rounded-xl bg-white font-semibold text-emerald-700 focus:outline-none">
@@ -288,7 +286,6 @@
         <h2 class="text-xl font-bold text-purple-600 mb-4 text-center border-b-2 border-purple-100 pb-2">Panel Instructor 👑</h2>
 
         <div class="grid md:grid-cols-2 gap-4 mb-6">
-            <!-- Kelola Assistant -->
             <div class="bg-purple-50/50 p-4 rounded-2xl border border-purple-200 space-y-3">
                 <h3 class="font-bold text-sm text-purple-600">Kelola Assistant</h3>
                 <div class="space-y-2">
@@ -305,7 +302,6 @@
                 </div>
             </div>
 
-            <!-- Kelola Siswa -->
             <div class="bg-pink-50/50 p-4 rounded-2xl border border-pink-200 space-y-3">
                 <h3 class="font-bold text-sm text-pink-600">Kelola Siswa</h3>
                 <div class="space-y-2">
@@ -363,14 +359,13 @@
             </div>
         </div>
 
-        <!-- Download Rekap Excel dengan Filter Bulan & Tahun -->
         <div class="bg-purple-50 p-4 rounded-2xl border border-purple-200 text-center space-y-3">
             <h3 class="font-bold text-sm text-purple-700">📥 Unduh Rekap Bulanan (Excel)</h3>
             <div class="flex justify-center flex-wrap gap-2 text-xs">
                 <select id="export-month" class="p-2 border rounded-xl bg-white font-semibold text-purple-700 focus:outline-none">
                     <option value="01">Januari</option><option value="02">Februari</option><option value="03">Maret</option>
                     <option value="04">April</option><option value="05">Mei</option><option value="06">Juni</option>
-                    <option value="07">Juli</option><option value="08" selected>Agustus</option><option value="09">September</option>
+                    <option value="07">Juli</option><option value="08">Agustus</option><option value="09">September</option>
                     <option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
                 </select>
                 <select id="export-year" class="p-2 border rounded-xl bg-white font-semibold text-purple-700 focus:outline-none">
@@ -471,7 +466,6 @@
         let isPaymentUnlocked = false;
         let isProcessingScan = false;
 
-        // Daftar Tanggal Merah Nasional (Format: YYYY-MM-DD)
         const nasionalLibur = [
             "2026-01-01", "2026-01-16", "2026-02-17", "2026-03-19", "2026-03-20",
             "2026-04-03", "2026-05-01", "2026-05-14", "2026-05-27", "2026-05-31",
@@ -626,7 +620,6 @@
             if (log && log.masuk !== "-") return alert("Anda sudah Check In hari ini!");
 
             const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-
             const isLate = (now.getHours() > 11) || (now.getHours() === 11 && now.getMinutes() >= 1);
             let keteranganText = isLate ? "Terlambat ⚠️" : "-";
 
@@ -661,12 +654,9 @@
             let outTime = new Date(now);
             const maxOut = new Date(now);
             maxOut.setHours(18, 30, 0);
-            if (outTime > maxOut) {
-                outTime = maxOut;
-            }
+            if (outTime > maxOut) outTime = maxOut;
 
             const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-
             const [hIn, mIn] = log.masuk.replace('.', ':').split(':').map(Number);
             const inMinutes = hIn * 60 + mIn;
             const outMinutes = outTime.getHours() * 60 + outTime.getMinutes();
@@ -679,16 +669,11 @@
 
             let currentKet = "-";
             const isLate = (hIn > 11) || (hIn === 11 && mIn >= 1);
-            if (isLate) {
-                currentKet = "Terlambat ⚠️";
-            }
+            if (isLate) currentKet = "Terlambat ⚠️";
 
             if (totalMins < 300) {
-                if (currentKet === "-") {
-                    currentKet = "Potong Fee (< 5 Jam) ⚠️";
-                } else {
-                    currentKet += " | Potong Fee (< 5 Jam) ⚠️";
-                }
+                if (currentKet === "-") currentKet = "Potong Fee (< 5 Jam) ⚠️";
+                else currentKet += " | Potong Fee (< 5 Jam) ⚠️";
             }
 
             log.keluar = timeStr;
@@ -722,7 +707,6 @@
 
         function updateAssistantKeterangan(dateKey, selectedValue) {
             let log = db.absensiAst.find(a => a.nama === currentAst && a.tanggal === dateKey);
-
             if (!log) {
                 db.absensiAst.push({
                     tanggal: dateKey,
@@ -735,9 +719,7 @@
                 });
             } else {
                 log.keterangan = selectedValue;
-                if(selectedValue !== '-') {
-                    log.status = selectedValue;
-                }
+                if(selectedValue !== '-') log.status = selectedValue;
             }
             saveDB();
         }
@@ -749,7 +731,6 @@
 
             const selectedMonth = document.getElementById('filter-month').value;
             const selectedYear = document.getElementById('filter-year').value;
-
             const daysInMonth = new Date(selectedYear, selectedMonth, 0).getDate();
             const daysName = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 
@@ -762,32 +743,20 @@
                 const isWeekend = (currDateObj.getDay() === 0 || currDateObj.getDay() === 6);
 
                 let log = db.absensiAst.find(a => a.nama === currentAst && a.tanggal === dateKey);
-
-                let masuk = "-";
-                let keluar = "-";
-                let durasi = "-";
-                let statusBadge = "";
-                let ketValue = "-";
+                let masuk = "-", keluar = "-", durasi = "-", statusBadge = "", ketValue = "-";
 
                 if (log) {
                     masuk = log.masuk;
                     keluar = log.keluar;
                     durasi = log.totalJam;
                     statusBadge = `<span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">Hadir ✨</span>`;
-
-                    if (log.keterangan && log.keterangan !== "-") {
-                        ketValue = log.keterangan;
-                    }
+                    if (log.keterangan && log.keterangan !== "-") ketValue = log.keterangan;
                 } else {
-                    if (isWeekend) {
-                        statusBadge = `<span class="bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-bold">Libur 🌴</span>`;
-                    } else {
+                    if (isWeekend) statusBadge = `<span class="bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-bold">Libur 🌴</span>`;
+                    else {
                         const todayStr = getFormattedDate(new Date());
-                        if (dateKey <= todayStr) {
-                            statusBadge = `<span class="bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full font-bold">Absen ❌</span>`;
-                        } else {
-                            statusBadge = `<span class="text-slate-400">-</span>`;
-                        }
+                        if (dateKey <= todayStr) statusBadge = `<span class="bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full font-bold">Absen ❌</span>`;
+                        else statusBadge = `<span class="text-slate-400">-</span>`;
                     }
                 }
 
@@ -825,7 +794,6 @@
                 const AudioContext = window.AudioContext || window.webkitAudioContext;
                 if (!AudioContext) return;
                 const audioCtx = new AudioContext();
-
                 const oscillator = audioCtx.createOscillator();
                 const gainNode = audioCtx.createGain();
 
@@ -863,42 +831,43 @@
                     return;
                 }
 
-                const todayStr = getFormattedDate(new Date());
                 const now = new Date();
+                const todayStr = getFormattedDate(now);
                 const dayOfWeek = now.getDay();
-                if (dayOfWeek !== 1 && dayOfWeek !== 4) {
-                    document.getElementById('qr-result').innerHTML = `⚠️ Hari ini bukan jadwal kelas (Senin/Kamis)!`;
-                    return;
-                }
+                const isClassDay = (dayOfWeek === 1 || dayOfWeek === 4); // Senin (1) atau Kamis (4)
 
                 isProcessingScan = true;
                 playBeepSound();
 
                 const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-                let log = db.absensiSiswa.find(a => a.id === s.id && a.tanggal === todayStr);
                 const subjectText = Array.isArray(s.subject) ? s.subject.join(", ") : (s.subject || "-");
 
-                if (!log) {
-                    db.absensiSiswa.push({
-                        tanggal: todayStr,
-                        id: s.id,
-                        nama: s.name,
-                        kelas: s.kelas || "-",
-                        subject: subjectText,
-                        masuk: timeStr,
-                        status: "Hadir",
-                        keterangan: "-"
-                    });
+                // Hanya masukkan data ke absensi siswa jika hari kelas (Senin/Kamis)
+                if (isClassDay) {
+                    let log = db.absensiSiswa.find(a => a.id === s.id && a.tanggal === todayStr);
+                    if (!log) {
+                        db.absensiSiswa.push({
+                            tanggal: todayStr,
+                            id: s.id,
+                            nama: s.name,
+                            kelas: s.kelas || "-",
+                            subject: subjectText,
+                            masuk: timeStr,
+                            status: "Hadir",
+                            keterangan: "-"
+                        });
+                        saveDB();
+                        renderSiswaHistory();
+                    }
                 }
-                saveDB();
-                renderSiswaHistory();
 
+                // Tampilkan pop-up kartu ID Siswa selama 3 detik (berlaku untuk semua hari)
                 const popup = document.getElementById('qris-card-popup');
                 document.getElementById('popup-siswa-name').innerText = s.name;
                 document.getElementById('popup-siswa-id').innerText = `ID: ${s.id}`;
                 document.getElementById('popup-siswa-kelas').innerText = s.kelas || '-';
                 document.getElementById('popup-siswa-subject').innerText = subjectText;
-                document.getElementById('popup-siswa-time').innerText = timeStr;
+                document.getElementById('popup-siswa-time').innerText = isClassDay ? timeStr : `${timeStr} (Bukan Hari Kelas)`;
 
                 popup.classList.remove('hidden');
 
@@ -983,9 +952,7 @@
                     let log = db.absensiSiswa.find(a => a.id === s.id && a.tanggal === dateKey);
                     const subjectText = Array.isArray(s.subject) ? s.subject.join(", ") : (s.subject || "-");
 
-                    let jamMasuk = "-";
-                    let statusBadge = "";
-                    let ketValue = "-";
+                    let jamMasuk = "-", statusBadge = "", ketValue = "-";
 
                     if (isNasionalLibur) {
                         statusBadge = `<span class="bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-bold">Libur Nasional 🌴</span>`;
@@ -1026,7 +993,6 @@
             }
         }
 
-        // --- PAYMENT LOGIC ---
         function populatePaymentFilterDropdown() {
             const datalist = document.getElementById('filter-payment-list-options');
             if (!datalist) return;
@@ -1058,25 +1024,19 @@
             }
 
             const monthsList = [
-                { val: "01", name: "Januari" },
-                { val: "02", name: "Februari" },
-                { val: "03", name: "Maret" },
-                { val: "04", name: "April" },
-                { val: "05", name: "Mei" },
-                { val: "06", name: "Juni" },
-                { val: "07", name: "Juli" },
-                { val: "08", name: "Agustus" },
-                { val: "09", name: "September" },
-                { val: "10", name: "Oktober" },
-                { val: "11", name: "November" },
-                { val: "12", name: "Desember" }
+                { val: "01", name: "Januari" }, { val: "02", name: "Februari" },
+                { val: "03", name: "Maret" }, { val: "04", name: "April" },
+                { val: "05", name: "Mei" }, { val: "06", name: "Juni" },
+                { val: "07", name: "Juli" }, { val: "08", name: "Agustus" },
+                { val: "09", name: "September" }, { val: "10", name: "Oktober" },
+                { val: "11", name: "November" }, { val: "12", name: "Desember" }
             ];
 
             targetSiswaList.forEach((s, index) => {
                 const globalIndex = db.siswa.findIndex(item => item.id === s.id);
                 const isPaid = s.status === 'PAID';
                 const subjectStr = Array.isArray(s.subject) ? s.subject.join(", ") : (s.subject || '-');
-                const currentPeriode = s.periode || selectedMonth;
+                const currentPeriode = s.periode || "Agustus";
 
                 let optionsHtml = '';
                 monthsList.forEach(m => {
@@ -1130,7 +1090,6 @@
             window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        // --- INSTRUCTOR LOGIC ---
         function addAssistant() {
             const name = document.getElementById('new-ast-name').value.trim();
             const pass = document.getElementById('new-ast-pass').value.trim() || "1234";
@@ -1163,41 +1122,20 @@
             const subjects = [];
             document.querySelectorAll('input[name="subject-choice"]:checked').forEach(cb => subjects.push(cb.value));
 
-            if (!id || !name) {
-                alert("ID Siswa dan Nama Siswa wajib diisi!");
-                return;
-            }
+            if (!id || !name) return alert("ID Siswa dan Nama Siswa wajib diisi!");
+            if (subjects.length === 0) return alert("Pilih minimal 1 subject!");
 
-            if (subjects.length === 0) {
-                alert("Pilih minimal 1 subject!");
-                return;
-            }
-
-            if (!Array.isArray(db.siswa)) {
-                db.siswa = [];
-            }
+            if (!Array.isArray(db.siswa)) db.siswa = [];
 
             db.siswa.push({
-                id,
-                name,
-                kelas: kelas || "-",
-                subject: subjects,
-                rate,
-                totalPayment: subjects.length * rate,
-                phone,
-                status: "UNPAID",
-                payDate: "",
-                periode: "Agustus"
+                id, name, kelas: kelas || "-", subject: subjects, rate,
+                totalPayment: subjects.length * rate, phone, status: "UNPAID",
+                payDate: "", periode: "Agustus"
             });
 
             saveDB();
-
-            idInput.value = '';
-            nameInput.value = '';
-            kelasInput.value = '';
-            phoneInput.value = '';
+            idInput.value = ''; nameInput.value = ''; kelasInput.value = ''; phoneInput.value = '';
             document.querySelectorAll('input[name="subject-choice"]').forEach(cb => cb.checked = false);
-
             alert("Siswa baru berhasil ditambahkan! ✨");
         }
 
@@ -1235,14 +1173,8 @@
             const subjects = [];
             document.querySelectorAll('input[name="edit-subject-choice"]:checked').forEach(cb => subjects.push(cb.value));
 
-            if (!id || !name) {
-                alert("ID dan Nama Siswa wajib diisi!");
-                return;
-            }
-            if (subjects.length === 0) {
-                alert("Pilih minimal 1 subject!");
-                return;
-            }
+            if (!id || !name) return alert("ID dan Nama Siswa wajib diisi!");
+            if (subjects.length === 0) return alert("Pilih minimal 1 subject!");
 
             db.siswa[idx].id = id;
             db.siswa[idx].name = name;
@@ -1261,17 +1193,13 @@
             const datalistAst = document.getElementById('list-options-instructor-ast');
             if (datalistAst) {
                 datalistAst.innerHTML = '';
-                db.assistants.forEach(ast => {
-                    datalistAst.innerHTML += `<option value="${ast.name}">`;
-                });
+                db.assistants.forEach(ast => { datalistAst.innerHTML += `<option value="${ast.name}">`; });
             }
 
             const datalistSiswa = document.getElementById('list-options-instructor-siswa');
             if (datalistSiswa) {
                 datalistSiswa.innerHTML = '';
-                db.siswa.forEach(s => {
-                    datalistSiswa.innerHTML += `<option value="${s.name} (${s.id})">`;
-                });
+                db.siswa.forEach(s => { datalistSiswa.innerHTML += `<option value="${s.name} (${s.id})">`; });
             }
 
             const searchAstVal = (document.getElementById('search-instructor-ast')?.value || "").trim().toLowerCase();
@@ -1367,26 +1295,19 @@
             const qrcodeDiv = document.getElementById('qrcode');
             const btnDownload = document.getElementById('btn-download-qr');
 
-            if(!inputVal) {
-                alert("Silakan pilih atau ketik nama siswa terlebih dahulu!");
-                return;
-            }
+            if(!inputVal) return alert("Silakan pilih atau ketik nama siswa terlebih dahulu!");
 
             let idSiswa = inputVal;
             const match = inputVal.match(/\(([^)]+)\)/);
             if (match) idSiswa = match[1];
 
             const foundSiswa = db.siswa.find(s => s.id.toLowerCase() === idSiswa.toLowerCase() || s.name.toLowerCase() === inputVal.toLowerCase());
-            if (!foundSiswa) {
-                alert('Data siswa tidak ditemukan di database!');
-                return;
-            }
+            if (!foundSiswa) return alert('Data siswa tidak ditemukan di database!');
 
             const subjectStr = Array.isArray(foundSiswa.subject) ? foundSiswa.subject.join(", ") : (foundSiswa.subject || "-");
             const qrPayload = `ID: ${foundSiswa.id} | Nama: ${foundSiswa.name} | Kelas: ${foundSiswa.kelas || "-"} | Subject: ${subjectStr}`;
 
             qrcodeDiv.innerHTML = '';
-
             try {
                 new QRCode(qrcodeDiv, {
                     text: qrPayload,
@@ -1409,11 +1330,8 @@
             const canvas = qrcodeDiv.querySelector('canvas');
 
             let imageUrl = "";
-            if (img && img.src) {
-                imageUrl = img.src;
-            } else if (canvas) {
-                imageUrl = canvas.toDataURL("image/png");
-            }
+            if (img && img.src) imageUrl = img.src;
+            else if (canvas) imageUrl = canvas.toDataURL("image/png");
 
             if (!imageUrl) return alert("QR Code belum di-generate!");
 
