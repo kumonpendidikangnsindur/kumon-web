@@ -101,7 +101,7 @@
             <h1 class="title-kumon-frame">
                 Kumon Pendidikan - Gunung Sindur
             </h1>
-            <p class="text-sm text-slate-700 mt-3 font-bold">Silahkan masuk atau daftar untuk mengakses web 🌸</p>
+            <p class="text-xs text-slate-700 mt-3 font-bold">Akses web ini diperuntukkan khusus untuk Instructor dan Assistant Kumon Pendidikan - Gunung Sindur 🌸</p>
         </div>
 
         <!-- Tab Toggle Sign In / Register -->
@@ -223,7 +223,12 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-sky-700 mb-1">Password</label>
-                    <input type="password" id="pass-assistant" placeholder="Masukkan Password" class="w-full p-3 border-2 border-sky-200 rounded-2xl bg-sky-50/50 focus:outline-none focus:border-sky-400 text-sm">
+                    <input type="password" id="pass-assistant" placeholder="Masukkan Password" class="w-full p-3 border-2 border-sky-200 rounded-2xl bg-sky-50/50 focus:outline-none focus:border-sky-400 text-sm" onkeydown="if(event.key === 'Enter') loginAssistant()">
+                </div>
+                <!-- Kotak Ceklis Auto Password Assistant -->
+                <div class="flex items-center ml-1">
+                    <input type="checkbox" id="autosave-pass-assistant" class="w-4 h-4 text-sky-500 border-2 border-sky-300 rounded focus:ring-sky-400 cursor-pointer" onchange="handleAutoSaveAssistantToggle()">
+                    <label for="autosave-pass-assistant" class="ml-2 text-xs font-bold text-sky-800 cursor-pointer">Auto Password</label>
                 </div>
                 <button onclick="loginAssistant()" class="w-full bg-sky-400 hover:bg-sky-500 text-white font-bold py-3 rounded-2xl shadow-md transition text-sm">
                     Masuk ✨
@@ -677,7 +682,6 @@
             return nasionalLibur.includes(dateStr);
         }
 
-        // Set default filter tanggal student ke hari ini & muat data Auto Save Password jika ada
         window.addEventListener('DOMContentLoaded', () => {
             const todayStr = getFormattedDate(new Date());
             const startInput = document.getElementById('filter-siswa-start-date');
@@ -685,7 +689,6 @@
             if (startInput) startInput.value = todayStr;
             if (endInput) endInput.value = todayStr;
 
-            // Load Auto Save Password data
             const savedUser = localStorage.getItem('kumon_saved_user');
             const savedPass = localStorage.getItem('kumon_saved_pass');
             if (savedUser && savedPass) {
@@ -787,7 +790,6 @@
             const foundUser = (db.users || []).find(u => (u.username === userVal || u.email === userVal) && u.password === passVal);
 
             if (foundUser) {
-                // Logika Auto Save Password
                 if (isAutoSaveChecked) {
                     localStorage.setItem('kumon_saved_user', userVal);
                     localStorage.setItem('kumon_saved_pass', passVal);
@@ -811,7 +813,6 @@
             document.getElementById('main-app').classList.add('hidden');
             document.getElementById('auth-gate').classList.remove('hidden');
             
-            // Jika auto save tidak dipilih, kosongkan juga form input saat logout
             if (!document.getElementById('autosave-pass').checked) {
                 document.getElementById('signin-user').value = '';
                 document.getElementById('signin-pass').value = '';
@@ -860,7 +861,6 @@
             alert("PIN berhasil diperbarui!");
         }
 
-        // --- SISTEM DROPDOWN KUSTOM SESUAI ABJAD & SCROLLABLE ---
         function setupCustomDropdown(inputId, dropdownId, dataList, onSelectCallback) {
             const input = document.getElementById(inputId);
             const dropdown = document.getElementById(dropdownId);
@@ -877,19 +877,18 @@
                     return;
                 }
 
-                // Urutkan sesuai abjad (A-Z)
                 const sortedData = [...dataList].sort((a, b) => a.localeId ? a.localeId.localeCompare(b.localeId) : a.localeCompare(b));
                 const filtered = sortedData.filter(item => item.toLowerCase().includes(filterText.toLowerCase()));
 
                 if (filtered.length === 0) {
                     dropdown.innerHTML = `<div class="custom-dropdown-item text-slate-400 italic">Nama tidak ditemukan</div>`;
                 } else {
-                    filtered.forEach((item, index) => {
+                    filtered.forEach((item) => {
                         const div = document.createElement('div');
                         div.className = 'custom-dropdown-item';
                         div.innerText = item;
                         div.addEventListener('mousedown', (e) => {
-                            e.preventDefault(); // Mencegah blur sebelum klik tereksekusi
+                            e.preventDefault();
                             input.value = item;
                             dropdown.classList.add('hidden');
                             if (onSelectCallback) onSelectCallback(item);
@@ -948,13 +947,52 @@
             }
         }
 
+        // Fungsi Load & Toggle Auto Password Assistant
+        function handleAssistantSelected(selectedName) {
+            currentAst = selectedName;
+            const savedData = JSON.parse(localStorage.getItem('kumon_assistant_saved') || '{}');
+            if (savedData[selectedName]) {
+                document.getElementById('pass-assistant').value = savedData[selectedName];
+                document.getElementById('autosave-pass-assistant').checked = true;
+            } else {
+                document.getElementById('pass-assistant').value = '';
+                document.getElementById('autosave-pass-assistant').checked = false;
+            }
+        }
+
+        function handleAutoSaveAssistantToggle() {
+            const isChecked = document.getElementById('autosave-pass-assistant').checked;
+            const astName = document.getElementById('input-search-assistant').value.trim();
+            const passVal = document.getElementById('pass-assistant').value.trim();
+
+            if (!astName) return;
+
+            let savedData = JSON.parse(localStorage.getItem('kumon_assistant_saved') || '{}');
+            if (isChecked && passVal) {
+                savedData[astName] = passVal;
+            } else {
+                delete savedData[astName];
+            }
+            localStorage.setItem('kumon_assistant_saved', JSON.stringify(savedData));
+        }
+
         function loginAssistant() {
             const inputVal = document.getElementById('input-search-assistant').value.trim();
             const pass = document.getElementById('pass-assistant').value;
+            const isAutoSave = document.getElementById('autosave-pass-assistant').checked;
             const ast = db.assistants.find(a => a.name.toLowerCase() === inputVal.toLowerCase());
 
             if (ast && ast.pass === pass) {
                 currentAst = ast.name;
+                
+                let savedData = JSON.parse(localStorage.getItem('kumon_assistant_saved') || '{}');
+                if (isAutoSave) {
+                    savedData[currentAst] = pass;
+                } else {
+                    delete savedData[currentAst];
+                }
+                localStorage.setItem('kumon_assistant_saved', JSON.stringify(savedData));
+
                 document.getElementById('ast-name').innerText = currentAst;
                 document.getElementById('assistant-login-box').classList.add('hidden');
                 document.getElementById('assistant-dashboard').classList.remove('hidden');
@@ -1107,10 +1145,20 @@
             const daysInMonth = new Date(selectedYear, selectedMonth, 0).getDate();
             const daysName = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 
+            const now = new Date();
+            const todayStr = getFormattedDate(now);
+            const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
+            const currentYear = String(now.getFullYear());
+
             let no = 1;
             for (let d = 1; d <= daysInMonth; d++) {
                 const dayStr = String(d).padStart(2, '0');
                 const dateKey = `${selectedYear}-${selectedMonth}-${dayStr}`;
+
+                if (selectedYear === currentYear && selectedMonth === currentMonth && dateKey > todayStr) {
+                    break;
+                }
+
                 const currDateObj = new Date(selectedYear, selectedMonth - 1, d);
                 const dayName = daysName[currDateObj.getDay()];
                 const isWeekend = (currDateObj.getDay() === 0 || currDateObj.getDay() === 6);
@@ -1127,7 +1175,6 @@
                 } else {
                     if (isWeekend) statusBadge = `<span class="bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-bold">Libur 🌴</span>`;
                     else {
-                        const todayStr = getFormattedDate(new Date());
                         if (dateKey <= todayStr) statusBadge = `<span class="bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full font-bold">Absen ❌</span>`;
                         else statusBadge = `<span class="text-slate-400">-</span>`;
                     }
@@ -1365,12 +1412,10 @@
             let no = 1;
             let currDateObj = new Date(startDate);
 
-            // Loop per tanggal dari tanggal awal sampai tanggal akhir
             while (currDateObj <= endDate) {
                 const dateKey = getFormattedDate(currDateObj);
                 const dayOfWeek = currDateObj.getDay();
 
-                // Hanya tampilkan hari kelas (Senin = 1, Kamis = 4)
                 if (dayOfWeek === 1 || dayOfWeek === 4) {
                     const dayName = daysName[dayOfWeek];
                     const isNasionalLibur = isHariLiburNasional(dateKey);
@@ -1419,7 +1464,6 @@
                         `;
                     });
                 }
-                // Tambah 1 hari ke depan
                 currDateObj.setDate(currDateObj.getDate() + 1);
             }
         }
@@ -1640,7 +1684,9 @@
             const assistantNames = db.assistants.map(ast => ast.name);
             const siswaNamesAndIds = db.siswa.map(s => `${s.name} (${s.id})`);
 
-            setupCustomDropdown('input-search-assistant', 'dropdown-assistant', assistantNames);
+            setupCustomDropdown('input-search-assistant', 'dropdown-assistant', assistantNames, (selectedName) => {
+                handleAssistantSelected(selectedName);
+            });
             setupCustomDropdown('filter-siswa-input', 'dropdown-filter-siswa', siswaNamesAndIds);
             setupCustomDropdown('filter-payment-input', 'dropdown-filter-payment', siswaNamesAndIds);
 
