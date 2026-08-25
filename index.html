@@ -228,7 +228,7 @@
                 <!-- Kotak Ceklis Auto Password Assistant -->
                 <div class="flex items-center ml-1">
                     <input type="checkbox" id="autosave-pass-assistant" class="w-4 h-4 text-sky-500 border-2 border-sky-300 rounded focus:ring-sky-400 cursor-pointer" onchange="handleAutoSaveAssistantToggle()">
-                    <label for="autosave-pass-assistant" class="ml-2 text-xs font-bold text-sky-800 cursor-pointer">Auto Password</label>
+                    <label for="autosave-pass-assistant" class="ml-2 text-xs font-bold text-sky-800 cursor-pointer">Auto Save Password</label>
                 </div>
                 <button onclick="loginAssistant()" class="w-full bg-sky-400 hover:bg-sky-500 text-white font-bold py-3 rounded-2xl shadow-md transition text-sm">
                     Masuk ✨
@@ -360,24 +360,32 @@
             </div>
 
             <div class="bg-white p-4 rounded-2xl border-2 border-pink-100 shadow-sm space-y-3">
-                <div class="flex flex-col sm:flex-row justify-between items-center gap-2 border-b pb-2">
-                    <h4 class="font-bold text-sm text-pink-600">📜 History Absensi Student (Senin & Kamis)</h4>
+                <div class="flex flex-col gap-2 border-b pb-2">
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
+                        <h4 class="font-bold text-sm text-pink-600">📜 History Absensi Student (Senin & Kamis)</h4>
+                        
+                        <!-- FILTER PENCARIAN TANGGAL & SISWA -->
+                        <div class="flex items-center gap-2 text-xs flex-wrap">
+                            <div class="flex items-center gap-1 bg-pink-50 p-1.5 rounded-xl border border-pink-200">
+                                <span class="font-semibold text-pink-700">Dari:</span>
+                                <input type="date" id="filter-siswa-start-date" onchange="renderSiswaHistory()" class="bg-white p-1 rounded border border-pink-200 font-semibold text-pink-700 focus:outline-none">
+                                <span class="font-semibold text-pink-700">s/d:</span>
+                                <input type="date" id="filter-siswa-end-date" onchange="renderSiswaHistory()" class="bg-white p-1 rounded border border-pink-200 font-semibold text-pink-700 focus:outline-none">
+                            </div>
+
+                            <div class="relative">
+                                <input type="text" id="filter-siswa-input" placeholder="Semua Student (Ketik/Pilih)" class="p-1.5 border rounded-xl bg-pink-50 font-semibold text-pink-700 focus:outline-none w-44" autocomplete="off">
+                                <div id="dropdown-filter-siswa" class="hidden custom-dropdown-list"></div>
+                            </div>
+
+                            <button onclick="renderSiswaHistory()" class="bg-pink-500 hover:bg-pink-600 text-white font-bold px-3 py-1.5 rounded-xl shadow transition">🔍 Search</button>
+                        </div>
+                    </div>
                     
-                    <!-- FILTER PENCARIAN TANGGAL & SISWA -->
-                    <div class="flex items-center gap-2 text-xs flex-wrap">
-                        <div class="flex items-center gap-1 bg-pink-50 p-1.5 rounded-xl border border-pink-200">
-                            <span class="font-semibold text-pink-700">Dari:</span>
-                            <input type="date" id="filter-siswa-start-date" class="bg-white p-1 rounded border border-pink-200 font-semibold text-pink-700 focus:outline-none">
-                            <span class="font-semibold text-pink-700">s/d:</span>
-                            <input type="date" id="filter-siswa-end-date" class="bg-white p-1 rounded border border-pink-200 font-semibold text-pink-700 focus:outline-none">
-                        </div>
-
-                        <div class="relative">
-                            <input type="text" id="filter-siswa-input" placeholder="Semua Student (Ketik/Pilih)" class="p-1.5 border rounded-xl bg-pink-50 font-semibold text-pink-700 focus:outline-none w-44" autocomplete="off">
-                            <div id="dropdown-filter-siswa" class="hidden custom-dropdown-list"></div>
-                        </div>
-
-                        <button onclick="renderSiswaHistory()" class="bg-pink-500 hover:bg-pink-600 text-white font-bold px-3 py-1.5 rounded-xl shadow transition">🔍 Search</button>
+                    <!-- Kotak Ceklis Hari Kelas Pengganti (Poin 1) -->
+                    <div class="flex items-center gap-2 bg-pink-50/80 p-2 rounded-xl border border-pink-200 w-fit">
+                        <input type="checkbox" id="check-kelas-pengganti" onchange="renderSiswaHistory()" class="w-4 h-4 text-pink-500 border-2 border-pink-300 rounded focus:ring-pink-400 cursor-pointer">
+                        <label for="check-kelas-pengganti" class="text-xs font-bold text-pink-700 cursor-pointer">Sebagai Hari Kelas Pengganti 🌸</label>
                     </div>
                 </div>
 
@@ -467,7 +475,7 @@
                     <h3 id="inst-subject-mtk" class="text-2xl font-extrabold text-sky-800 mt-0.5">0</h3>
                 </div>
                 <div class="bg-orange-100 p-3.5 rounded-2xl border-2 border-orange-300 text-center shadow-sm hover:scale-105 transition transform">
-                    <p class="text-[13px] font-bold text-orange-700 uppercase tracking-wider">Bahasa Inggris (EFL)</p>
+                    <p class="text-[13px] font-bold text-orange-700 uppercase tracking-wider">Bahasa Inggris</p>
                     <h3 id="inst-subject-bing" class="text-2xl font-extrabold text-orange-800 mt-0.5">0</h3>
                 </div>
                 <div class="bg-pastelMint/80 p-3.5 rounded-2xl border-2 border-emerald-300 text-center shadow-sm hover:scale-105 transition transform col-span-2 sm:col-span-1">
@@ -947,7 +955,6 @@
             }
         }
 
-        // Fungsi Load & Toggle Auto Password Assistant
         function handleAssistantSelected(selectedName) {
             currentAst = selectedName;
             const savedData = JSON.parse(localStorage.getItem('kumon_assistant_saved') || '{}');
@@ -1254,7 +1261,7 @@
                 const now = new Date();
                 const todayStr = getFormattedDate(now);
                 const dayOfWeek = now.getDay();
-                const isClassDay = (dayOfWeek === 1 || dayOfWeek === 4);
+                const isClassDay = (dayOfWeek === 1 || dayOfWeek === 4) && !isHariLiburNasional(todayStr);
 
                 isProcessingScan = true;
                 playBeepSound();
@@ -1298,13 +1305,63 @@
             });
         }
 
+        function isTanggalKelasPengganti(dateKey) {
+            const checkbox = document.getElementById('check-kelas-pengganti');
+            const startDateVal = document.getElementById('filter-siswa-start-date').value;
+            if (checkbox && checkbox.checked && startDateVal === dateKey) {
+                return true;
+            }
+            return false;
+        }
+
+        function updateSiswaSummaryForDate(dateKey, targetSiswaList) {
+            const totalSiswa = targetSiswaList.length;
+            const dayOfWeek = new Date(dateKey).getDay();
+            const isRegularClassDay = (dayOfWeek === 1 || dayOfWeek === 4) && !isHariLiburNasional(dateKey);
+            const isReplacementClass = isTanggalKelasPengganti(dateKey);
+
+            const elTotal = document.getElementById('stat-total-siswa');
+            const elHadir = document.getElementById('stat-hadir-siswa');
+            const elAbsen = document.getElementById('stat-absen-siswa');
+
+            if (elTotal) elTotal.innerText = totalSiswa;
+
+            if (!isRegularClassDay && !isReplacementClass) {
+                if (elHadir) elHadir.innerText = 0;
+                if (elAbsen) elAbsen.innerText = 0;
+                return;
+            }
+
+            let totalHadir = 0;
+            targetSiswaList.forEach(s => {
+                let log = db.absensiSiswa.find(a => a.id === s.id && a.tanggal === dateKey);
+                if (log && log.masuk && log.masuk !== "-") {
+                    totalHadir++;
+                }
+            });
+
+            let totalTidakHadir = totalSiswa - totalHadir;
+            if (totalTidakHadir < 0) totalTidakHadir = 0;
+
+            if (elHadir) elHadir.innerText = totalHadir;
+            if (elAbsen) elAbsen.innerText = totalTidakHadir;
+        }
+
         function updateSiswaSummary() {
             const totalSiswa = (db.siswa || []).length;
-            const todayStr = getFormattedDate(new Date());
+            const now = new Date();
+            const todayStr = getFormattedDate(now);
+            const dayOfWeek = now.getDay();
+            const isClassDay = (dayOfWeek === 1 || dayOfWeek === 4) && !isHariLiburNasional(todayStr);
 
             const todayLogs = (db.absensiSiswa || []).filter(a => a.tanggal === todayStr);
             const totalHadir = todayLogs.filter(a => a.masuk && a.masuk !== "-").length;
-            const totalTidakHadir = totalSiswa - totalHadir;
+            
+            let totalTidakHadir = 0;
+            if (isClassDay) {
+                totalTidakHadir = totalSiswa - totalHadir;
+                if (totalTidakHadir < 0) totalTidakHadir = 0;
+            }
 
             const elTotal = document.getElementById('stat-total-siswa');
             const elHadir = document.getElementById('stat-hadir-siswa');
@@ -1312,7 +1369,7 @@
 
             if (elTotal) elTotal.innerText = totalSiswa;
             if (elHadir) elHadir.innerText = totalHadir;
-            if (elAbsen) elAbsen.innerText = totalTidakHadir < 0 ? 0 : totalTidakHadir;
+            if (elAbsen) elAbsen.innerText = totalTidakHadir;
         }
 
         function updateInstructorSummary() {
@@ -1415,10 +1472,12 @@
             while (currDateObj <= endDate) {
                 const dateKey = getFormattedDate(currDateObj);
                 const dayOfWeek = currDateObj.getDay();
+                const isReplacement = isTanggalKelasPengganti(dateKey);
+                const isRegularClass = (dayOfWeek === 1 || dayOfWeek === 4);
 
-                if (dayOfWeek === 1 || dayOfWeek === 4) {
+                if (isRegularClass || isReplacement) {
                     const dayName = daysName[dayOfWeek];
-                    const isNasionalLibur = isHariLiburNasional(dateKey);
+                    const isNasionalLibur = isHariLiburNasional(dateKey) && !isReplacement;
 
                     targetSiswaList.forEach(s => {
                         let log = db.absensiSiswa.find(a => a.id === s.id && a.tanggal === dateKey);
@@ -1452,7 +1511,7 @@
                             <tr class="hover:bg-pink-50/50">
                                 <td class="p-2 font-bold">${no++}</td>
                                 <td class="p-2">${dateKey.split('-').reverse().join('/')}</td>
-                                <td class="p-2 font-semibold text-pink-600">${dayName}</td>
+                                <td class="p-2 font-semibold text-pink-600">${dayName} ${isReplacement ? '(Pengganti) ⭐' : ''}</td>
                                 <td class="p-2">${s.id}</td>
                                 <td class="p-2 font-bold">${s.name}</td>
                                 <td class="p-2">${s.kelas || '-'}</td>
@@ -1465,6 +1524,12 @@
                     });
                 }
                 currDateObj.setDate(currDateObj.getDate() + 1);
+            }
+
+            if (startDateVal === endDateVal) {
+                updateSiswaSummaryForDate(startDateVal, targetSiswaList);
+            } else {
+                updateSiswaSummary();
             }
         }
 
