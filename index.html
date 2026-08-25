@@ -9,10 +9,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- FontAwesome untuk Logo Sosmed -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- SheetJS & HTML5-QRCode & QRCodeJS -->
+    <!-- SheetJS & HTML5-QRCode & QRCodeJS & html2canvas -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <!-- Firebase SDK (v9 Compatibility Mode) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
@@ -382,7 +383,7 @@
                         </div>
                     </div>
                     
-                    <!-- Kotak Ceklis Hari Kelas Pengganti (Poin 1) -->
+                    <!-- Kotak Ceklis Hari Kelas Pengganti -->
                     <div class="flex items-center gap-2 bg-pink-50/80 p-2 rounded-xl border border-pink-200 w-fit">
                         <input type="checkbox" id="check-kelas-pengganti" onchange="renderSiswaHistory()" class="w-4 h-4 text-pink-500 border-2 border-pink-300 rounded focus:ring-pink-400 cursor-pointer">
                         <label for="check-kelas-pengganti" class="text-xs font-bold text-pink-700 cursor-pointer">Sebagai Hari Kelas Pengganti 🌸</label>
@@ -401,7 +402,7 @@
                                 <th class="p-2">Kelas</th>
                                 <th class="p-2">Subject</th>
                                 <th class="p-2">Jam Kedatangan</th>
-                                <th class="p-2">Status</th>
+                                <th class="p-2 rounded-r-lg min-w-[130px]">Status Kehadiran</th>
                                 <th class="p-2 rounded-r-lg">Keterangan</th>
                             </tr>
                         </thead>
@@ -435,9 +436,10 @@
                 </div>
             </div>
 
-            <div class="overflow-x-auto">
+            <!-- Area Tabel Payment dengan Scroll & Keyboard Navigation (max-h-96 / overflow-y-auto) -->
+            <div tabindex="0" class="overflow-x-auto max-h-96 focus:outline-none focus:ring-2 focus:ring-emerald-300 rounded-2xl">
                 <table class="w-full text-xs text-left text-slate-600">
-                    <thead class="text-xs uppercase bg-emerald-100 text-emerald-700">
+                    <thead class="text-xs uppercase bg-emerald-100 text-emerald-700 sticky top-0 z-10">
                         <tr>
                             <th class="p-3 rounded-l-xl">No</th>
                             <th class="p-3">ID Student</th>
@@ -448,6 +450,7 @@
                             <th class="p-3">Tanggal Pembayaran</th>
                             <th class="p-3">Periode Pembayaran</th>
                             <th class="p-3 text-center">Status</th>
+                            <th class="p-3 text-center">Kwitansi SPP</th>
                             <th class="p-3 text-center rounded-r-xl">Reminder</th>
                         </tr>
                     </thead>
@@ -475,7 +478,7 @@
                     <h3 id="inst-subject-mtk" class="text-2xl font-extrabold text-sky-800 mt-0.5">0</h3>
                 </div>
                 <div class="bg-orange-100 p-3.5 rounded-2xl border-2 border-orange-300 text-center shadow-sm hover:scale-105 transition transform">
-                    <p class="text-[13px] font-bold text-orange-700 uppercase tracking-wider">Bahasa Inggris</p>
+                    <p class="text-[13px] font-bold text-orange-700 uppercase tracking-wider">Bahasa Inggris (EFL)</p>
                     <h3 id="inst-subject-bing" class="text-2xl font-extrabold text-orange-800 mt-0.5">0</h3>
                 </div>
                 <div class="bg-pastelMint/80 p-3.5 rounded-2xl border-2 border-emerald-300 text-center shadow-sm hover:scale-105 transition transform col-span-2 sm:col-span-1">
@@ -519,7 +522,7 @@
                             <label class="font-bold text-pink-600 block mb-1">Pilih Subject:</label>
                             <div class="flex flex-wrap gap-2">
                                 <label class="flex items-center gap-1 cursor-pointer bg-blue-50 text-blue-700 px-2 py-1 rounded-lg border border-blue-200"><input type="checkbox" name="subject-choice" value="Matematika"> Matematika</label>
-                                <label class="flex items-center gap-1 cursor-pointer bg-orange-100 text-orange-700 px-2 py-1 rounded-lg border border-orange-300"><input type="checkbox" name="subject-choice" value="Bahasa Inggris (EFL)"> Bahasa Inggris (EFL)</label>
+                                <label class="flex items-center gap-1 cursor-pointer bg-orange-100 text-orange-700 px-2 py-1 rounded-lg border border-orange-300"><input type="checkbox" name="subject-choice" value="Bahasa Inggris (EFL)">Bahasa Inggris (EFL)</label>
                                 <label class="flex items-center gap-1 cursor-pointer bg-emerald-100 text-emerald-700 px-2 py-1 rounded-lg border border-emerald-300"><input type="checkbox" name="subject-choice" value="Bahasa Indonesia"> Bahasa Indonesia</label>
                             </div>
                         </div>
@@ -623,7 +626,8 @@
             <div class="bg-slate-50 p-2 border rounded-xl text-xs space-y-1">
                 <label class="font-bold text-pink-600 block mb-1">Pilih Subject:</label>
                 <div class="flex flex-wrap gap-2">
-                    <label class="flex items-center gap-1 cursor-pointer bg-blue-50 text-blue-700 px-2 py-1 rounded-lg border border-blue-200"><input type="checkbox" name="edit-subject-choice" value="Matematika"> Matematika</label>
+                    <label class="flex items-center gap-1 cursor-pointer bg-blue-50 text-blue-700 px-2 py-1 rounded-lg border border-blue-200"><input type="checkbox" name="edit-subject-choice" value="Matematika"> Matematika
+</label>
                     <label class="flex items-center gap-1 cursor-pointer bg-orange-100 text-orange-700 px-2 py-1 rounded-lg border border-orange-300"><input type="checkbox" name="edit-subject-choice" value="Bahasa Inggris (EFL)"> Bahasa Inggris (EFL)</label>
                     <label class="flex items-center gap-1 cursor-pointer bg-emerald-100 text-emerald-700 px-2 py-1 rounded-lg border border-emerald-300"><input type="checkbox" name="edit-subject-choice" value="Bahasa Indonesia"> Bahasa Indonesia</label>
                 </div>
@@ -642,6 +646,97 @@
             <div class="flex gap-2 pt-2">
                 <button onclick="saveEditSiswa()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 rounded-xl text-xs transition">Simpan Perubahan</button>
                 <button onclick="closeModalEditSiswa()" class="w-full bg-slate-300 hover:bg-slate-400 text-slate-700 font-bold py-2 rounded-xl text-xs transition">Batal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PREVIEW KWITANSI PEMBAYARAN SPP -->
+    <div id="modal-kwitansi" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl p-6 max-w-lg w-full border-4 border-emerald-300 space-y-4 shadow-2xl my-8">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="font-extrabold text-base text-emerald-700">🧾 Kwitansi Pembayaran SPP Kumon</h3>
+                <button onclick="closeKwitansiModal()" class="text-slate-400 hover:text-slate-600 font-bold text-lg">✕</button>
+            </div>
+
+            <!-- Opsi Tambahan Biaya Pendaftaran -->
+            <div class="bg-emerald-50 p-3 rounded-2xl border border-emerald-200 flex items-center justify-between text-xs">
+                <span class="font-bold text-emerald-900">Termasuk Biaya Pendaftaran (Rp 350.000)</span>
+                <input type="checkbox" id="kwitansi-check-pendaftaran" onchange="updateKwitansiTotal()" class="w-4 h-4 text-emerald-600 border-2 border-emerald-400 rounded cursor-pointer">
+            </div>
+
+            <!-- AREA GAMBAR KWITANSI YANG AKAN DI-RENDER KE PNG -->
+            <div id="kwitansi-print-area" class="bg-white p-6 rounded-2xl border-2 border-dashed border-emerald-400 text-slate-800 space-y-4 relative shadow-sm">
+                <!-- Header Kwitansi -->
+                <div class="text-center space-y-1 border-b pb-3">
+                    <div class="flex justify-center items-center my-4">
+    <img src="https://www.kumon.com/assets/images/whats-kumon/logo_img_01.gif" alt="Logo Kumon" class="h-10 w-auto object-contain">
+</div>
+                   <h1 class="text-lg font-extrabold text-slate-800">Kumon Pendidikan - Gunung Sindur</h1>
+                    <p class="text-[11px] text-slate-500">Jl. Pendidikan No. 21, Rawa Kalong, Gunung Sindur, Bogor</p>
+                </div>
+
+                <!-- Info Kwitansi -->
+                <div class="grid grid-cols-2 text-xs gap-2 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                    <div>
+                        <p class="text-slate-500">Nama Student:</p>
+                        <b id="kwitansi-nama" class="text-slate-800 text-sm">-</b>
+                    </div>
+                    <div>
+                        <p class="text-slate-500">ID / Kelas:</p>
+                        <b id="kwitansi-id-kelas" class="text-slate-800">-</b>
+                    </div>
+                    <div>
+                        <p class="text-slate-500">Periode Pembayaran:</p>
+                        <b id="kwitansi-periode" class="text-emerald-700">-</b>
+                    </div>
+                    <div>
+                        <p class="text-slate-500">Tanggal Bayar:</p>
+                        <b id="kwitansi-tanggal" class="text-slate-800">-</b>
+                    </div>
+                </div>
+
+                <!-- Detail Subject & Biaya -->
+                <div class="space-y-2 text-xs">
+                    <p class="font-bold text-slate-700 border-b pb-1">Rincian Biaya:</p>
+                    <div id="kwitansi-subject-list" class="space-y-1.5 pl-2">
+                        <!-- Diisi via JS per poin -->
+                    </div>
+                    <div id="kwitansi-row-pendaftaran" class="hidden flex justify-between items-center text-slate-700 pl-2 pt-1 border-t border-slate-100">
+                        <span>• Biaya Pendaftaran Baru</span>
+                        <span class="font-semibold">Rp 350.000</span>
+                    </div>
+                    <div class="flex justify-between items-center pt-3 border-t-2 border-emerald-200 text-sm font-extrabold text-emerald-800 bg-emerald-50/50 p-2 rounded-xl">
+                        <span>TOTAL PAYMENT:</span>
+                        <span id="kwitansi-total-payment">Rp 0</span>
+                    </div>
+                </div>
+
+                <!-- Tanda Tangan & Status Diterima -->
+                <div class="pt-2 border-t flex justify-between items-end text-xs">
+                    <div class="space-y-1">
+                        <span class="bg-emerald-100 text-emerald-800 font-extrabold px-2.5 py-1 rounded-full text-[10px] uppercase inline-block">✔ LUNAS / PAID</span>
+                        <p class="text-[10px] text-slate-500 italic">Pembayaran sudah diterima</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-slate-500 mb-6">Instructor,</p>
+                        <b class="text-slate-800 underline">Ardini Suciati</b>
+                    </div>
+                </div>
+
+                <!-- Footer Ucapan Terimakasih -->
+                <div class="text-center pt-2 border-t text-[11px] text-slate-600 font-medium italic">
+                    "Terima kasih atas kepercayaan Ayah/Bunda"                
+                </div>
+            </div>
+
+            <!-- Tombol Aksi Pilihan -->
+            <div class="grid grid-cols-2 gap-3 pt-2">
+                <button onclick="downloadAndShareKwitansiWhatsApp()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold py-3 rounded-2xl text-xs transition shadow-md flex items-center justify-center gap-1.5">
+                    <i class="fa-brands fa-whatsapp text-sm"></i> Kirim ke WhatsApp Ortu 💬
+                </button>
+                <button onclick="closeKwitansiModal()" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 rounded-2xl text-xs transition">
+                    Batal ❌
+                </button>
             </div>
         </div>
     </div>
@@ -681,6 +776,7 @@
         let isOwnerUnlocked = false;
         let isPaymentUnlocked = false;
         let isProcessingScan = false;
+        let currentKwitansiStudentIndex = null;
 
         const nasionalLibur = [
             "2026-01-01", "2026-01-16", "2026-02-17", "2026-03-19", "2026-03-20",
@@ -1456,13 +1552,13 @@
 
             const daysName = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 
-            let targetSiswaList = db.siswa;
+            let targetSiswaList = [...db.siswa];
             if (inputVal !== "" && inputVal.toLowerCase() !== "semua student") {
                 let targetId = inputVal;
                 const match = inputVal.match(/\(([^)]+)\)/);
                 if (match) targetId = match[1];
 
-                targetSiswaList = db.siswa.filter(s =>
+                targetSiswaList = targetSiswaList.filter(s =>
                     s.id.toLowerCase() === targetId.toLowerCase() ||
                     s.name.toLowerCase().includes(inputVal.toLowerCase())
                 );
@@ -1481,8 +1577,22 @@
                     const dayName = daysName[dayOfWeek];
                     const isNasionalLibur = isHariLiburNasional(dateKey) && !isReplacement;
 
-                    targetSiswaList.forEach(s => {
+                    let evaluatedList = targetSiswaList.map(s => {
                         let log = db.absensiSiswa.find(a => a.id === s.id && a.tanggal === dateKey);
+                        let isHadir = (log && log.masuk && log.masuk !== "-");
+                        return { s, log, isHadir };
+                    });
+
+                    evaluatedList.sort((a, b) => {
+                        if (a.isHadir !== b.isHadir) {
+                            return a.isHadir ? -1 : 1;
+                        }
+                        return a.s.name.localeCompare(b.s.name);
+                    });
+
+                    evaluatedList.forEach(item => {
+                        const s = item.s;
+                        const log = item.log;
                         const subjectText = Array.isArray(s.subject) ? s.subject.join(", ") : (s.subject || "-");
 
                         let jamMasuk = "-", statusBadge = "", ketValue = "-";
@@ -1544,17 +1654,19 @@
             const selectedYear = document.getElementById('filter-payment-year').value;
             const inputVal = document.getElementById('filter-payment-input').value.trim();
 
-            let targetSiswaList = db.siswa;
+            let targetSiswaList = [...db.siswa];
             if (inputVal !== "" && inputVal.toLowerCase() !== "semua student") {
                 let targetId = inputVal;
                 const match = inputVal.match(/\(([^)]+)\)/);
                 if (match) targetId = match[1];
 
-                targetSiswaList = db.siswa.filter(s =>
+                targetSiswaList = targetSiswaList.filter(s =>
                     s.id.toLowerCase() === targetId.toLowerCase() ||
                     s.name.toLowerCase().includes(inputVal.toLowerCase())
                 );
             }
+
+            targetSiswaList.sort((a, b) => a.name.localeCompare(b.name));
 
             const monthsList = [
                 { val: "01", name: "Januari" }, { val: "02", name: "Februari" },
@@ -1591,6 +1703,7 @@
                             </select>
                         </td>
                         <td class="p-3 text-center"><button onclick="togglePaymentStatus(${globalIndex})" class="px-3 py-1 rounded-full text-[10px] font-bold ${isPaid ? 'bg-emerald-100 text-emerald-600 border border-emerald-300' : 'bg-rose-100 text-rose-600 border border-rose-300'}">${s.status || 'UNPAID'}</button></td>
+                        <td class="p-3 text-center"><button onclick="openKwitansiModal(${globalIndex})" class="bg-sky-500 hover:bg-sky-600 text-white font-bold px-3 py-1.5 rounded-xl text-xs shadow mx-auto">🧾 Kirim</button></td>
                         <td class="p-3 text-center"><button onclick="sendWAReminder(${globalIndex})" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-3 py-1.5 rounded-xl text-xs shadow mx-auto">💬 WA</button></td>
                     </tr>`;
             });
@@ -1608,7 +1721,104 @@
             renderPaymentTable();
         }
 
-        function sendWAReminder(index) {
+        function openKwitansiModal(index) {
+            currentKwitansiStudentIndex = index;
+            const s = db.siswa[index];
+            if (!s) return;
+
+            document.getElementById('kwitansi-nama').innerText = s.name;
+            document.getElementById('kwitansi-id-kelas').innerText = `${s.id} / ${s.kelas || '-'}`;
+            document.getElementById('kwitansi-periode').innerText = s.periode || 'Agustus';
+            document.getElementById('kwitansi-tanggal').innerText = s.payDate ? s.payDate.split('-').reverse().join('/') : getFormattedDate(new Date()).split('-').reverse().join('/');
+            
+            const checkPendaftaran = document.getElementById('kwitansi-check-pendaftaran');
+            if (checkPendaftaran) checkPendaftaran.checked = false;
+
+            renderKwitansiDetails();
+            document.getElementById('modal-kwitansi').classList.remove('hidden');
+        }
+
+        function closeKwitansiModal() {
+            document.getElementById('modal-kwitansi').classList.add('hidden');
+            currentKwitansiStudentIndex = null;
+        }
+
+        function updateKwitansiTotal() {
+            renderKwitansiDetails();
+        }
+
+        function renderKwitansiDetails() {
+            if (currentKwitansiStudentIndex === null) return;
+            const s = db.siswa[currentKwitansiStudentIndex];
+            const subjects = Array.isArray(s.subject) ? s.subject : [s.subject];
+            const rate = s.rate || 525000;
+
+            const listContainer = document.getElementById('kwitansi-subject-list');
+            listContainer.innerHTML = '';
+
+            let calculatedTotal = 0;
+            subjects.forEach(sub => {
+                calculatedTotal += rate;
+                listContainer.innerHTML += `
+                    <div class="flex justify-between items-center text-slate-700">
+                        <span>• SPP Subject: ${sub}</span>
+                        <span class="font-semibold">Rp ${rate.toLocaleString('id-ID')}</span>
+                    </div>
+                `;
+            });
+
+            const isPendaftaranChecked = document.getElementById('kwitansi-check-pendaftaran')?.checked || false;
+            const rowPendaftaran = document.getElementById('kwitansi-row-pendaftaran');
+
+            if (isPendaftaranChecked) {
+                rowPendaftaran.classList.remove('hidden');
+                calculatedTotal += 350000;
+            } else {
+                rowPendaftaran.classList.add('hidden');
+            }
+
+            document.getElementById('kwitansi-total-payment').innerText = `Rp ${calculatedTotal.toLocaleString('id-ID')}`;
+        }
+
+        function downloadAndShareKwitansiWhatsApp() {
+            if (currentKwitansiStudentIndex === null) return;
+            const s = db.siswa[currentKwitansiStudentIndex];
+            const printArea = document.getElementById('kwitansi-print-area');
+
+            html2canvas(printArea, { scale: 2, backgroundColor: '#ffffff' }).then(canvas => {
+                canvas.toBlob(blob => {
+                    const file = new File([blob], `Kwitansi_SPP_${s.name.replace(/\s+/g, '_')}.png`, { type: 'image/png' });
+                    
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        navigator.share({
+                            files: [file],
+                            title: 'Kwitansi Pembayaran SPP Kumon',
+                            text: `Berikut terlampir kwitansi pembayaran SPP Kumon untuk ananda ${s.name}. Terima kasih.`
+                        }).catch(err => console.log('Share dibatalkan:', err));
+                    } else {
+                        const link = document.createElement('a');
+                        link.download = `Kwitansi_SPP_${s.name.replace(/\s+/g, '_')}.png`;
+                        link.href = URL.createObjectURL(blob);
+                        link.click();
+
+                        let phone = s.phone ? s.phone.replace(/[^0-9]/g, '') : '';
+                        if (phone.startsWith('0')) phone = '62' + phone.slice(1);
+                        const msg = `Halo Ayah/Bunda ${s.name}, berikut terlampir kwitansi pembayaran SPP Kumon bulan ${s.periode || 'Agustus'}. Kwitansi telah diunduh di perangkat Anda untuk dibagikan.\n\nTerima Kasih.\n_Kumon Pendidikan - Gunung Sindur_`;
+                        
+                        if (phone) {
+                            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+                        } else {
+                            alert("Nomor HP orang tua belum diisi. Gambar kwitansi berhasil diunduh.");
+                        }
+                    }
+                }, 'image/png');
+            }).catch(err => {
+                console.error("Gagal generate gambar kwitansi:", err);
+                alert("Terjadi kesalahan saat memproses gambar kwitansi.");
+            });
+        }
+
+    function sendWAReminder(index) {
             const s = db.siswa[index];
             if (!s.phone) return alert("Nomor HP belum diisi!");
             let phone = s.phone.replace(/[^0-9]/g, '');
@@ -1626,91 +1836,89 @@
         function addAssistant() {
             const name = document.getElementById('new-ast-name').value.trim();
             const pass = document.getElementById('new-ast-pass').value.trim() || "1234";
-            if (name) {
-                db.assistants.push({ name, pass });
-                document.getElementById('new-ast-name').value = '';
-                document.getElementById('new-ast-pass').value = '';
+            if (!name) return alert("Masukkan nama assistant!");
+
+            if (db.assistants.some(a => a.name.toLowerCase() === name.toLowerCase())) {
+                return alert("Nama assistant sudah terdaftar!");
+            }
+
+            db.assistants.push({ name, pass });
+            saveDB();
+            document.getElementById('new-ast-name').value = '';
+            document.getElementById('new-ast-pass').value = '';
+            alert("Assistant berhasil ditambahkan!");
+        }
+
+        function deleteAssistant(name) {
+            if (confirm(`Hapus assistant ${name}?`)) {
+                db.assistants = db.assistants.filter(a => a.name !== name);
                 saveDB();
             }
         }
-        function editPassAssistant(idx) {
-            const p = prompt("Password baru:");
-            if (p) { db.assistants[idx].pass = p.trim(); saveDB(); }
-        }
-        
-        function removeAssistant(idx) { 
-            if (confirm("Hapus?")) { 
-                db.assistants.splice(idx, 1); 
-                saveDB(); 
-                
-                const inputAst = document.getElementById('search-instructor-ast');
-                if (inputAst) {
-                    inputAst.value = '';
-                    filterInstructorAssistantList('');
-                }
-                renderLists();
-            } 
-        }
 
         function addSiswa() {
-            const idInput = document.getElementById('new-siswa-id');
-            const nameInput = document.getElementById('new-siswa-name');
-            const kelasInput = document.getElementById('new-siswa-kelas');
-            const phoneInput = document.getElementById('new-siswa-phone');
-            const rateSelect = document.getElementById('new-siswa-rate');
+            const id = document.getElementById('new-siswa-id').value.trim();
+            const name = document.getElementById('new-siswa-name').value.trim();
+            const kelas = document.getElementById('new-siswa-kelas').value.trim();
+            const rate = parseInt(document.getElementById('new-siswa-rate').value);
+            const phone = document.getElementById('new-siswa-phone').value.trim();
 
-            const id = idInput.value.trim();
-            const name = nameInput.value.trim();
-            const kelas = kelasInput.value.trim();
-            const phone = phoneInput.value.trim();
-            const rate = parseInt(rateSelect.value) || 525000;
+            const checkboxes = document.querySelectorAll('input[name="subject-choice"]:checked');
+            let subjects = [];
+            checkboxes.forEach(cb => subjects.push(cb.value));
 
-            const subjects = [];
-            document.querySelectorAll('input[name="subject-choice"]:checked').forEach(cb => subjects.push(cb.value));
+            if (!id || !name || subjects.length === 0) return alert("ID, Nama, dan minimal 1 Subject wajib diisi!");
 
-            if (!id || !name) return alert("ID Student dan Nama Student wajib diisi!");
-            if (subjects.length === 0) return alert("Pilih minimal 1 subject!");
+            if (db.siswa.some(s => s.id.toLowerCase() === id.toLowerCase())) {
+                return alert("ID Student sudah terdaftar!");
+            }
 
-            if (!Array.isArray(db.siswa)) db.siswa = [];
+            const totalPayment = subjects.length * rate;
 
             db.siswa.push({
-                id, name, kelas: kelas || "-", subject: subjects, rate,
-                totalPayment: subjects.length * rate, phone, status: "UNPAID",
-                payDate: "", periode: "Agustus"
+                id,
+                name,
+                kelas,
+                subject: subjects,
+                rate,
+                totalPayment,
+                phone,
+                status: "UNPAID",
+                payDate: "",
+                periode: "Agustus"
             });
 
             saveDB();
-            idInput.value = ''; nameInput.value = ''; kelasInput.value = ''; phoneInput.value = '';
-            document.querySelectorAll('input[name="subject-choice"]').forEach(cb => cb.checked = false);
-            alert("Student baru berhasil ditambahkan! ✨");
+            document.getElementById('new-siswa-id').value = '';
+            document.getElementById('new-siswa-name').value = '';
+            document.getElementById('new-siswa-kelas').value = '';
+            document.getElementById('new-siswa-phone').value = '';
+            checkboxes.forEach(cb => cb.checked = false);
+            alert("Student berhasil ditambahkan!");
         }
 
-        function removeSiswa(idx) { 
-            if (confirm("Hapus?")) { 
-                db.siswa.splice(idx, 1); 
-                saveDB(); 
-                
-                const inputSiswa = document.getElementById('search-instructor-siswa');
-                if (inputSiswa) {
-                    inputSiswa.value = '';
-                    filterInstructorSiswaList('');
-                }
-                renderLists();
-            } 
+        function deleteSiswa(id) {
+            if (confirm(`Hapus student dengan ID ${id}?`)) {
+                db.siswa = db.siswa.filter(s => s.id !== id);
+                saveDB();
+            }
         }
 
-        function openEditSiswa(idx) {
-            const s = db.siswa[idx];
-            document.getElementById('edit-siswa-index').value = idx;
-            document.getElementById('edit-siswa-id').value = s.id || '';
-            document.getElementById('edit-siswa-name').value = s.name || '';
+        function openEditSiswaModal(index) {
+            const s = db.siswa[index];
+            if (!s) return;
+
+            document.getElementById('edit-siswa-index').value = index;
+            document.getElementById('edit-siswa-id').value = s.id;
+            document.getElementById('edit-siswa-name').value = s.name;
             document.getElementById('edit-siswa-kelas').value = s.kelas || '';
-            document.getElementById('edit-siswa-phone').value = s.phone || '';
             document.getElementById('edit-siswa-rate').value = s.rate || 525000;
+            document.getElementById('edit-siswa-phone').value = s.phone || '';
 
-            const subjects = Array.isArray(s.subject) ? s.subject : [s.subject];
-            document.querySelectorAll('input[name="edit-subject-choice"]').forEach(cb => {
-                cb.checked = subjects.includes(cb.value);
+            const checkboxes = document.querySelectorAll('input[name="edit-subject-choice"]');
+            const subArr = Array.isArray(s.subject) ? s.subject : [s.subject];
+            checkboxes.forEach(cb => {
+                cb.checked = subArr.includes(cb.value);
             });
 
             document.getElementById('modal-edit-siswa').classList.remove('hidden');
@@ -1721,26 +1929,27 @@
         }
 
         function saveEditSiswa() {
-            const idx = parseInt(document.getElementById('edit-siswa-index').value);
+            const index = parseInt(document.getElementById('edit-siswa-index').value);
             const id = document.getElementById('edit-siswa-id').value.trim();
             const name = document.getElementById('edit-siswa-name').value.trim();
             const kelas = document.getElementById('edit-siswa-kelas').value.trim();
+            const rate = parseInt(document.getElementById('edit-siswa-rate').value);
             const phone = document.getElementById('edit-siswa-phone').value.trim();
-            const rate = parseInt(document.getElementById('edit-siswa-rate').value) || 525000;
 
-            const subjects = [];
-            document.querySelectorAll('input[name="edit-subject-choice"]:checked').forEach(cb => subjects.push(cb.value));
+            const checkboxes = document.querySelectorAll('input[name="edit-subject-choice"]:checked');
+            let subjects = [];
+            checkboxes.forEach(cb => subjects.push(cb.value));
 
-            if (!id || !name) return alert("ID dan Nama Student wajib diisi!");
-            if (subjects.length === 0) return alert("Pilih minimal 1 subject!");
+            if (!id || !name || subjects.length === 0) return alert("ID, Nama, dan minimal 1 Subject wajib diisi!");
 
-            db.siswa[idx].id = id;
-            db.siswa[idx].name = name;
-            db.siswa[idx].kelas = kelas || "-";
-            db.siswa[idx].subject = subjects;
-            db.siswa[idx].rate = rate;
-            db.siswa[idx].totalPayment = subjects.length * rate;
-            db.siswa[idx].phone = phone;
+            const s = db.siswa[index];
+            s.id = id;
+            s.name = name;
+            s.kelas = kelas;
+            s.subject = subjects;
+            s.rate = rate;
+            s.totalPayment = subjects.length * rate;
+            s.phone = phone;
 
             saveDB();
             closeModalEditSiswa();
@@ -1748,244 +1957,153 @@
         }
 
         function renderLists() {
-            const assistantNames = db.assistants.map(ast => ast.name);
-            const siswaNamesAndIds = db.siswa.map(s => `${s.name} (${s.id})`);
+            // LIST ASSISTANT (Teks Edit warna kuning dengan background & Hapus warna merah)
+            const listAst = document.getElementById('list-assistant');
+            const searchAstInput = document.getElementById('search-instructor-ast');
+            if (listAst) {
+                listAst.innerHTML = '';
+                let filterVal = searchAstInput ? searchAstInput.value.trim().toLowerCase() : '';
+                let sortedAst = [...db.assistants].sort((a, b) => a.name.localeCompare(b.name));
+                let filteredAst = sortedAst.filter(a => a.name.toLowerCase().includes(filterVal));
 
-            setupCustomDropdown('input-search-assistant', 'dropdown-assistant', assistantNames, (selectedName) => {
-                handleAssistantSelected(selectedName);
-            });
+                filteredAst.forEach(a => {
+                    listAst.innerHTML += `
+                        <div class="flex justify-between items-center bg-purple-50/50 p-2 rounded-xl border border-purple-100">
+                            <span><b>${a.name}</b> (Pass: ${a.pass})</span>
+                            <div class="flex gap-2">
+                                <span onclick="alert('Fitur edit asisten langsung via database atau tambah ulang')" class="bg-amber-300 text-amber-900 font-bold px-2 py-0.5 rounded-lg text-[11px] cursor-pointer shadow-sm">Edit</span>
+                                <span onclick="deleteAssistant('${a.name}')" class="bg-rose-500 text-white font-bold px-2 py-0.5 rounded-lg text-[11px] cursor-pointer shadow-sm">Hapus</span>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            // LIST SISWA (Teks Edit warna kuning dengan background & Hapus warna merah)
+            const listSiswa = document.getElementById('list-siswa');
+            const searchSiswaInput = document.getElementById('search-instructor-siswa');
+            if (listSiswa) {
+                listSiswa.innerHTML = '';
+                let filterVal = searchSiswaInput ? searchSiswaInput.value.trim().toLowerCase() : '';
+                let sortedSiswa = [...db.siswa].sort((a, b) => a.name.localeCompare(b.name));
+                let filteredSiswa = sortedSiswa.filter(s => s.name.toLowerCase().includes(filterVal) || s.id.toLowerCase().includes(filterVal));
+
+                filteredSiswa.forEach(s => {
+                    const globalIdx = db.siswa.findIndex(item => item.id === s.id);
+                    const subStr = Array.isArray(s.subject) ? s.subject.join(", ") : (s.subject || '-');
+                    listSiswa.innerHTML += `
+                        <div class="flex justify-between items-center bg-pink-50/50 p-2 rounded-xl border border-pink-100">
+                            <div>
+                                <b>${s.name}</b> (${s.id})<br>
+                                <span class="text-[10px] text-slate-500">Kelas: ${s.kelas || '-'} | Subject: ${subStr}</span>
+                            </div>
+                            <div class="flex gap-2">
+                                <span onclick="openEditSiswaModal(${globalIdx})" class="bg-amber-300 text-amber-900 font-bold px-2 py-0.5 rounded-lg text-[11px] cursor-pointer shadow-sm">Edit</span>
+                                <span onclick="deleteSiswa('${s.id}')" class="bg-rose-500 text-white font-bold px-2 py-0.5 rounded-lg text-[11px] cursor-pointer shadow-sm">Hapus</span>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            const assistantNames = db.assistants.map(a => a.name);
+            setupCustomDropdown('input-search-assistant', 'dropdown-assistant', assistantNames, handleAssistantSelected);
+
+            const siswaNamesAndIds = db.siswa.map(s => `${s.name} (${s.id})`);
             setupCustomDropdown('filter-siswa-input', 'dropdown-filter-siswa', siswaNamesAndIds);
             setupCustomDropdown('filter-payment-input', 'dropdown-filter-payment', siswaNamesAndIds);
-
-            filterInstructorAssistantList(document.getElementById('search-instructor-ast')?.value || '');
-            filterInstructorSiswaList(document.getElementById('search-instructor-siswa')?.value || '');
-
             setupCustomDropdown('input-search-qr-siswa', 'dropdown-qr-siswa', siswaNamesAndIds);
         }
 
-        // Navigasi Keyboard & Real-time Filter untuk Assistant di Panel Instructor
-        const searchInstructorAstInput = document.getElementById('search-instructor-ast');
-        if (searchInstructorAstInput) {
-            searchInstructorAstInput.addEventListener('input', (e) => {
-                filterInstructorAssistantList(e.target.value);
-            });
-            searchInstructorAstInput.addEventListener('keydown', (e) => {
-                const listAst = document.getElementById('list-assistant');
-                if (!listAst) return;
-                const items = listAst.querySelectorAll('.instructor-ast-item');
-                if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    if (items.length > 0) {
-                        listAst.focus();
-                        items[0].focus();
-                    }
-                }
-            });
+        if (document.getElementById('search-instructor-ast')) {
+            document.getElementById('search-instructor-ast').addEventListener('input', renderLists);
+        }
+        if (document.getElementById('search-instructor-siswa')) {
+            document.getElementById('search-instructor-siswa').addEventListener('input', renderLists);
         }
 
-        const listAssistantEl = document.getElementById('list-assistant');
-        if (listAssistantEl) {
-            listAssistantEl.addEventListener('keydown', (e) => {
-                const items = Array.from(listAssistantEl.querySelectorAll('.instructor-ast-item'));
-                const currentIndex = items.indexOf(document.activeElement);
-                if (e.key === 'ArrowDown') {
-                    e.preventDefault();
-                    const nextIndex = (currentIndex + 1) % items.length;
-                    items[nextIndex]?.focus();
-                } else if (e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    if (currentIndex > 0) {
-                        items[currentIndex - 1]?.focus();
-                    } else {
-                        document.getElementById('search-instructor-ast')?.focus();
-                    }
-                }
-            });
+        let qrCodeInstance = null;
+        function loadQRSelect() {
+            // Dropdown di-handle lewat setupCustomDropdown
         }
 
-        function filterInstructorAssistantList(keyword) {
-            const listAst = document.getElementById('list-assistant');
-            if (!listAst) return;
-            listAst.innerHTML = '';
-            const searchVal = keyword.trim().toLowerCase();
-            
-            db.assistants.forEach((ast, i) => {
-                if (searchVal === "" || ast.name.toLowerCase().includes(searchVal)) {
-                    listAst.innerHTML += `
-                        <div tabindex="0" class="instructor-ast-item flex justify-between items-center bg-white p-2 rounded-xl border focus:bg-purple-50 focus:outline-none focus:border-purple-300 cursor-pointer">
-                            <span><b>${ast.name}</b> <span class="text-purple-600 font-mono text-[11px]">(Password: ${ast.pass})</span></span>
-                            <div class="flex gap-1">
-                                <button onclick="editPassAssistant(${i})" class="bg-amber-400 hover:bg-amber-500 text-white px-2 py-0.5 rounded text-[10px]">Edit</button>
-                                <button onclick="removeAssistant(${i})" class="bg-rose-400 hover:bg-rose-500 text-white px-2 py-0.5 rounded text-[10px]">✕</button>
-                            </div>
-                        </div>`;
-                }
-            });
-        }
+        function generateQR() {
+            const inputVal = document.getElementById('input-search-qr-siswa').value.trim();
+            if (!inputVal) return alert("Pilih student terlebih dahulu!");
 
-        // Navigasi Keyboard & Real-time Filter untuk Student di Panel Instructor
-        const searchInstructorSiswaInput = document.getElementById('search-instructor-siswa');
-        if (searchInstructorSiswaInput) {
-            searchInstructorSiswaInput.addEventListener('input', (e) => {
-                filterInstructorSiswaList(e.target.value);
-            });
-            searchInstructorSiswaInput.addEventListener('keydown', (e) => {
-                const listSiswa = document.getElementById('list-siswa');
-                if (!listSiswa) return;
-                const items = listSiswa.querySelectorAll('.instructor-siswa-item');
-                if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    if (items.length > 0) {
-                        listSiswa.focus();
-                        items[0].focus();
-                    }
-                }
-            });
-        }
-
-        const listSiswaEl = document.getElementById('list-siswa');
-        if (listSiswaEl) {
-            listSiswaEl.addEventListener('keydown', (e) => {
-                const items = Array.from(listSiswaEl.querySelectorAll('.instructor-siswa-item'));
-                const currentIndex = items.indexOf(document.activeElement);
-                if (e.key === 'ArrowDown') {
-                    e.preventDefault();
-                    const nextIndex = (currentIndex + 1) % items.length;
-                    items[nextIndex]?.focus();
-                } else if (e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    if (currentIndex > 0) {
-                        items[currentIndex - 1]?.focus();
-                    } else {
-                        document.getElementById('search-instructor-siswa')?.focus();
-                    }
-                }
-            });
-        }
-
-        function filterInstructorSiswaList(keyword) {
-            const listSiswa = document.getElementById('list-siswa');
-            if (!listSiswa) return;
-            listSiswa.innerHTML = '';
-            const searchVal = keyword.trim().toLowerCase();
-            
-            let targetId = searchVal;
-            const match = searchVal.match(/\(([^)]+)\)/);
+            let targetId = inputVal;
+            const match = inputVal.match(/\(([^)]+)\)/);
             if (match) targetId = match[1];
 
-            db.siswa.forEach((s, i) => {
-                if (searchVal === "" || s.id.toLowerCase().includes(targetId.toLowerCase()) || s.name.toLowerCase().includes(searchVal)) {
-                    listSiswa.innerHTML += `
-                        <div tabindex="0" class="instructor-siswa-item flex justify-between items-center bg-white p-2 rounded-xl border focus:bg-pink-50 focus:outline-none focus:border-pink-300 cursor-pointer">
-                            <span><b>[${s.id}] ${s.name}</b></span>
-                            <div class="flex gap-1">
-                                <button onclick="openEditSiswa(${i})" class="bg-amber-400 hover:bg-amber-500 text-white px-2 py-0.5 rounded text-[10px]">Edit</button>
-                                <button onclick="removeSiswa(${i})" class="bg-rose-400 hover:bg-rose-500 text-white px-2 py-0.5 rounded text-[10px]">✕</button>
-                            </div>
-                        </div>`;
-                }
+            const s = db.siswa.find(x => x.id.toLowerCase() === targetId.toLowerCase() || x.name.toLowerCase() === inputVal.toLowerCase());
+            if (!s) return alert("Student tidak ditemukan!");
+
+            const qrcodeContainer = document.getElementById("qrcode");
+            qrcodeContainer.innerHTML = "";
+
+            qrCodeInstance = new QRCode(qrcodeContainer, {
+                text: `ID: ${s.id} | Nama: ${s.name}`,
+                width: 180,
+                height: 180,
+                colorDark: "#4A403A",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
             });
+
+            document.getElementById('btn-download-qr').classList.remove('hidden');
+        }
+
+        function downloadQR() {
+            const qrcodeContainer = document.getElementById("qrcode");
+            const img = qrcodeContainer.querySelector("img");
+            const canvas = qrcodeContainer.querySelector("canvas");
+
+            let imageUrl = "";
+            if (img && img.src) {
+                imageUrl = img.src;
+            } else if (canvas) {
+                imageUrl = canvas.toDataURL("image/png");
+            }
+
+            if (!imageUrl) return alert("QR Code belum dibuat!");
+
+            const link = document.createElement('a');
+            link.href = imageUrl;
+            link.download = `QR_Code_Student.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         function exportExcel(type) {
-            const m = document.getElementById('export-month').value;
-            const y = document.getElementById('export-year').value;
-            const prefix = `${y}-${m}`;
+            const month = document.getElementById('export-month').value;
+            const year = document.getElementById('export-year').value;
+            let dataExport = [];
+            let filename = `Rekap_${type}_${month}_${year}.xlsx`;
 
-            let data = [];
             if (type === 'assistant') {
-                data = db.absensiAst.filter(a => a.tanggal.startsWith(prefix)).map(a => ({
-                    Tanggal: a.tanggal.split('-').reverse().join('/'),
-                    Nama_Assistant: a.nama,
-                    Jam_Masuk: a.masuk,
-                    Jam_Keluar: a.keluar,
-                    Total_Durasi: a.totalJam,
-                    Status: a.status,
-                    Keterangan: a.keterangan || '-'
-                }));
+                dataExport = db.absensiAst.filter(a => a.tanggal.startsWith(`${year}-${month}`));
             } else if (type === 'siswa') {
-                data = db.absensiSiswa.filter(a => a.tanggal.startsWith(prefix)).map(a => ({
-                    Tanggal: a.tanggal.split('-').reverse().join('/'),
-                    ID_Student: a.id,
-                    Nama_Student: a.nama,
-                    Kelas: a.kelas,
-                    Subject: a.subject,
-                    Jam_Kedatangan: a.masuk,
-                    Status: a.status,
-                    Keterangan: a.keterangan
-                }));
+                dataExport = db.absensiSiswa.filter(a => a.tanggal.startsWith(`${year}-${month}`));
             } else if (type === 'payment') {
-                data = db.siswa.map(s => ({
+                dataExport = db.siswa.map(s => ({
                     ID: s.id,
                     Nama: s.name,
                     Kelas: s.kelas || '-',
                     Subject: Array.isArray(s.subject) ? s.subject.join(", ") : s.subject,
                     Total_SPP: s.totalPayment || 0,
-                    Tanggal_Pembayaran: s.payDate || '-',
-                    Periode_Pembayaran: s.periode || '-',
+                    Tanggal_Bayar: s.payDate || '-',
+                    Periode: s.periode || '-',
                     Status: s.status || 'UNPAID'
                 }));
             }
 
-            if (data.length === 0) return alert("Tidak ada data pada bulan & tahun tersebut!");
+            if (dataExport.length === 0) return alert("Tidak ada data untuk diexport pada bulan/tahun tersebut!");
 
-            const ws = XLSX.utils.json_to_sheet(data);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, `${type}_${m}_${y}`);
-            XLSX.writeFile(wb, `Rekap_${type}_${m}_${y}.xlsx`);
-        }
-
-        function generateQR() {
-            const inputVal = document.getElementById('input-search-qr-siswa').value.trim();
-            const qrcodeDiv = document.getElementById('qrcode');
-            const btnDownload = document.getElementById('btn-download-qr');
-
-            if(!inputVal) return alert("Silakan pilih atau ketik nama student terlebih dahulu!");
-
-            let idSiswa = inputVal;
-            const match = inputVal.match(/\(([^)]+)\)/);
-            if (match) idSiswa = match[1];
-
-            const foundSiswa = db.siswa.find(s => s.id.toLowerCase() === idSiswa.toLowerCase() || s.name.toLowerCase() === inputVal.toLowerCase());
-            if (!foundSiswa) return alert('Data student tidak ditemukan di database!');
-
-            const subjectStr = Array.isArray(foundSiswa.subject) ? foundSiswa.subject.join(", ") : (foundSiswa.subject || "-");
-            const qrPayload = `ID: ${foundSiswa.id} | Nama: ${foundSiswa.name} | Kelas: ${foundSiswa.kelas || "-"} | Subject: ${subjectStr}`;
-
-            qrcodeDiv.innerHTML = '';
-            try {
-                new QRCode(qrcodeDiv, {
-                    text: qrPayload,
-                    width: 180,
-                    height: 180,
-                    colorDark: "#000000",
-                    colorLight: "#ffffff",
-                    correctLevel: QRCode.CorrectLevel.H
-                });
-                btnDownload.classList.remove('hidden');
-            } catch (error) {
-                console.error("Gagal membuat QR Code:", error);
-                alert("Terjadi kesalahan saat membuat QR Code.");
-            }
-        }
-
-        function downloadQR() {
-            const qrcodeDiv = document.getElementById('qrcode');
-            const img = qrcodeDiv.querySelector('img');
-            const canvas = qrcodeDiv.querySelector('canvas');
-
-            let imageUrl = "";
-            if (img && img.src) imageUrl = img.src;
-            else if (canvas) imageUrl = canvas.toDataURL("image/png");
-
-            if (!imageUrl) return alert("QR Code belum di-generate!");
-
-            const link = document.createElement('a');
-            link.href = imageUrl;
-            link.download = `QR_Absensi_Student.png`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            const worksheet = XLSX.utils.json_to_sheet(dataExport);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Rekap");
+            XLSX.writeFile(workbook, filename);
         }
     </script>
 </body>
