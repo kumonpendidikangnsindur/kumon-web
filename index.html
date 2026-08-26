@@ -2088,7 +2088,34 @@
                 document.getElementById('input-search-qr-siswa').value = selected;
             });
         }
+function sendWAReminder(index) {
+            const s = db.siswa[index];
+            if (!s.phone) return alert("Nomor HP siswa belum diisi!");
 
+            let phone = s.phone.replace(/[^0-9]/g, '');
+            if (phone.startsWith('0')) {
+                phone = '62' + phone.slice(1);
+            }
+
+            const subjectStr = Array.isArray(s.subject) ? s.subject.join(", ") : (s.subject || '-');
+            const totalFormatted = (s.totalPayment || 0).toLocaleString('id-ID');
+            
+            let dateInfo = "";
+            if (s.payDate) {
+                const parts = s.payDate.split('-');
+                if (parts.length === 3) dateInfo = ` untuk tanggal ${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+
+            const message = `Halo Ayah/Bunda ${s.name}, Ingin mengingatkan pembayaran SPP Kumon Pendidikan - Gunung Sindur bulan selanjutnya. 
+            Subject (${subjectStr}) dengan nominal Rp ${totalFormatted} dapat di transfer ke Rek BCA 8691948544 a/n Ardini Suciati.
+            
+            Mohon konfirmasinya jika sudah melakukan pembayaran.
+            \n\nTerima Kasih\n
+            _Kumon Pendidikan - Gunung Sindur_`;
+            
+            const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+            window.open(url, '_blank');
+        }
         function generateQR() {
             const val = document.getElementById('input-search-qr-siswa').value.trim();
             if (!val) return alert("Pilih atau ketik student terlebih dahulu!");
