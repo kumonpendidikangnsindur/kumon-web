@@ -776,7 +776,7 @@
 
             <div class="grid grid-cols-1 gap-3 pt-2">
                 <button onclick="downloadAndShareKwitansiWhatsApp()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold py-3 rounded-2xl text-xs transition shadow-md flex items-center justify-center gap-1.5">
-                    <i class="fa-brands fa-whatsapp text-sm"></i> Kirim Kwitansi Gambar ke WhatsApp Ortu
+                    <i class="fa-brands fa-whatsapp text-sm"></i> Download PNG & Kirim ke WhatsApp Ortu
                 </button>
                 <button onclick="closeKwitansiModal()" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 rounded-2xl text-xs transition">
                     Batal
@@ -1862,12 +1862,11 @@
             const s = db.siswa[currentKwitansiStudentIndex];
             const printArea = document.getElementById('kwitansi-print-area');
 
-            // Menggunakan html2canvas untuk merender elemen kwitansi menjadi file gambar PNG secara otomatis
+            // Mengonversi elemen area kwitansi HTML menjadi file gambar PNG secara otomatis
             html2canvas(printArea, { scale: 2, useCORS: true }).then(canvas => {
                 canvas.toBlob(blob => {
                     const url = URL.createObjectURL(blob);
                     
-                    // Membuat elemen anchor untuk mengunduh gambar PNG
                     const a = document.createElement('a');
                     a.href = url;
                     a.download = `Kwitansi_SPP_${s.name.replace(/\s+/g, '_')}_${s.periode || 'Agustus'}.png`;
@@ -1875,14 +1874,13 @@
                     a.click();
                     document.body.removeChild(a);
 
-                    // Menyiapkan format pesan WhatsApp untuk dikirimkan bersamaan dengan gambar
                     let phone = s.phone || '';
                     if (phone.startsWith('0')) {
                         phone = '62' + phone.slice(1);
                     }
 
                     const totalText = document.getElementById('kwitansi-total-payment').innerText;
-                    const message = encodeURIComponent(`Halo Ayah/Bunda ${s.name}, berikut terlampir file gambar kwitansi resmi pembayaran SPP Kumon Pendidikan - Gunung Sindur untuk periode ${s.periode || 'Agustus'} sebesar ${totalText}. Terima kasih atas kepercayaannya! 🌸`);
+                    const message = encodeURIComponent(`Halo Ayah/Bunda ${s.name}, berikut terlampir kwitansi resmi pembayaran SPP Kumon Pendidikan - Gunung Sindur untuk periode ${s.periode || 'Agustus'} sebesar ${totalText}. Terima kasih atas kepercayaannya! 🌸`);
                     
                     const waUrl = phone ? `https://wa.me/${phone}?text=${message}` : `https://wa.me/?text=${message}`;
                     
@@ -1892,7 +1890,7 @@
                 }, 'image/png');
             }).catch(err => {
                 console.error("Gagal mengonversi kwitansi:", err);
-                alert("Terjadi kesalahan saat membuat gambar kwitansi.");
+                alert("Terjadi kesalahan saat mengonversi kwitansi menjadi gambar.");
             });
         }
 
@@ -1985,28 +1983,28 @@
 
         function setupInstructorListKeyboardNav(containerId) {
             const container = document.getElementById(containerId);
-            if(!container) return;
+            if (!container) return;
 
             container.addEventListener('keydown', (e) => {
                 const items = container.querySelectorAll('.instructor-list-item');
                 if (items.length === 0) return;
 
                 let activeItem = container.querySelector('.instructor-list-item.active');
-                let currentIndex = Array.from(items).indexOf(activeItem);
+                let index = Array.from(items).indexOf(activeItem);
 
                 if (e.key === 'ArrowDown') {
                     e.preventDefault();
-                    if (currentIndex < items.length - 1) {
+                    if (index < items.length - 1) {
                         if (activeItem) activeItem.classList.remove('active');
-                        items[currentIndex + 1].classList.add('active');
-                        items[currentIndex + 1].focus();
+                        items[index + 1].classList.add('active');
+                        items[index + 1].scrollIntoView({ block: 'nearest' });
                     }
                 } else if (e.key === 'ArrowUp') {
                     e.preventDefault();
-                    if (currentIndex > 0) {
+                    if (index > 0) {
                         if (activeItem) activeItem.classList.remove('active');
-                        items[currentIndex - 1].classList.add('active');
-                        items[currentIndex - 1].focus();
+                        items[index - 1].classList.add('active');
+                        items[index - 1].scrollIntoView({ block: 'nearest' });
                     }
                 }
             });
@@ -2019,7 +2017,7 @@
             const phone = document.getElementById('new-ast-phone').value.trim();
             const pass = document.getElementById('new-ast-pass').value.trim();
 
-            if (!name || !username || !pass) return alert("Nama, username, dan password wajib diisi!");
+            if (!name || !username || !email || !pass) return alert("Lengkapi semua data assistant!");
 
             db.assistants.push({ name, username, email, phone, pass });
             if (!db.users.some(u => u.username === username)) {
@@ -2058,7 +2056,7 @@
             const phone = document.getElementById('edit-ast-phone').value.trim();
             const pass = document.getElementById('edit-ast-pass').value.trim();
 
-            if (!name || !username) return alert("Nama dan username wajib diisi!");
+            if (!name) return alert("Nama tidak boleh kosong!");
 
             db.assistants[index].name = name;
             db.assistants[index].username = username;
@@ -2072,7 +2070,7 @@
         }
 
         function deleteAssistant(index) {
-            if (confirm("Yakin ingin menghapus data assistant ini?")) {
+            if (confirm("Yakin ingin menghapus assistant ini?")) {
                 db.assistants.splice(index, 1);
                 saveDB();
             }
@@ -2083,20 +2081,21 @@
             const name = document.getElementById('new-siswa-name').value.trim();
             const kelas = document.getElementById('new-siswa-kelas').value.trim();
             const phone = document.getElementById('new-siswa-phone').value.trim();
-            const rate = parseInt(document.getElementById('new-siswa-rate').value) || 525000;
+            const rate = parseInt(document.getElementById('new-siswa-rate').value);
 
             const checkboxes = document.querySelectorAll('input[name="subject-choice"]:checked');
             let subjects = [];
             checkboxes.forEach(cb => subjects.push(cb.value));
 
-            if (!id || !name) return alert("ID dan Nama Student wajib diisi!");
-            if (subjects.length === 0) return alert("Pilih minimal 1 subject!");
+            if (!id || !name || subjects.length === 0) return alert("Lengkapi ID, Nama, dan minimal pilih 1 Subject!");
+
+            if (db.siswa.some(s => s.id === id)) return alert("ID Student sudah terdaftar!");
 
             const totalPayment = subjects.length * rate;
 
             db.siswa.push({
-                id, name, kelas, subject: subjects, rate, phone,
-                totalPayment, status: 'UNPAID', payDate: '', periode: 'Agustus'
+                id, name, kelas, subject: subjects, rate, totalPayment, phone,
+                status: 'UNPAID', payDate: '', periode: 'Agustus'
             });
 
             saveDB();
@@ -2118,9 +2117,9 @@
             document.getElementById('edit-siswa-rate').value = s.rate || 525000;
 
             const checkboxes = document.querySelectorAll('input[name="edit-subject-choice"]');
-            const subArr = Array.isArray(s.subject) ? s.subject : [s.subject];
+            const subjects = Array.isArray(s.subject) ? s.subject : [s.subject];
             checkboxes.forEach(cb => {
-                cb.checked = subArr.includes(cb.value);
+                cb.checked = subjects.includes(cb.value);
             });
 
             document.getElementById('modal-edit-siswa').classList.remove('hidden');
@@ -2136,14 +2135,13 @@
             const name = document.getElementById('edit-siswa-name').value.trim();
             const kelas = document.getElementById('edit-siswa-kelas').value.trim();
             const phone = document.getElementById('edit-siswa-phone').value.trim();
-            const rate = parseInt(document.getElementById('edit-siswa-rate').value) || 525000;
+            const rate = parseInt(document.getElementById('edit-siswa-rate').value);
 
             const checkboxes = document.querySelectorAll('input[name="edit-subject-choice"]:checked');
             let subjects = [];
             checkboxes.forEach(cb => subjects.push(cb.value));
 
-            if (!id || !name) return alert("ID dan Nama Student wajib diisi!");
-            if (subjects.length === 0) return alert("Pilih minimal 1 subject!");
+            if (!id || !name || subjects.length === 0) return alert("Lengkapi data dan pilih minimal 1 subject!");
 
             const totalPayment = subjects.length * rate;
 
@@ -2151,8 +2149,8 @@
             db.siswa[index].name = name;
             db.siswa[index].kelas = kelas;
             db.siswa[index].phone = phone;
-            db.siswa[index].rate = rate;
             db.siswa[index].subject = subjects;
+            db.siswa[index].rate = rate;
             db.siswa[index].totalPayment = totalPayment;
 
             saveDB();
@@ -2161,100 +2159,97 @@
         }
 
         function deleteSiswa(index) {
-            if (confirm("Yakin ingin menghapus data student ini?")) {
+            if (confirm("Yakin ingin menghapus student ini?")) {
                 db.siswa.splice(index, 1);
                 saveDB();
             }
         }
 
-        function exportExcel(type) {
-            const month = document.getElementById('export-month').value;
-            const year = document.getElementById('export-year').value;
-            let dataExport = [];
-            let fileName = "";
-
-            if (type === 'assistant') {
-                fileName = `Rekap_Absensi_Assistant_${month}_${year}.xlsx`;
-                dataExport = db.absensiAst.map(a => ({
-                    Tanggal: a.tanggal,
-                    Nama: a.nama,
-                    Masuk: a.masuk,
-                    Keluar: a.keluar,
-                    Durasi: a.totalJam,
-                    Status: a.status,
-                    Keterangan: a.keterangan
-                }));
-            } else if (type === 'siswa') {
-                fileName = `Rekap_Absensi_Student_${month}_${year}.xlsx`;
-                dataExport = db.absensiSiswa.map(a => ({
-                    Tanggal: a.tanggal,
-                    ID: a.id,
-                    Nama: a.nama,
-                    Kelas: a.kelas,
-                    Subject: a.subject,
-                    JamDatang: a.masuk,
-                    Status: a.status,
-                    Keterangan: a.keterangan
-                }));
-            } else if (type === 'payment') {
-                fileName = `Rekap_Payment_SPP_${month}_${year}.xlsx`;
-                dataExport = db.siswa.map(s => ({
-                    ID: s.id,
-                    Nama: s.name,
-                    Kelas: s.kelas || '-',
-                    Subject: Array.isArray(s.subject) ? s.subject.join(", ") : (s.subject || '-'),
-                    TotalPayment: s.totalPayment || 0,
-                    TanggalBayar: s.payDate || '-',
-                    Periode: s.periode || '-',
-                    Status: s.status || 'UNPAID'
-                }));
-            }
-
-            if (dataExport.length === 0) return alert("Tidak ada data untuk diexport!");
-
-            const worksheet = XLSX.utils.json_to_sheet(dataExport);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Rekap");
-            XLSX.writeFile(workbook, fileName);
-        }
+        let qrCodeInstance = null;
+        let selectedQrStudentName = "";
 
         function loadQRSelect() {
-            setupCustomDropdown('input-search-qr-siswa', 'dropdown-qr-siswa', db.siswa.map(s => `${s.id} - ${s.name}`), null);
+            setupCustomDropdown('input-search-qr-siswa', 'dropdown-qr-siswa', db.siswa.map(s => `${s.id} - ${s.name}`), (selectedVal) => {
+                selectedQrStudentName = selectedVal;
+            });
         }
 
         function generateQR() {
             const inputVal = document.getElementById('input-search-qr-siswa').value.trim();
             if (!inputVal) return alert("Pilih atau ketik student terlebih dahulu!");
 
-            const scannedId = inputVal.split(' - ')[0].trim();
-            const s = db.siswa.find(x => x.id.toLowerCase() === scannedId.toLowerCase() || x.name.toLowerCase() === inputVal.toLowerCase());
+            const cleanId = inputVal.split(' - ')[0].trim();
+            const s = db.siswa.find(x => x.id.toLowerCase() === cleanId.toLowerCase() || x.name.toLowerCase() === inputVal.toLowerCase());
 
             if (!s) return alert("Student tidak ditemukan!");
 
-            const qrcodeContainer = document.getElementById('qrcode');
-            qrcodeContainer.innerHTML = '';
+            const qrcodeContainer = document.getElementById("qrcode");
+            qrcodeContainer.innerHTML = "";
 
-            const payload = `ID:${s.id} | Nama:${s.name} | Kelas:${s.kelas || '-'}`;
-            new QRCode(qrcodeContainer, {
-                text: payload,
+            qrCodeInstance = new QRCode(qrcodeContainer, {
+                text: `ID:${s.id} | Nama:${s.name} | Kelas:${s.kelas || '-'}`,
                 width: 180,
-                height: 180
+                height: 180,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
             });
 
             document.getElementById('btn-download-qr').classList.remove('hidden');
         }
 
         function downloadQR() {
-            const qrcodeContainer = document.getElementById('qrcode');
-            const img = qrcodeContainer.querySelector('img');
-            if (!img) return;
+            const qrcodeContainer = document.getElementById("qrcode");
+            const img = qrcodeContainer.querySelector("img");
+            const canvas = qrcodeContainer.querySelector("canvas");
 
+            let imageUrl = "";
+            if (img && img.src) {
+                imageUrl = img.src;
+            } else if (canvas) {
+                imageUrl = canvas.toDataURL("image/png");
+            }
+
+            if (!imageUrl) return alert("QR Code belum di-generate!");
+
+            const inputVal = document.getElementById('input-search-qr-siswa').value.trim();
             const a = document.createElement('a');
-            a.href = img.src;
-            a.download = `QR_Code_Student.png`;
+            a.href = imageUrl;
+            a.download = `QR_Code_${inputVal.replace(/\s+/g, '_')}.png`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
+        }
+
+        function exportExcel(type) {
+            const month = document.getElementById('export-month').value;
+            const year = document.getElementById('export-year').value;
+            let dataExport = [];
+            let fileName = `Rekap_${type}_${month}_${year}.xlsx`;
+
+            if (type === 'assistant') {
+                dataExport = db.absensiAst.filter(a => a.tanggal.startsWith(`${year}-${month}`));
+            } else if (type === 'siswa') {
+                dataExport = db.absensiSiswa.filter(a => a.tanggal.startsWith(`${year}-${month}`));
+            } else if (type === 'payment') {
+                dataExport = db.siswa.map(s => ({
+                    "ID Student": s.id,
+                    "Nama Student": s.name,
+                    "Kelas": s.kelas || "-",
+                    "Subject": Array.isArray(s.subject) ? s.subject.join(", ") : (s.subject || "-"),
+                    "Total SPP": s.totalPayment || 0,
+                    "Tanggal Bayar": s.payDate || "-",
+                    "Periode": s.periode || "-",
+                    "Status": s.status || "UNPAID"
+                }));
+            }
+
+            if (dataExport.length === 0) return alert("Tidak ada data untuk diexport pada bulan/tahun tersebut!");
+
+            const worksheet = XLSX.utils.json_to_sheet(dataExport);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Rekap");
+            XLSX.writeFile(workbook, fileName);
         }
     </script>
 </body>
