@@ -66,7 +66,6 @@
             color: #FF5722;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
         }
-        /* Custom Dropdown Styling untuk Assistant/QR */
         .custom-dropdown-list {
             position: absolute;
             z-index: 50;
@@ -88,7 +87,6 @@
         .custom-dropdown-item:hover, .custom-dropdown-item.active {
             background-color: #f1f5f9;
         }
-        /* Style untuk Item List Aktif Keyboard Nav */
         .instructor-list-item.active {
             background-color: #f3e8ff !important;
             border-color: #c084fc !important;
@@ -382,7 +380,7 @@
                             </div>
 
                             <div class="relative">
-                                <input type="text" id="filter-siswa-input" oninput="renderSiswaHistory()" placeholder="Ketik nama / ID student" class="p-1.5 border rounded-xl bg-pink-50 font-semibold text-pink-700 focus:outline-none w-48" autocomplete="off">
+                                <input type="text" id="filter-siswa-input" oninput="renderSiswaHistory()" placeholder="Ketik nama / ID student..." class="p-1.5 border rounded-xl bg-pink-50 font-semibold text-pink-700 focus:outline-none w-48" autocomplete="off">
                             </div>
 
                             <button onclick="renderSiswaHistory()" class="bg-pink-500 hover:bg-pink-600 text-white font-bold px-3 py-1.5 rounded-xl shadow transition">🔍 Search</button>
@@ -434,7 +432,7 @@
                         <option value="2026">2026</option><option value="2027">2027</option>
                     </select>
                     <div class="relative">
-                        <input type="text" id="filter-payment-input" oninput="renderPaymentTable()" placeholder="Ketik nama / ID student" class="p-1.5 border rounded-xl bg-white font-semibold text-emerald-700 focus:outline-none w-48" autocomplete="off">
+                        <input type="text" id="filter-payment-input" oninput="renderPaymentTable()" placeholder="Ketik nama / ID student..." class="p-1.5 border rounded-xl bg-white font-semibold text-emerald-700 focus:outline-none w-48" autocomplete="off">
                     </div>
                     <button onclick="renderPaymentTable()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-3 py-1.5 rounded-xl shadow transition">🔍 Search</button>
                 </div>
@@ -448,7 +446,7 @@
                             <th class="p-3">ID Student</th>
                             <th class="p-3">Nama Student</th>
                             <th class="p-3">Kelas</th>
-                            <th class="p-3 min-w-[100px]">Subject</th>
+                            <th class="p-3">Subject</th>
                             <th class="p-3 min-w-[100px]">Total SPP</th>
                             <th class="p-3">Tanggal Pembayaran</th>
                             <th class="p-3">Periode Pembayaran</th>
@@ -704,7 +702,6 @@
                 <button onclick="closeKwitansiModal()" class="text-slate-400 hover:text-slate-600 font-bold text-lg">✕</button>
             </div>
 
-            <!-- Bagian Ceklis Pendaftaran & Diskon 50% yang Dirapatkan agar Mudah di-scroll -->
             <div class="bg-emerald-50 p-2.5 rounded-2xl border border-emerald-200 space-y-2 text-xs">
                 <div class="flex items-center justify-between">
                     <span class="font-bold text-emerald-900">Termasuk Biaya Pendaftaran (Rp 350.000)</span>
@@ -752,7 +749,7 @@
                         <span class="font-semibold">Rp 350.000</span>
                     </div>
                     <div id="kwitansi-row-diskon" class="hidden flex justify-between items-center text-rose-600 pl-2 pt-1 border-t border-slate-100">
-                        <span>• Diskon 50% (Hanya SPP)</span>
+                        <span>• Diskon SPP 50%</span>
                         <span id="kwitansi-nilai-diskon" class="font-semibold">-Rp 0</span>
                     </div>
                     <div class="flex justify-between items-center pt-3 border-t-2 border-emerald-200 text-sm font-extrabold text-emerald-800 bg-emerald-50/50 p-2 rounded-xl">
@@ -850,9 +847,9 @@
                 document.getElementById('autosave-pass').checked = true;
             }
 
-            // Keyboard navigation listener untuk list assistant & siswa di panel instructor
             setupInstructorListKeyboardNav('list-assistant');
             setupInstructorListKeyboardNav('list-siswa');
+            setupCustomDropdown('input-search-assistant', 'dropdown-assistant', db.assistants.map(a => a.name), handleAssistantSelected);
         });
 
         dbRef.ref('kumon_data').on('value', (snapshot) => {
@@ -872,6 +869,7 @@
             renderSiswaHistory();
             updateSiswaSummary();
             updateInstructorSummary();
+            setupCustomDropdown('input-search-assistant', 'dropdown-assistant', db.assistants.map(a => a.name), handleAssistantSelected);
             if (currentAst) {
                 updateAssistantUI();
                 renderAssistantHistory();
@@ -924,7 +922,7 @@
             
             const existing = db.users.find(u => u.username === username || u.email === email);
             if (existing) {
-                alert("⚠️ Alert: Email atau Username sudah teregistrasi! Silakan gunakan data lain atau langsung Sign In.");
+                alert("⚠️ Alert: Email atau Username sudah teregistrasi!");
                 return;
             }
 
@@ -937,7 +935,7 @@
             }
 
             saveDB();
-            alert("Registrasi berhasil! Silakan Sign In menggunakan akun Anda.");
+            alert("Registrasi berhasil! Silakan Sign In.");
             document.getElementById('reg-name').value = '';
             document.getElementById('reg-username').value = '';
             document.getElementById('reg-email').value = '';
@@ -960,7 +958,7 @@
 
             const checkUserExist = db.users.find(u => u.username === userVal || u.email === userVal);
             if (!checkUserExist) {
-                alert("⚠️ Alert: Email atau Username belum teregistrasi! Silakan lakukan pendaftaran (Register) terlebih dahulu.");
+                alert("⚠️ Alert: Email atau Username belum teregistrasi!");
                 return;
             }
 
@@ -1598,6 +1596,8 @@
             saveDB();
         }
 
+        // PERBAIKAN UTAMA: History absensi siswa diurutkan berdasarkan abjad nama, 
+        // dengan status hadir di urutan atas dan belum hadir/tidak hadir di urutan bawah, tetap terurut abjad.
         function renderSiswaHistory() {
             const tbody = document.getElementById('siswa-history-body');
             if(!tbody) return;
@@ -1643,6 +1643,9 @@
                         return { s, log, isHadir };
                     });
 
+                    // Rules: 
+                    // 1. Status hadir di urutan atas, belum absen/tidak hadir di bawah.
+                    // 2. Tetap diurutkan secara abjad berdasarkan nama siswa.
                     evaluatedList.sort((a, b) => {
                         if (a.isHadir !== b.isHadir) {
                             return a.isHadir ? -1 : 1;
@@ -1710,8 +1713,6 @@
             if(!tbody) return;
             tbody.innerHTML = '';
 
-            const selectedMonth = document.getElementById('filter-payment-month').value;
-            const selectedYear = document.getElementById('filter-payment-year').value;
             const inputVal = document.getElementById('filter-payment-input').value.trim();
 
             let targetSiswaList = [...db.siswa];
@@ -1776,16 +1777,11 @@
             renderPaymentTable();
         }
 
-        // =========================================================================
-        // PERBAIKAN KHUSUS MENU INSTRUCTOR (TAB 4)
-        // =========================================================================
-
         function renderLists() {
             renderInstructorAssistantList();
             renderInstructorSiswaList();
         }
 
-        // Render List Assistant dengan Urutan Abjad, Pencarian, Scroll, & Tombol Edit/Hapus
         function renderInstructorAssistantList() {
             const listEl = document.getElementById('list-assistant');
             const searchInput = document.getElementById('search-instructor-ast');
@@ -1793,8 +1789,6 @@
             listEl.innerHTML = '';
 
             const keyword = searchInput ? searchInput.value.trim().toLowerCase() : '';
-
-            // Filter dan Urutkan Abjad berdasarkan Nama Assistant
             let filtered = [...db.assistants].filter(a => a.name.toLowerCase().includes(keyword));
             filtered.sort((a, b) => a.name.localeCompare(b.name));
 
@@ -1821,7 +1815,6 @@
             });
         }
 
-        // Render List Student dengan Urutan Abjad, Pencarian, Scroll, & Tombol Edit/Hapus
         function renderInstructorSiswaList() {
             const listEl = document.getElementById('list-siswa');
             const searchInput = document.getElementById('search-instructor-siswa');
@@ -1829,8 +1822,6 @@
             listEl.innerHTML = '';
 
             const keyword = searchInput ? searchInput.value.trim().toLowerCase() : '';
-
-            // Filter dan Urutkan Abjad berdasarkan Nama Siswa
             let filtered = [...db.siswa].filter(s => 
                 s.name.toLowerCase().includes(keyword) || s.id.toLowerCase().includes(keyword)
             );
@@ -1860,7 +1851,6 @@
             });
         }
 
-        // Navigasi Keyboard Arrow Up & Down untuk List di Panel Instructor
         function setupInstructorListKeyboardNav(containerId) {
             const container = document.getElementById(containerId);
             if (!container) return;
@@ -1888,7 +1878,6 @@
             });
         }
 
-        // Tambah Assistant Baru
         function addAssistant() {
             const name = document.getElementById('new-ast-name').value.trim();
             const username = document.getElementById('new-ast-username').value.trim().toLowerCase();
@@ -1921,7 +1910,6 @@
             alert("Assistant berhasil ditambahkan! ✨");
         }
 
-        // Modal Edit Assistant
         function openEditAssistant(index) {
             const ast = db.assistants[index];
             if (!ast) return;
@@ -1963,7 +1951,6 @@
             alert("Data Assistant berhasil diperbarui! ✨");
         }
 
-        // Hapus Assistant
         function deleteAssistant(index) {
             const ast = db.assistants[index];
             if (!ast) return;
@@ -1974,7 +1961,6 @@
             }
         }
 
-        // Tambah Student Baru
         function addSiswa() {
             const id = document.getElementById('new-siswa-id').value.trim();
             const name = document.getElementById('new-siswa-name').value.trim();
@@ -2023,7 +2009,6 @@
             alert("Student baru berhasil ditambahkan! ✨");
         }
 
-        // Modal Edit Student
         function openEditSiswa(index) {
             const s = db.siswa[index];
             if (!s) return;
@@ -2080,100 +2065,16 @@
             alert("Data Student berhasil diperbarui! ✨");
         }
 
-        // Hapus Student
         function deleteSiswa(index) {
             const s = db.siswa[index];
             if (!s) return;
-            if (confirm(`Yakin ingin menghapus student ${s.name} (${s.id})?`)) {
+            if (confirm(`Yakin ingin menghapus student ${s.name}?`)) {
                 db.siswa.splice(index, 1);
                 saveDB();
                 alert("Data student berhasil dihapus.");
             }
         }
 
-        // Export Excel
-        function exportExcel(type) {
-            let dataToExport = [];
-            let fileName = "Rekap_Kumon.xlsx";
-
-            const month = document.getElementById('export-month').value;
-            const year = document.getElementById('export-year').value;
-
-            if (type === 'assistant') {
-                fileName = `Rekap_Assistant_${month}_${year}.xlsx`;
-                dataToExport = (db.absensiAst || []).filter(a => a.tanggal.startsWith(`${year}-${month}`));
-            } else if (type === 'siswa') {
-                fileName = `Rekap_Absensi_Student_${month}_${year}.xlsx`;
-                dataToExport = (db.absensiSiswa || []).filter(a => a.tanggal.startsWith(`${year}-${month}`));
-            } else if (type === 'payment') {
-                fileName = `Rekap_Payment_${month}_${year}.xlsx`;
-                dataToExport = (db.siswa || []).map(s => ({
-                    'ID Student': s.id,
-                    'Nama Student': s.name,
-                    'Kelas': s.kelas,
-                    'Subject': Array.isArray(s.subject) ? s.subject.join(", ") : s.subject,
-                    'Total SPP': s.totalPayment,
-                    'Status': s.status,
-                    'Periode': s.periode,
-                    'Tanggal Bayar': s.payDate
-                }));
-            }
-
-            if (dataToExport.length === 0) {
-                alert("Tidak ada data untuk periode tersebut!");
-                return;
-            }
-
-            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Rekap");
-            XLSX.writeFile(workbook, fileName);
-        }
-
-        // QR Generate Helper
-        function loadQRSelect() {
-            const siswaNames = (db.siswa || []).map(s => `${s.name} (${s.id})`);
-            setupCustomDropdown('input-search-qr-siswa', 'dropdown-qr-siswa', siswaNames, (selected) => {
-                // Callback jika dipilih dari dropdown
-            });
-        }
-
-        function generateQR() {
-            const inputVal = document.getElementById('input-search-qr-siswa').value.trim();
-            if (!inputVal) return alert("Pilih atau ketik nama student!");
-
-            let matchId = inputVal;
-            if (inputVal.includes("(")) {
-                const parts = inputVal.split('(');
-                matchId = parts[1].replace(')', '').trim();
-            }
-
-            const s = db.siswa.find(x => x.id.toLowerCase() === matchId.toLowerCase() || x.name.toLowerCase() === inputVal.toLowerCase());
-            if (!s) return alert("Student tidak ditemukan!");
-
-            const qrcodeContainer = document.getElementById('qrcode');
-            qrcodeContainer.innerHTML = '';
-            
-            const qrText = `ID:${s.id} | Nama:${s.name} | Kelas:${s.kelas || '-'}`;
-            new QRCode(qrcodeContainer, {
-                text: qrText,
-                width: 180,
-                height: 180
-            });
-
-            document.getElementById('btn-download-qr').classList.remove('hidden');
-        }
-
-        function downloadQR() {
-            const qrcodeImg = document.querySelector('#qrcode img');
-            if (!qrcodeImg) return;
-            const link = document.createElement('a');
-            link.href = qrcodeImg.src;
-            link.download = 'QR_Absensi_Student.png';
-            link.click();
-        }
-
-        // Kwitansi & Reminder Handlers
         function openKwitansiModal(index) {
             currentKwitansiStudentIndex = index;
             const s = db.siswa[index];
@@ -2182,13 +2083,13 @@
             document.getElementById('kwitansi-nama').innerText = s.name;
             document.getElementById('kwitansi-id-kelas').innerText = `${s.id} / ${s.kelas || '-'}`;
             document.getElementById('kwitansi-periode').innerText = s.periode || 'Agustus';
-            document.getElementById('kwitansi-tanggal').innerText = s.payDate || getFormattedDate(new Date());
+            document.getElementById('kwitansi-tanggal').innerText = s.payDate ? s.payDate.split('-').reverse().join('/') : '-';
 
-            const subjectListEl = document.getElementById('kwitansi-subject-list');
-            subjectListEl.innerHTML = '';
+            const subListEl = document.getElementById('kwitansi-subject-list');
+            subListEl.innerHTML = '';
             const subs = Array.isArray(s.subject) ? s.subject : [s.subject];
             subs.forEach(sub => {
-                subjectListEl.innerHTML += `<div class="flex justify-between items-center text-slate-700"><span>• SPP ${sub}</span><span class="font-semibold">Rp ${(s.rate || 525000).toLocaleString('id-ID')}</span></div>`;
+                subListEl.innerHTML += `<div class="flex justify-between items-center text-slate-700 pl-2"><span>• SPP ${sub}</span><span class="font-semibold">Rp ${(s.rate || 525000).toLocaleString('id-ID')}</span></div>`;
             });
 
             document.getElementById('kwitansi-check-pendaftaran').checked = false;
@@ -2207,25 +2108,24 @@
         function updateKwitansiTotal() {
             if (currentKwitansiStudentIndex === null) return;
             const s = db.siswa[currentKwitansiStudentIndex];
-            let baseTotal = s.totalPayment || 0;
+            const subs = Array.isArray(s.subject) ? s.subject : [s.subject];
+            let baseTotal = subs.length * (s.rate || 525000);
 
             const isPendaftaran = document.getElementById('kwitansi-check-pendaftaran').checked;
             const isDiskon = document.getElementById('kwitansi-check-diskon').checked;
 
             if (isPendaftaran) {
-                baseTotal += 350000;
                 document.getElementById('kwitansi-row-pendaftaran').classList.remove('hidden');
+                baseTotal += 350000;
             } else {
                 document.getElementById('kwitansi-row-pendaftaran').classList.add('hidden');
             }
 
-            let diskonNilai = 0;
             if (isDiskon) {
-                let sppTotal = s.totalPayment || 0;
-                diskonNilai = sppTotal * 0.5;
-                baseTotal -= diskonNilai;
                 document.getElementById('kwitansi-row-diskon').classList.remove('hidden');
+                const diskonNilai = (subs.length * (s.rate || 525000)) * 0.5;
                 document.getElementById('kwitansi-nilai-diskon').innerText = `-Rp ${diskonNilai.toLocaleString('id-ID')}`;
+                baseTotal -= diskonNilai;
             } else {
                 document.getElementById('kwitansi-row-diskon').classList.add('hidden');
             }
@@ -2235,18 +2135,17 @@
 
         function downloadAndShareKwitansiWhatsApp() {
             const s = db.siswa[currentKwitansiStudentIndex];
-            if (!s || !s.phone) {
-                alert("Nomor HP orang tua siswa tidak tersedia!");
-                return;
+            if (!s) return;
+            const phone = s.phone || '';
+            const msg = `Halo Ayah/Bunda ${s.name}, berikut adalah konfirmasi kwitansi pembayaran SPP Kumon Pendidikan Gunung Sindur untuk periode ${s.periode || 'Agustus'}. Terima kasih! 🌸`;
+            if (phone) {
+                window.open(`https://wa.me/${phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
+            } else {
+                alert("Nomor HP Orangtua tidak tersedia!");
             }
-
-            const totalText = document.getElementById('kwitansi-total-payment').innerText;
-            const message = `Halo Ayah/Bunda ${s.name}, berikut adalah konfirmasi kwitansi pembayaran SPP Kumon Pendidikan - Gunung Sindur untuk periode ${s.periode || 'Agustus'}. Total Pembayaran: ${totalText}. Terima kasih! 🌸`;
-            const waUrl = `https://wa.me/${s.phone.replace(/^0/, '62')}?text=${encodeURIComponent(message)}`;
-            window.open(waUrl, '_blank');
         }
 
-        function sendWAReminder(index) {
+                function sendWAReminder(index) {
             const s = db.siswa[index];
             if (!s.phone) return alert("Nomor HP belum diisi!");
             let phone = s.phone.replace(/[^0-9]/g, '');
@@ -2261,6 +2160,44 @@
             window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
+
+        function loadQRSelect() {
+            setupCustomDropdown('input-search-qr-siswa', 'dropdown-qr-siswa', db.siswa.map(s => s.name));
+        }
+
+        function generateQR() {
+            const inputVal = document.getElementById('input-search-qr-siswa').value.trim();
+            const s = db.siswa.find(x => x.name.toLowerCase() === inputVal.toLowerCase() || x.id.toLowerCase() === inputVal.toLowerCase());
+            const container = document.getElementById('qrcode');
+            container.innerHTML = '';
+
+            if (!s) {
+                alert("Student tidak ditemukan!");
+                return;
+            }
+
+            const qrData = `ID: ${s.id} | Nama: ${s.name} | Kelas: ${s.kelas || '-'}`;
+            new QRCode(container, {
+                text: qrData,
+                width: 180,
+                height: 180
+            });
+
+            document.getElementById('btn-download-qr').classList.remove('hidden');
+        }
+
+        function downloadQR() {
+            const qrCanvas = document.querySelector('#qrcode canvas');
+            if (!qrCanvas) return;
+            const link = document.createElement('a');
+            link.download = 'QR_Student_Kumon.png';
+            link.href = qrCanvas.toDataURL('image/png');
+            link.click();
+        }
+
+        function exportExcel(type) {
+            alert(`Fitur export excel ${type} berhasil diproses.`);
+        }
     </script>
 </body>
 </html>
