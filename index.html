@@ -1398,7 +1398,7 @@
             }
         }
 
-        function startQRScanner() {
+      function startQRScanner() {
             if (html5QrcodeScanner) {
                 try { html5QrcodeScanner.clear(); } catch(e){}
             }
@@ -1429,6 +1429,8 @@
                 const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
                 const subjectText = Array.isArray(s.subject) ? s.subject.join(", ") : (s.subject || "-");
 
+                // PERBAIKAN 1 & 2: Jika scan di hari kelas, simpan status hadir dan update realtime. 
+                // Jika di luar hari kelas, abaikan penyimpanan absensi (hanya tampil ID card).
                 if (isClassDay) {
                     let log = db.absensiSiswa.find(a => a.id === s.id && a.tanggal === todayStr);
                     if (!log) {
@@ -1442,18 +1444,20 @@
                             status: "Hadir",
                             keterangan: "-"
                         });
-                        saveDB();
-                        renderSiswaHistory();
-                        updateSiswaSummary();
+                    } else {
+                        log.masuk = timeStr;
+                        log.status = "Hadir";
                     }
+                    saveDB();
+                    renderSiswaHistory();
+                    updateSiswaSummary();
                 }
 
                 const popup = document.getElementById('qris-card-popup');
                 document.getElementById('popup-siswa-name').innerText = s.name;
                 document.getElementById('popup-siswa-id').innerText = `ID: ${s.id}`;
                 document.getElementById('popup-siswa-kelas').innerText = s.kelas || '-';
-                document.getElementById('popup-siswa-subject').innerText = subjectText;
-                document.getElementById('popup-siswa-time').innerText = isClassDay ? timeStr : `${timeStr} (Bukan Hari Kelas)`;
+                document.getElementById('popup-siswa-subject').innerText = subjectText;                document.getElementById('popup-siswa-time').innerText = isClassDay ? timeStr : `${timeStr} (Bukan Hari Kelas)`;
 
                 popup.classList.remove('hidden');
 
@@ -1464,7 +1468,6 @@
                 }, 3000);
             });
         }
-
         function isTanggalKelasPengganti(dateKey) {
             const checkbox = document.getElementById('check-kelas-pengganti');
             const startDateVal = document.getElementById('filter-siswa-start-date').value;
