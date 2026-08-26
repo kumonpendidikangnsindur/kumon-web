@@ -774,9 +774,9 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-3 pt-2">
+            <div class="grid grid-cols-1 gap-3 pt-2">
                 <button onclick="downloadAndShareKwitansiWhatsApp()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold py-3 rounded-2xl text-xs transition shadow-md flex items-center justify-center gap-1.5">
-                    <i class="fa-brands fa-whatsapp text-sm"></i> Kirim ke WhatsApp Ortu
+                    <i class="fa-brands fa-whatsapp text-sm"></i> Download PNG & Kirim ke WhatsApp Ortu
                 </button>
                 <button onclick="closeKwitansiModal()" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 rounded-2xl text-xs transition">
                     Batal
@@ -1398,7 +1398,7 @@
             }
         }
 
-      function startQRScanner() {
+        function startQRScanner() {
             if (html5QrcodeScanner) {
                 try { html5QrcodeScanner.clear(); } catch(e){}
             }
@@ -1429,8 +1429,6 @@
                 const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
                 const subjectText = Array.isArray(s.subject) ? s.subject.join(", ") : (s.subject || "-");
 
-                // PERBAIKAN 1 & 2: Jika scan di hari kelas, simpan status hadir dan update realtime. 
-                // Jika di luar hari kelas, abaikan penyimpanan absensi (hanya tampil ID card).
                 if (isClassDay) {
                     let log = db.absensiSiswa.find(a => a.id === s.id && a.tanggal === todayStr);
                     if (!log) {
@@ -1444,20 +1442,18 @@
                             status: "Hadir",
                             keterangan: "-"
                         });
-                    } else {
-                        log.masuk = timeStr;
-                        log.status = "Hadir";
+                        saveDB();
+                        renderSiswaHistory();
+                        updateSiswaSummary();
                     }
-                    saveDB();
-                    renderSiswaHistory();
-                    updateSiswaSummary();
                 }
 
                 const popup = document.getElementById('qris-card-popup');
                 document.getElementById('popup-siswa-name').innerText = s.name;
                 document.getElementById('popup-siswa-id').innerText = `ID: ${s.id}`;
                 document.getElementById('popup-siswa-kelas').innerText = s.kelas || '-';
-                document.getElementById('popup-siswa-subject').innerText = subjectText;                document.getElementById('popup-siswa-time').innerText = isClassDay ? timeStr : `${timeStr} (Bukan Hari Kelas)`;
+                document.getElementById('popup-siswa-subject').innerText = subjectText;
+                document.getElementById('popup-siswa-time').innerText = isClassDay ? timeStr : `${timeStr} (Bukan Hari Kelas)`;
 
                 popup.classList.remove('hidden');
 
@@ -1468,6 +1464,7 @@
                 }, 3000);
             });
         }
+
         function isTanggalKelasPengganti(dateKey) {
             const checkbox = document.getElementById('check-kelas-pengganti');
             const startDateVal = document.getElementById('filter-siswa-start-date').value;
@@ -1478,7 +1475,6 @@
         }
 
         function updateSiswaSummaryForDate(dateKey, targetSiswaList) {
-            // Menggunakan seluruh data db.siswa agar filter siswa tidak mengubah ringkasan total (Poin 3)
             const totalSiswa = (db.siswa || []).length;
             const dayOfWeek = new Date(dateKey).getDay();
             const isRegularClassDay = (dayOfWeek === 1 || dayOfWeek === 4) && !isHariLiburNasional(dateKey);
@@ -1600,8 +1596,6 @@
             saveDB();
         }
 
-        // PERBAIKAN UTAMA: History absensi siswa diurutkan berdasarkan abjad nama, 
-        // dengan status hadir di urutan atas dan belum absen/tidak hadir di urutan bawah, tetap terurut abjad.
         function renderSiswaHistory() {
             const tbody = document.getElementById('siswa-history-body');
             if(!tbody) return;
@@ -1647,9 +1641,6 @@
                         return { s, log, isHadir };
                     });
 
-                    // Rules (Poin 1): 
-                    // 1. Status hadir di urutan atas, belum absen/tidak hadir di bawah.
-                    // 2. Tetap diurutkan secara abjad berdasarkan nama siswa.
                     evaluatedList.sort((a, b) => {
                         if (a.isHadir !== b.isHadir) {
                             return a.isHadir ? -1 : 1;
@@ -2046,12 +2037,8 @@
             const checkboxes = document.querySelectorAll('input[name="edit-subject-choice"]:checked');
             let subjects = Array.from(checkboxes).map(cb => cb.value);
 
-            if (!id || !name) {
-                alert("ID dan Nama Student wajib diisi!");
-                return;
-            }
-            if (subjects.length === 0) {
-                alert("Pilih minimal 1 subject!");
+            if (!id || !name || subjects.length === 0) {
+                alert("ID, Nama, dan minimal 1 Subject wajib diisi!");
                 return;
             }
 
@@ -2059,13 +2046,14 @@
             s.id = id;
             s.name = name;
             s.kelas = kelas;
-            s.rate = rate;
             s.subject = subjects;
+            s.rate = rate;
             s.phone = phone;
             s.totalPayment = subjects.length * rate;
 
             saveDB();
             closeModalEditSiswa();
+            renderPaymentTable();
             alert("Data Student berhasil diperbarui! ✨");
         }
 
@@ -2075,56 +2063,13 @@
             if (confirm(`Yakin ingin menghapus student ${s.name}?`)) {
                 db.siswa.splice(index, 1);
                 saveDB();
+                renderPaymentTable();
+                updateSiswaSummary();
                 alert("Data student berhasil dihapus.");
             }
         }
 
-        function generateQR() {
-            const inputVal = document.getElementById('input-search-qr-siswa').value.trim();
-            const s = db.siswa.find(x => x.name.toLowerCase() === inputVal.toLowerCase() || x.id.toLowerCase() === inputVal.toLowerCase());
-
-            const qrContainer = document.getElementById('qrcode');
-            const downloadBtn = document.getElementById('btn-download-qr');
-            qrContainer.innerHTML = '';
-
-            if (!s) {
-                alert("Student tidak ditemukan!");
-                downloadBtn.classList.add('hidden');
-                return;
-            }
-
-            const qrData = `ID: ${s.id} | Nama: ${s.name}`;
-            new QRCode(qrContainer, {
-                text: qrData,
-                width: 180,
-                height: 180,
-                colorDark: "#000000",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.H
-            });
-
-            downloadBtn.classList.remove('hidden');
-        }
-
-        function downloadQR() {
-            const qrContainer = document.getElementById('qrcode');
-            const canvas = qrContainer.querySelector('canvas');
-            if (!canvas) return alert("QR Code belum dibuat!");
-
-            const link = document.createElement('a');
-            link.download = 'qr-code-student.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-        }
-
-        function loadQRSelect() {
-            setupCustomDropdown('input-search-qr-siswa', 'dropdown-qr-siswa', db.siswa.map(s => `${s.name} (${s.id})`), (val) => {
-                const cleanName = val.split(' (')[0];
-                document.getElementById('input-search-qr-siswa').value = cleanName;
-            });
-        }
-
-       unction openKwitansiModal(index) {
+        function openKwitansiModal(index) {
             currentKwitansiStudentIndex = index;
             const s = db.siswa[index];
             if (!s) return;
@@ -2230,19 +2175,63 @@
             });
         }
 
-       function sendWAReminder(index) {
+        function sendWAReminder(index) {
             const s = db.siswa[index];
-            if (!s.phone) return alert("Nomor HP belum diisi!");
-            let phone = s.phone.replace(/[^0-9]/g, '');
-            if (phone.startsWith('0')) phone = '62' + phone.slice(1);
+            if (!s) return;
+            const phone = s.phone ? s.phone.replace(/^0/, '62') : '';
+            const total = (s.totalPayment || 0).toLocaleString('id-ID');
+            const msg = encodeURIComponent(`Halo Ayah/Bunda ${s.name}, ini adalah pengingat pembayaran SPP Kumon Pendidikan - Gunung Sindur untuk periode *${s.periode || 'Agustus'}* sebesar *Rp ${total}*. Terima kasih! 🌸`);
+            if (phone) {
+                window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+            } else {
+                alert("Nomor HP Orangtua belum diisi!");
+            }
+        }
 
-            const periodePembayaran = s.periode || "Agustus";
-            const subjectChoice = Array.isArray(s.subject) ? s.subject.join(", ") : (s.subject || "-");
-            const totalSppFormatted = `Rp ${(s.totalPayment || 0).toLocaleString('id-ID')}`;
+        function loadQRSelect() {
+            setupCustomDropdown('input-search-qr-siswa', 'dropdown-qr-siswa', db.siswa.map(s => `${s.name} (${s.id})`), (selectedVal) => {
+                document.getElementById('input-search-qr-siswa').value = selectedVal;
+            });
+        }
 
-            const msg = `Halo Ayah/Bunda ${s.name}, Izin mengingatkan untuk pembayaran SPP Kumon bulan ${periodePembayaran}.\nSubject ${subjectChoice} dengan nominal ${totalSppFormatted} dapat di transfer ke Rekening BCA 8691948544 a/n Ardini Suciati.\n\nMohon konfirmasinya apabila sudah melakukan pembayaran dan paling lambat payment di tanggal 10.\n\nTerima Kasih.\n\n_Kumon Pendidikan - Gunung Sindur_`;
+        function generateQR() {
+            const inputVal = document.getElementById('input-search-qr-siswa').value.trim();
+            if (!inputVal) return alert("Pilih atau ketik student terlebih dahulu!");
 
-            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+            let studentId = inputVal;
+            if (inputVal.includes('(') && inputVal.includes(')')) {
+                const match = inputVal.match(/\(([^)]+)\)/);
+                if (match) studentId = match[1];
+            }
+
+            const s = db.siswa.find(x => x.id.toLowerCase() === studentId.toLowerCase() || x.name.toLowerCase() === inputVal.toLowerCase());
+            if (!s) return alert("Student tidak ditemukan!");
+
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = '';
+
+            const qrText = `ID: ${s.id} | Nama: ${s.name} | Kelas: ${s.kelas || '-'}`;
+            new QRCode(qrContainer, {
+                text: qrText,
+                width: 180,
+                height: 180,
+                colorDark: "#4A403A",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            document.getElementById('btn-download-qr').classList.remove('hidden');
+        }
+
+        function downloadQR() {
+            const qrImg = document.querySelector('#qrcode img');
+            if (!qrImg) return alert("Generate QR terlebih dahulu!");
+            const link = document.createElement('a');
+            link.href = qrImg.src;
+            link.download = `QR_Absensi_Student.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         function exportExcel(type) {
@@ -2263,16 +2252,16 @@
                     'Subject': Array.isArray(s.subject) ? s.subject.join(", ") : s.subject,
                     'Total SPP': s.totalPayment || 0,
                     'Status': s.status || 'UNPAID',
-                    'Periode': s.periode || 'Agustus',
-                    'Tanggal Bayar': s.payDate || '-'
+                    'Tanggal Bayar': s.payDate || '-',
+                    'Periode': s.periode || '-'
                 }));
             }
 
-            if (dataExport.length === 0) return alert("Tidak ada data untuk diexport pada bulan tersebut!");
+            if (dataExport.length === 0) return alert("Tidak ada data untuk diexport pada bulan/tahun tersebut!");
 
             const worksheet = XLSX.utils.json_to_sheet(dataExport);
             const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Rekap");
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Rekap Kumon");
             XLSX.writeFile(workbook, fileName);
         }
     </script>
