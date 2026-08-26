@@ -2124,7 +2124,7 @@
             });
         }
 
-        function openKwitansiModal(index) {
+       unction openKwitansiModal(index) {
             currentKwitansiStudentIndex = index;
             const s = db.siswa[index];
             if (!s) return;
@@ -2134,13 +2134,31 @@
             document.getElementById('kwitansi-periode').innerText = s.periode || 'Agustus';
             document.getElementById('kwitansi-tanggal').innerText = s.payDate ? s.payDate.split('-').reverse().join('/') : '-';
 
+            document.getElementById('kwitansi-check-pendaftaran').checked = false;
+            document.getElementById('kwitansi-check-diskon').checked = false;
+
+            updateKwitansiTotal();
+            document.getElementById('modal-kwitansi').classList.remove('hidden');
+        }
+
+        function closeKwitansiModal() {
+            document.getElementById('modal-kwitansi').classList.add('hidden');
+            currentKwitansiStudentIndex = null;
+        }
+
+        function updateKwitansiTotal() {
+            if (currentKwitansiStudentIndex === null) return;
+            const s = db.siswa[currentKwitansiStudentIndex];
+            
             const subListEl = document.getElementById('kwitansi-subject-list');
             subListEl.innerHTML = '';
 
+            let subTotalSPP = 0;
             const subjects = Array.isArray(s.subject) ? s.subject : [s.subject];
             const rate = s.rate || 525000;
 
             subjects.forEach(sub => {
+                subTotalSPP += rate;
                 subListEl.innerHTML += `
                     <div class="flex justify-between items-center text-slate-700">
                         <span>• SPP ${sub}</span>
@@ -2149,48 +2167,28 @@
                 `;
             });
 
-            document.getElementById('kwitansi-check-pendaftaran').checked = false;
-            document.getElementById('kwitansi-check-diskon').checked = false;
-            document.getElementById('kwitansi-row-pendaftaran').classList.add('hidden');
-            document.getElementById('kwitansi-row-diskon').classList.add('hidden');
-            document.getElementById('kwitansi-total-payment').innerText = `Rp ${(s.totalPayment || 0).toLocaleString('id-ID')}`;
-
-            document.getElementById('modal-kwitansi').classList.remove('hidden');
-        }
-
-        function closeKwitansiModal() {
-            document.getElementById('modal-kwitansi').classList.add('hidden');
-        }
-
-        function updateKwitansiTotal() {
-            const s = db.siswa[currentKwitansiStudentIndex];
-            if (!s) return;
-
             const isPendaftaran = document.getElementById('kwitansi-check-pendaftaran').checked;
             const isDiskon = document.getElementById('kwitansi-check-diskon').checked;
-
-            const subjects = Array.isArray(s.subject) ? s.subject : [s.subject];
-            const rate = s.rate || 525000;
-            let totalSpp = subjects.length * rate;
 
             const rowPendaftaran = document.getElementById('kwitansi-row-pendaftaran');
             const rowDiskon = document.getElementById('kwitansi-row-diskon');
             const nilaiDiskonEl = document.getElementById('kwitansi-nilai-diskon');
 
+            let pendaftaranFee = isPendaftaran ? 350000 : 0;
             if (isPendaftaran) rowPendaftaran.classList.remove('hidden');
             else rowPendaftaran.classList.add('hidden');
 
-            let diskonNominal = 0;
+            let diskonAmount = 0;
             if (isDiskon) {
-                diskonNominal = totalSpp * 0.5;
+                diskonAmount = subTotalSPP * 0.5;
                 rowDiskon.classList.remove('hidden');
-                nilaiDiskonEl.innerText = `-Rp ${diskonNominal.toLocaleString('id-ID')}`;
+                nilaiDiskonEl.innerText = `-Rp ${diskonAmount.toLocaleString('id-ID')}`;
             } else {
                 rowDiskon.classList.add('hidden');
             }
 
-            let finalTotal = totalSpp - diskonNominal;
-            if (isPendaftaran) finalTotal += 350000;
+            let finalTotal = subTotalSPP + pendaftaranFee - diskonAmount;
+            if (finalTotal < 0) finalTotal = 0;
 
             document.getElementById('kwitansi-total-payment').innerText = `Rp ${finalTotal.toLocaleString('id-ID')}`;
         }
