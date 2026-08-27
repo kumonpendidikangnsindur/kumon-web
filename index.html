@@ -438,7 +438,6 @@
                             <th class="p-3">ID Student</th>
                             <th class="p-3">Nama Student</th>
                             <th class="p-3">Kelas</th>
-                            <!-- Perubahan Poin 4: Kolom Subject & Total SPP Dilebarkan -->
                             <th class="p-3 min-w-[160px]">Subject</th>
                             <th class="p-3 min-w-[130px]">Total SPP</th>
                             <th class="p-3">Tanggal Pembayaran</th>
@@ -516,7 +515,7 @@
                     </div>
 
                     <div class="pt-2 border-t space-y-2">
-                        <label class="font-bold text-xs text-purple-600 block">Daftar & Cari Assistant (Urut Abjad & Scrollable):</label>
+                        <label class="font-bold text-xs text-purple-600 block">Daftar Assistant</label>
                         <input type="text" id="search-instructor-ast" placeholder="🔍 Ketik nama assistant" class="w-full p-2 text-xs border rounded-xl bg-white focus:outline-none" autocomplete="off">
                         <div id="list-assistant" tabindex="0" class="space-y-1.5 max-h-48 overflow-y-auto text-xs focus:outline-none focus:ring-2 focus:ring-purple-300 rounded-xl p-1 border bg-white"></div>
                     </div>
@@ -552,8 +551,8 @@
                     </div>
 
                     <div class="pt-2 border-t space-y-2">
-                        <label class="font-bold text-xs text-pink-600 block">Daftar & Cari Student (Urut Abjad & Scrollable):</label>
-                        <input type="text" id="search-instructor-siswa" placeholder="🔍 Ketik nama atau ID student" class="w-full p-2 text-xs border rounded-xl bg-white focus:outline-none" autocomplete="off">
+                        <label class="font-bold text-xs text-pink-600 block">Daftar Student</label>
+                        <input type="text" id="search-instructor-siswa" placeholder="🔍 Ketik nama student" class="w-full p-2 text-xs border rounded-xl bg-white focus:outline-none" autocomplete="off">
                         <div id="list-siswa" tabindex="0" class="space-y-1.5 max-h-48 overflow-y-auto text-xs focus:outline-none focus:ring-2 focus:ring-pink-300 rounded-xl p-1 border bg-white"></div>
                     </div>
                 </div>
@@ -1678,7 +1677,6 @@
                         <td class="p-3">${s.id}</td>
                         <td class="p-3 font-bold text-slate-700">${s.name}</td>
                         <td class="p-3">${s.kelas || '-'}</td>
-                        <!-- Perubahan Poin 4: Lebar disesuaikan -->
                         <td class="p-3 min-w-[160px]">${subjectStr}</td>
                         <td class="p-3 min-w-[130px] font-semibold text-emerald-700">Rp ${(s.totalPayment || 0).toLocaleString('id-ID')}</td>
                         <td class="p-3"><input type="date" value="${s.payDate || ''}" onchange="updatePayField(${globalIndex}, 'payDate', this.value)" class="p-1 border rounded-lg bg-white text-xs text-slate-600 focus:outline-none"></td>
@@ -1706,7 +1704,6 @@
             renderPaymentTable();
         }
 
-        // Perubahan Poin 3: Tombol reminder WA tetap berfungsi dengan baik
         function sendWAReminder(index) {
             const s = db.siswa[index];
             if (!s.phone) return alert("Nomor HP belum diisi!");
@@ -1794,7 +1791,6 @@
             document.getElementById('kwitansi-total-payment').innerText = `Rp ${finalTotal.toLocaleString('id-ID')}`;
         }
 
-        // Perubahan Poin 1 & 2: Kwitansi langsung di-share ke WhatsApp dalam bentuk gambar tanpa save ke galeri
         function downloadAndShareKwitansiWhatsApp() {
             if (currentKwitansiStudentIndex === null) return;
             const s = db.siswa[currentKwitansiStudentIndex];
@@ -1809,7 +1805,6 @@
 
                     const file = new File([blob], `Kwitansi_SPP_${s.name}.png`, { type: 'image/png' });
                     
-                    // Cek dukungan Web Share API untuk file gambar (langsung ke WA/share sheet tanpa simpan galeri)
                     if (navigator.canShare && navigator.canShare({ files: [file] })) {
                         navigator.share({
                             files: [file],
@@ -1819,7 +1814,6 @@
                             console.log('Sharing error:', error);
                         });
                     } else {
-                        // Fallback jika browser tidak support share file langsung: buat link unduh instan
                         const url = URL.createObjectURL(blob);
                         const a = document.createElement('a');
                         a.href = url;
@@ -1829,7 +1823,6 @@
                         document.body.removeChild(a);
                         URL.revokeObjectURL(url);
                         
-                        // Buka chat WA secara otomatis dengan teks pendukung
                         let phone = s.phone ? s.phone.replace(/[^0-9]/g, '') : '';
                         if (phone.startsWith('0')) phone = '62' + phone.slice(1);
                         const msg = `Halo Ayah/Bunda ${s.name}, berikut terlampir kwitansi pembayaran SPP Kumon. Terima kasih. _Kumon Pendidikan - Gunung Sindur_`;
@@ -1942,8 +1935,8 @@
                 totalPayment,
                 phone,
                 status: 'UNPAID',
-                periode: 'Agustus',
-                payDate: ''
+                payDate: '',
+                periode: 'Agustus'
             });
 
             saveDB();
@@ -1969,9 +1962,9 @@
             document.getElementById('edit-siswa-rate').value = s.rate || 525000;
             document.getElementById('edit-siswa-phone').value = s.phone || '';
 
-            const subArr = Array.isArray(s.subject) ? s.subject : [s.subject];
-            document.querySelectorAll('input[name="edit-subject-choice"]').forEach(cb => {
-                cb.checked = subArr.includes(cb.value);
+            const checkboxes = document.querySelectorAll('input[name="edit-subject-choice"]');
+            checkboxes.forEach(cb => {
+                cb.checked = Array.isArray(s.subject) && s.subject.includes(cb.value);
             });
 
             document.getElementById('modal-edit-siswa').classList.remove('hidden');
@@ -1993,20 +1986,16 @@
             let subjects = [];
             subjectCheckboxes.forEach(cb => subjects.push(cb.value));
 
-            if (!id || !name || subjects.length === 0) return alert("Kolom wajib tidak boleh kosong!");
+            if (!id || !name || subjects.length === 0) return alert("ID, Nama Student, dan minimal 1 Subject wajib diisi!");
 
-            const totalPayment = rate * subjects.length;
-
-            db.siswa[index] = {
-                ...db.siswa[index],
-                id,
-                name,
-                kelas,
-                subject: subjects,
-                rate,
-                totalPayment,
-                phone
-            };
+            const s = db.siswa[index];
+            s.id = id;
+            s.name = name;
+            s.kelas = kelas;
+            s.subject = subjects;
+            s.rate = rate;
+            s.totalPayment = rate * subjects.length;
+            s.phone = phone;
 
             saveDB();
             closeModalEditSiswa();
@@ -2027,30 +2016,27 @@
         }
 
         function renderLists() {
-            const astContainer = document.getElementById('list-assistant');
-            const searchAstInput = document.getElementById('search-instructor-ast');
-            if (astContainer) {
-                astContainer.innerHTML = '';
-                let sortedAsts = [...db.assistants].sort((a, b) => a.name.localeCompare(b.name));
-                const query = searchAstInput ? searchAstInput.value.toLowerCase() : '';
-                if (query) {
-                    sortedAsts = sortedAsts.filter(a => a.name.toLowerCase().includes(query) || (a.username && a.username.toLowerCase().includes(query)));
-                }
+            const listAst = document.getElementById('list-assistant');
+            const searchAstVal = document.getElementById('search-instructor-ast') ? document.getElementById('search-instructor-ast').value.toLowerCase() : '';
+            if (listAst) {
+                listAst.innerHTML = '';
+                let sortedAst = [...db.assistants].sort((a, b) => a.name.localeCompare(b.name));
+                let filteredAst = sortedAst.filter(a => a.name.toLowerCase().includes(searchAstVal));
 
-                if (sortedAsts.length === 0) {
-                    astContainer.innerHTML = `<p class="text-slate-400 text-center py-2 italic">Tidak ada data assistant</p>`;
+                if (filteredAst.length === 0) {
+                    listAst.innerHTML = `<p class="text-slate-400 italic text-center py-2">Tidak ada assistant</p>`;
                 } else {
-                    sortedAsts.forEach((ast) => {
-                        const originalIndex = db.assistants.findIndex(item => item.name === ast.name);
-                        astContainer.innerHTML += `
-                            <div class="flex justify-between items-center p-2 bg-purple-50/60 rounded-xl border border-purple-100 text-xs">
+                    filteredAst.forEach(ast => {
+                        const originalIndex = db.assistants.findIndex(a => a.name === ast.name);
+                        listAst.innerHTML += `
+                            <div class="flex justify-between items-center bg-purple-50/60 p-2 rounded-xl border border-purple-100">
                                 <div>
                                     <b class="text-purple-900">${ast.name}</b>
-                                    <div class="text-[10px] text-slate-500">Username: ${ast.username || '-'} | Email: ${ast.email || '-'}</div>
+                                    <p class="text-[10px] text-purple-600">Username: ${ast.username || '-'} | HP: ${ast.phone || '-'}</p>
                                 </div>
-                                <div class="flex gap-1.5">
-                                    <button onclick="editAssistant(${originalIndex})" class="bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-bold px-2.5 py-1 rounded-lg shadow-sm">Edit</button>
-                                    <button onclick="deleteAssistant(${originalIndex})" class="bg-red-500 hover:bg-red-600 text-white font-bold px-2.5 py-1 rounded-lg shadow-sm">Hapus</button>
+                                <div class="flex gap-1">
+                                    <button onclick="editAssistant(${originalIndex})" class="bg-amber-400 hover:bg-amber-500 text-white px-2 py-1 rounded-lg text-[10px] font-bold">Edit</button>
+                                    <button onclick="deleteAssistant(${originalIndex})" class="bg-rose-400 hover:bg-rose-500 text-white px-2 py-1 rounded-lg text-[10px] font-bold">Hapus</button>
                                 </div>
                             </div>
                         `;
@@ -2058,31 +2044,32 @@
                 }
             }
 
-            const siswaContainer = document.getElementById('list-siswa');
-            const searchSiswaInput = document.getElementById('search-instructor-siswa');
-            if (siswaContainer) {
-                siswaContainer.innerHTML = '';
+            const listSiswa = document.getElementById('list-siswa');
+            const searchSiswaVal = document.getElementById('search-instructor-siswa') ? document.getElementById('search-instructor-siswa').value.toLowerCase() : '';
+            if (listSiswa) {
+                listSiswa.innerHTML = '';
+                
+                // Urutkan sesuai alfabet (berdasarkan nama student)
                 let sortedSiswa = [...db.siswa].sort((a, b) => a.name.localeCompare(b.name));
-                const query = searchSiswaInput ? searchSiswaInput.value.toLowerCase() : '';
-                if (query) {
-                    sortedSiswa = sortedSiswa.filter(s => s.name.toLowerCase().includes(query) || s.id.toLowerCase().includes(query));
-                }
+                let filteredSiswa = sortedSiswa.filter(s => s.name.toLowerCase().includes(searchSiswaVal));
 
-                if (sortedSiswa.length === 0) {
-                    siswaContainer.innerHTML = `<p class="text-slate-400 text-center py-2 italic">Tidak ada data student</p>`;
+                if (filteredSiswa.length === 0) {
+                    listSiswa.innerHTML = `<p class="text-slate-400 italic text-center py-2">Tidak ada student</p>`;
                 } else {
-                    sortedSiswa.forEach((s) => {
+                    filteredSiswa.forEach(s => {
                         const originalIndex = db.siswa.findIndex(item => item.id === s.id);
-                        const subStr = Array.isArray(s.subject) ? s.subject.join(", ") : (s.subject || '-');
-                        siswaContainer.innerHTML += `
-                            <div class="flex justify-between items-center p-2 bg-pink-50/60 rounded-xl border border-pink-100 text-xs">
+                        const subjectStr = Array.isArray(s.subject) ? s.subject.join(", ") : (s.subject || '-');
+                        
+                        // Menampilkan hanya nama, kelas, dan subject tanpa nomor ID siswa
+                        listSiswa.innerHTML += `
+                            <div class="flex justify-between items-center bg-pink-50/60 p-2 rounded-xl border border-pink-100">
                                 <div>
-                                    <b class="text-pink-900">[${s.id}] ${s.name}</b>
-                                    <div class="text-[10px] text-slate-500">Kelas: ${s.kelas || '-'} | Subject: ${subStr}</div>
+                                    <b class="text-pink-900">${s.name}</b>
+                                    <p class="text-[10px] text-pink-700">Kelas: ${s.kelas || '-'} | Subject: ${subjectStr}</p>
                                 </div>
-                                <div class="flex gap-1.5">
-                                    <button onclick="editSiswa(${originalIndex})" class="bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-bold px-2.5 py-1 rounded-lg shadow-sm">Edit</button>
-                                    <button onclick="deleteSiswa(${originalIndex})" class="bg-red-500 hover:bg-red-600 text-white font-bold px-2.5 py-1 rounded-lg shadow-sm">Hapus</button>
+                                <div class="flex gap-1">
+                                    <button onclick="editSiswa(${originalIndex})" class="bg-amber-400 hover:bg-amber-500 text-white px-2 py-1 rounded-lg text-[10px] font-bold">Edit</button>
+                                    <button onclick="deleteSiswa(${originalIndex})" class="bg-rose-400 hover:bg-rose-500 text-white px-2 py-1 rounded-lg text-[10px] font-bold">Hapus</button>
                                 </div>
                             </div>
                         `;
@@ -2091,27 +2078,32 @@
             }
 
             setupCustomDropdown('input-search-assistant', 'dropdown-assistant', db.assistants.map(a => a.name));
+            loadQRSelect();
         }
 
-        let qrCodeInstance = null;
+        if (document.getElementById('search-instructor-ast')) {
+            document.getElementById('search-instructor-ast').addEventListener('input', renderLists);
+        }
+        if (document.getElementById('search-instructor-siswa')) {
+            document.getElementById('search-instructor-siswa').addEventListener('input', renderLists);
+        }
+
         function loadQRSelect() {
-            setupCustomDropdown('input-search-qr-siswa', 'dropdown-qr-siswa', db.siswa.map(s => `${s.id} - ${s.name}`));
+            setupCustomDropdown('input-search-qr-siswa', 'dropdown-qr-siswa', db.siswa.map(s => s.name));
         }
 
         function generateQR() {
-            const val = document.getElementById('input-search-qr-siswa').value.trim();
-            if (!val) return alert("Pilih atau ketik student terlebih dahulu!");
-            const idSiswa = val.split('-')[0].trim();
-            const s = db.siswa.find(x => x.id.toLowerCase() === idSiswa.toLowerCase() || x.name.toLowerCase() === val.toLowerCase());
-
-            if (!s) return alert("Student tidak ditemukan!");
-
-            const qrcodeContainer = document.getElementById("qrcode");
-            qrcodeContainer.innerHTML = "";
+            const inputVal = document.getElementById('input-search-qr-siswa').value.trim();
+            const s = db.siswa.find(item => item.name.toLowerCase() === inputVal.toLowerCase() || item.id.toLowerCase() === inputVal.toLowerCase());
             
-            const qrText = `ID: ${s.id} | Nama: ${s.name} | Kelas: ${s.kelas || '-'}`;
-            qrCodeInstance = new QRCode(qrcodeContainer, {
-                text: qrText,
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = '';
+            
+            if (!s) return alert("Pilih atau ketik nama student yang valid!");
+
+            const qrcodeData = `ID: ${s.id} | Nama: ${s.name} | Kelas: ${s.kelas || '-'}`;
+            new QRCode(qrContainer, {
+                text: qrcodeData,
                 width: 180,
                 height: 180,
                 colorDark: "#000000",
@@ -2123,65 +2115,85 @@
         }
 
         function downloadQR() {
-            const qrcodeContainer = document.getElementById("qrcode");
-            const img = qrcodeContainer.querySelector("img");
-            const canvas = qrcodeContainer.querySelector("canvas");
+            const qrImg = document.querySelector('#qrcode img') || document.querySelector('#qrcode canvas');
+            if (!qrImg) return alert("QR Code belum di-generate!");
 
             let imageUrl = "";
-            if (img && img.src) {
-                imageUrl = img.src;
-            } else if (canvas) {
-                imageUrl = canvas.toDataURL("image/png");
+            if (qrImg.tagName === 'IMG') {
+                imageUrl = qrImg.src;
+            } else {
+                imageUrl = qrImg.toDataURL("image/png");
             }
 
-            if (!imageUrl) return alert("QR Code belum di-generate!");
-
+            const inputVal = document.getElementById('input-search-qr-siswa').value.trim();
             const a = document.createElement('a');
             a.href = imageUrl;
-            a.download = `QR_Student_${document.getElementById('input-search-qr-siswa').value}.png`;
+            a.download = `QR_Code_${inputVal || 'Student'}.png`;
+            document.body.appendChild(a);
             a.click();
+            document.body.removeChild(a);
         }
 
         function exportExcel(type) {
             const month = document.getElementById('export-month').value;
             const year = document.getElementById('export-year').value;
-            let wsData = [];
-            let fileName = "";
+            let dataExport = [];
+            let fileName = `Rekap_${type}_${month}_${year}.xlsx`;
 
             if (type === 'assistant') {
-                fileName = `Rekap_Assistant_${month}_${year}.xlsx`;
-                wsData.push(["No", "Tanggal", "Nama Assistant", "Masuk", "Keluar", "Total Jam", "Status", "Keterangan"]);
-                let no = 1;
-                db.absensiAst.forEach(item => {
-                    if (item.tanggal.startsWith(`${year}-${month}`)) {
-                        wsData.push([no++, item.tanggal, item.nama, item.masuk, item.keluar, item.totalJam, item.status, item.keterangan]);
-                    }
-                });
+                dataExport = db.absensiAst.filter(a => {
+                    if (!a.tanggal) return false;
+                    const parts = a.tanggal.split('-');
+                    return parts[0] === year && parts[1] === month;
+                }).map((item, idx) => ({
+                    No: idx + 1,
+                    Tanggal: item.tanggal,
+                    Nama: item.nama,
+                    Masuk: item.masuk,
+                    Keluar: item.keluar,
+                    Durasi: item.totalJam,
+                    Status: item.status,
+                    Keterangan: item.keterangan
+                }));
+                fileName = `Rekap_Absensi_Assistant_${month}_${year}.xlsx`;
             } else if (type === 'siswa') {
+                dataExport = db.absensiSiswa.filter(a => {
+                    if (!a.tanggal) return false;
+                    const parts = a.tanggal.split('-');
+                    return parts[0] === year && parts[1] === month;
+                }).map((item, idx) => ({
+                    No: idx + 1,
+                    Tanggal: item.tanggal,
+                    ID_Student: item.id,
+                    Nama_Student: item.nama,
+                    Kelas: item.kelas,
+                    Subject: item.subject,
+                    Jam_Kedatangan: item.masuk,
+                    Status: item.status,
+                    Keterangan: item.keterangan
+                }));
                 fileName = `Rekap_Absensi_Student_${month}_${year}.xlsx`;
-                wsData.push(["No", "Tanggal", "ID Student", "Nama Student", "Kelas", "Subject", "Jam Kedatangan", "Status", "Keterangan"]);
-                let no = 1;
-                db.absensiSiswa.forEach(item => {
-                    if (item.tanggal.startsWith(`${year}-${month}`)) {
-                        wsData.push([no++, item.tanggal, item.id, item.nama, item.kelas, item.subject, item.masuk, item.status, item.keterangan]);
-                    }
-                });
             } else if (type === 'payment') {
+                dataExport = db.siswa.map((item, idx) => ({
+                    No: idx + 1,
+                    ID_Student: item.id,
+                    Nama_Student: item.name,
+                    Kelas: item.kelas || '-',
+                    Subject: Array.isArray(item.subject) ? item.subject.join(", ") : (item.subject || '-'),
+                    Total_SPP: item.totalPayment || 0,
+                    Tanggal_Bayar: item.payDate || '-',
+                    Periode: item.periode || 'Agustus',
+                    Status: item.status || 'UNPAID'
+                }));
                 fileName = `Rekap_Payment_SPP_${month}_${year}.xlsx`;
-                wsData.push(["No", "ID Student", "Nama Student", "Kelas", "Subject", "Total SPP", "Tanggal Bayar", "Periode", "Status"]);
-                let no = 1;
-                db.siswa.forEach(item => {
-                    const subStr = Array.isArray(item.subject) ? item.subject.join(", ") : (item.subject || '-');
-                    wsData.push([no++, item.id, item.name, item.kelas || '-', subStr, item.totalPayment || 0, item.payDate || '-', item.periode || '-', item.status || 'UNPAID']);
-                });
             }
 
-            if (wsData.length <= 1) return alert("Tidak ada data untuk diexport pada periode ini!");
+            if (dataExport.length === 0) return alert("Tidak ada data untuk diexport pada periode tersebut!");
 
-            const wb = XLSX.utils.book_new();
-            const ws = XLSX.utils.aoa_to_sheet(wsData);
-            XLSX.utils.book_append_sheet(wb, ws, "RekapKumon");
-            XLSX.writeFile(wb, fileName);
+            const worksheet = XLSX.utils.json_to_sheet(dataExport);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Rekap");
+            XLSX.writeFile(workbook, fileName);
         }
     </script>
 </body>
