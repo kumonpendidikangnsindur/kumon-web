@@ -1714,7 +1714,7 @@
             const subjectChoice = Array.isArray(s.subject) ? s.subject.join(", ") : (s.subject || "-");
             const totalSppFormatted = `Rp ${(s.totalPayment || 0).toLocaleString('id-ID')}`;
 
-            const msg = `Halo Ayah/Bunda ${s.name}, Izin mengingatkan untuk pembayaran SPP Kumon bulan ${periodePembayaran}.\nSubject ${subjectChoice} dengan nominal ${totalSppFormatted} dapat di transfer ke Rekening BCA 8691948544 a/n Ardini Suciati.\n\nMohon konfirmasinya apabila sudah melakukan pembayaran dan paling lambat payment di tanggal 10.\n\nTerima Kasih.\n\n_Kumon Pendidikan - Gunung Sindur_`;
+            const msg = `Halo Ayah/Bunda **${s.name}**, Izin mengingatkan untuk pembayaran SPP Kumon bulan **${periodePembayaran}**.\nSubject **${subjectChoice}** dengan nominal **${totalSppFormatted}** dapat di transfer ke **Rekening BCA 8691948544 a/n Ardini Suciati**.\n\nMohon konfirmasinya apabila sudah melakukan pembayaran dan paling lambat payment di tanggal 10.\n\nTerima Kasih.\n\n_Kumon Pendidikan - Gunung Sindur_`;
 
             window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
         }
