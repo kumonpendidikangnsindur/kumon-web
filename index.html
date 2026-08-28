@@ -1434,9 +1434,11 @@
             });
         }
 
-        function isTanggalKelasPengganti(dateKey) {
+       // Tambahkan / perbarui fungsi ini di bagian script Anda
+function isTanggalKelasPengganti(dateKey) {
             const checkbox = document.getElementById('check-kelas-pengganti');
             const startDateVal = document.getElementById('filter-siswa-start-date').value;
+            // Jika checkbox kelas pengganti dicentang dan tanggal pada filter sesuai dengan tanggal yang dipilih/aktif
             if (checkbox && checkbox.checked && startDateVal === dateKey) {
                 return true;
             }
@@ -1460,9 +1462,10 @@
                 while (currDateObj <= endDate) {
                     const dateKey = getFormattedDate(currDateObj);
                     const dayOfWeek = currDateObj.getDay();
-                    const isReplacement = isTanggalKelasPengganti(dateKey);
+                    const isReplacement = isTanggalKelasPengganti(dateKey); // Mendeteksi hari kelas pengganti
                     const isRegularClass = (dayOfWeek === 1 || dayOfWeek === 4);
 
+                    // Jika hari kelas reguler ATAU hari kelas pengganti dan bukan hari libur nasional
                     if ((isRegularClass || isReplacement) && !isHariLiburNasional(dateKey)) {
                         db.siswa.forEach(s => {
                             let log = db.absensiSiswa.find(a => a.id === s.id && a.tanggal === dateKey);
@@ -1479,7 +1482,8 @@
                 const now = new Date();
                 const todayStr = getFormattedDate(now);
                 const dayOfWeek = now.getDay();
-                const isClassDay = (dayOfWeek === 1 || dayOfWeek === 4) && !isHariLiburNasional(todayStr);
+                const isReplacementToday = isTanggalKelasPengganti(todayStr);
+                const isClassDay = ((dayOfWeek === 1 || dayOfWeek === 4) || isReplacementToday) && !isHariLiburNasional(todayStr);
 
                 const todayLogs = (db.absensiSiswa || []).filter(a => a.tanggal === todayStr);
                 hadirCount = todayLogs.filter(a => a.masuk && a.masuk !== "-").length;
@@ -1594,9 +1598,10 @@
             while (currDateObj <= endDate) {
                 const dateKey = getFormattedDate(currDateObj);
                 const dayOfWeek = currDateObj.getDay();
-                const isReplacement = isTanggalKelasPengganti(dateKey);
+                const isReplacement = isTanggalKelasPengganti(dateKey); // Mendeteksi hari kelas pengganti
                 const isRegularClass = (dayOfWeek === 1 || dayOfWeek === 4);
 
+                // Menampilkan tabel rekap jika hari reguler atau hari kelas pengganti dicentang
                 if (isRegularClass || isReplacement) {
                     const dayName = daysName[dayOfWeek];
                     const isNasionalLibur = isHariLiburNasional(dateKey) && !isReplacement;
@@ -1932,27 +1937,41 @@
         }
 
         function generateQR() {
-            const inputVal = document.getElementById('input-search-qr-siswa').value.trim();
-            if (!inputVal) return alert("Pilih atau ketik nama student terlebih dahulu!");
+    const inputVal = document.getElementById('input-search-qr-siswa').value.trim();
+    const s = db.siswa.find(x => x.name.toLowerCase() === inputVal.toLowerCase() || x.id.toLowerCase() === inputVal.toLowerCase());
+    
+    const qrContainer = document.getElementById('qrcode');
+    const btnDownload = document.getElementById('btn-download-qr');
+    
+    qrContainer.innerHTML = '';
+    
+    if (!s) {
+        alert("Nama atau ID Student tidak ditemukan!");
+        btnDownload.classList.add('hidden');
+        return;
+    }
 
-            const s = db.siswa.find(x => x.name.toLowerCase() === inputVal.toLowerCase() || x.id.toLowerCase() === inputVal.toLowerCase());
-            if (!s) return alert("Student tidak ditemukan!");
+    // Format data teks di dalam QR Code secara ringkas dan padat agar mudah dibaca scanner
+    const qrText = `ID: ${s.id} | Nama: ${s.name} | Kelas: ${s.kelas || '-'}`;
 
-            const qrcodeContainer = document.getElementById("qrcode");
-            qrcodeContainer.innerHTML = "";
+    // Menggunakan QRCodeJS dengan konfigurasi optimal untuk tingkat keterbacaan (High Error Correction)
+    try {
+        new QRCode(qrContainer, {
+            text: qrText,
+            width: 200,
+            height: 200,
+            colorDark: "#000000",      // Pastikan warna gelap pekat (hitam)
+            colorLight: "#FFFFFF",     // Pastikan latar belakang putih bersih
+            correctLevel: QRCode.CorrectLevel.H // Error correction tingkat tinggi agar tetap bisa di-scan meski agak rusak/blur
+        });
 
-            const qrData = `${s.id} | ${s.name}`;
-            new QRCode(qrcodeContainer, {
-                text: qrData,
-                width: 180,
-                height: 180,
-                colorDark: "#000000",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.H
-            });
-
-            document.getElementById('btn-download-qr').classList.remove('hidden');
-        }
+        // Tampilkan tombol download setelah QR berhasil dirender
+        btnDownload.classList.remove('hidden');
+    } catch (error) {
+        console.error("Gagal generate QR:", error);
+        alert("Terjadi kesalahan saat membuat QR Code.");
+    }
+}
 
         function downloadQR() {
             const qrCanvas = document.querySelector("#qrcode canvas");
