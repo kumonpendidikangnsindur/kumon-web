@@ -1435,77 +1435,76 @@
         }
 
        // Tambahkan / perbarui fungsi ini di bagian script Anda
-// Fungsi mendeteksi apakah suatu tanggal diatur sebagai hari kelas pengganti
 function isTanggalKelasPengganti(dateKey) {
-            const checkbox = document.getElementById('check-kelas-pengganti');
-            const startDateVal = document.getElementById('filter-siswa-start-date').value;
-            const endDateVal = document.getElementById('filter-siswa-end-date').value;
-            
-            // Cek jika checkbox kelas pengganti dicentang dan dateKey berada dalam rentang filter tanggal atau sama dengan tanggal mulai
-            if (checkbox && checkbox.checked) {
-                if (startDateVal === dateKey || (startDateVal <= dateKey && dateKey <= endDateVal)) {
-                    return true;
-                }
-            }
-            return false;
+    const checkbox = document.getElementById('check-kelas-pengganti');
+    const startDateVal = document.getElementById('filter-siswa-start-date').value;
+    const endDateVal = document.getElementById('filter-siswa-end-date').value;
+    
+    // Jika checkbox kelas pengganti dicentang dan dateKey berada dalam rentang filter tanggal
+    if (checkbox && checkbox.checked) {
+        if (startDateVal === dateKey || (startDateVal <= dateKey && dateKey <= endDateVal)) {
+            return true;
         }
+    }
+    return false;
+}
 
-        function updateSiswaSummary() {
-            const totalSiswa = (db.siswa || []).length;
-            const startInput = document.getElementById('filter-siswa-start-date');
-            const endInput = document.getElementById('filter-siswa-end-date');
-            
-            let hadirCount = 0;
-            let tidakHadirCount = 0;
+// 2. Pembaruan pada updateSiswaSummary agar menghitung total hadir pada Hari Kelas Pengganti
+function updateSiswaSummary() {
+    const totalSiswa = (db.siswa || []).length;
+    const startInput = document.getElementById('filter-siswa-start-date');
+    const endInput = document.getElementById('filter-siswa-end-date');
+    
+    let hadirCount = 0;
+    let tidakHadirCount = 0;
 
-            if (startInput && endInput && startInput.value && endInput.value) {
-                const startDate = new Date(startInput.value);
-                const endDate = new Date(endInput.value);
-                let currDateObj = new Date(startDate);
-                const daysName = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    if (startInput && endInput && startInput.value && endInput.value) {
+        const startDate = new Date(startInput.value);
+        const endDate = new Date(endInput.value);
+        let currDateObj = new Date(startDate);
 
-                while (currDateObj <= endDate) {
-                    const dateKey = getFormattedDate(currDateObj);
-                    const dayOfWeek = currDateObj.getDay();
-                    const isReplacement = isTanggalKelasPengganti(dateKey); // Mendeteksi hari kelas pengganti
-                    const isRegularClass = (dayOfWeek === 1 || dayOfWeek === 4);
+        while (currDateObj <= endDate) {
+            const dateKey = getFormattedDate(currDateObj);
+            const dayOfWeek = currDateObj.getDay();
+            const isReplacement = isTanggalKelasPengganti(dateKey); // Cek apakah hari pengganti terceklis
+            const isRegularClass = (dayOfWeek === 1 || dayOfWeek === 4); // Senin & Kamis
 
-                    // Jika hari kelas reguler ATAU hari kelas pengganti dan bukan hari libur nasional
-                    if ((isRegularClass || isReplacement) && !isHariLiburNasional(dateKey)) {
-                        db.siswa.forEach(s => {
-                            let log = db.absensiSiswa.find(a => a.id === s.id && a.tanggal === dateKey);
-                            if (log && log.masuk && log.masuk !== "-") {
-                                hadirCount++;
-                            } else {
-                                tidakHadirCount++;
-                            }
-                        });
+            // Jika hari kelas reguler ATAU hari kelas pengganti dan bukan hari libur nasional
+            if ((isRegularClass || isReplacement) && !isHariLiburNasional(dateKey)) {
+                db.siswa.forEach(s => {
+                    let log = db.absensiSiswa.find(a => a.id === s.id && a.tanggal === dateKey);
+                    if (log && log.masuk && log.masuk !== "-") {
+                        hadirCount++;
+                    } else {
+                        tidakHadirCount++;
                     }
-                    currDateObj.setDate(currDateObj.getDate() + 1);
-                }
-            } else {
-                const now = new Date();
-                const todayStr = getFormattedDate(now);
-                const dayOfWeek = now.getDay();
-                const isReplacementToday = isTanggalKelasPengganti(todayStr);
-                const isClassDay = ((dayOfWeek === 1 || dayOfWeek === 4) || isReplacementToday) && !isHariLiburNasional(todayStr);
-
-                const todayLogs = (db.absensiSiswa || []).filter(a => a.tanggal === todayStr);
-                hadirCount = todayLogs.filter(a => a.masuk && a.masuk !== "-").length;
-                if (isClassDay) {
-                    tidakHadirCount = totalSiswa - hadirCount;
-                    if (tidakHadirCount < 0) tidakHadirCount = 0;
-                }
+                });
             }
-
-            const elTotal = document.getElementById('stat-total-siswa');
-            const elHadir = document.getElementById('stat-hadir-siswa');
-            const elAbsen = document.getElementById('stat-absen-siswa');
-
-            if (elTotal) elTotal.innerText = totalSiswa;
-            if (elHadir) elHadir.innerText = hadirCount;
-            if (elAbsen) elAbsen.innerText = tidakHadirCount;
+            currDateObj.setDate(currDateObj.getDate() + 1);
         }
+    } else {
+        const now = new Date();
+        const todayStr = getFormattedDate(now);
+        const dayOfWeek = now.getDay();
+        const isReplacementToday = isTanggalKelasPengganti(todayStr);
+        const isClassDay = ((dayOfWeek === 1 || dayOfWeek === 4) || isReplacementToday) && !isHariLiburNasional(todayStr);
+
+        const todayLogs = (db.absensiSiswa || []).filter(a => a.tanggal === todayStr);
+        hadirCount = todayLogs.filter(a => a.masuk && a.masuk !== "-").length;
+        if (isClassDay) {
+            tidakHadirCount = totalSiswa - hadirCount;
+            if (tidakHadirCount < 0) tidakHadirCount = 0;
+        }
+    }
+
+    const elTotal = document.getElementById('stat-total-siswa');
+    const elHadir = document.getElementById('stat-hadir-siswa');
+    const elAbsen = document.getElementById('stat-absen-siswa');
+
+    if (elTotal) elTotal.innerText = totalSiswa;
+    if (elHadir) elHadir.innerText = hadirCount;
+    if (elAbsen) elAbsen.innerText = tidakHadirCount;
+}
 
         function updateInstructorSummary() {
             const totalSiswa = (db.siswa || []).length;
@@ -1572,107 +1571,107 @@ function isTanggalKelasPengganti(dateKey) {
         }
 
         function renderSiswaHistory() {
-            const tbody = document.getElementById('siswa-history-body');
-            if(!tbody) return;
-            tbody.innerHTML = '';
+    const tbody = document.getElementById('siswa-history-body');
+    if(!tbody) return;
+    tbody.innerHTML = '';
 
-            const startDateVal = document.getElementById('filter-siswa-start-date').value;
-            const endDateVal = document.getElementById('filter-siswa-end-date').value;
-            const inputVal = document.getElementById('filter-siswa-input').value.trim();
+    const startDateVal = document.getElementById('filter-siswa-start-date').value;
+    const endDateVal = document.getElementById('filter-siswa-end-date').value;
+    const inputVal = document.getElementById('filter-siswa-input').value.trim();
 
-            if (!startDateVal || !endDateVal) return alert("Pilih rentang tanggal terlebih dahulu!");
+    if (!startDateVal || !endDateVal) return alert("Pilih rentang tanggal terlebih dahulu!");
 
-            const startDate = new Date(startDateVal);
-            const endDate = new Date(endDateVal);
+    const startDate = new Date(startDateVal);
+    const endDate = new Date(endDateVal);
 
-            if (startDate > endDate) return alert("Tanggal mulai tidak boleh melebihi tanggal akhir!");
+    if (startDate > endDate) return alert("Tanggal mulai tidak boleh melebihi tanggal akhir!");
 
-            const daysName = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    const daysName = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 
-            let targetSiswaList = [...db.siswa];
-            if (inputVal !== "") {
-                targetSiswaList = targetSiswaList.filter(s =>
-                    s.id.toLowerCase().includes(inputVal.toLowerCase()) ||
-                    s.name.toLowerCase().includes(inputVal.toLowerCase())
-                );
-            }
+    let targetSiswaList = [...db.siswa];
+    if (inputVal !== "") {
+        targetSiswaList = targetSiswaList.filter(s =>
+            s.id.toLowerCase().includes(inputVal.toLowerCase()) ||
+            s.name.toLowerCase().includes(inputVal.toLowerCase())
+        );
+    }
 
-            let no = 1;
-            let currDateObj = new Date(startDate);
+    let no = 1;
+    let currDateObj = new Date(startDate);
 
-            while (currDateObj <= endDate) {
-                const dateKey = getFormattedDate(currDateObj);
-                const dayOfWeek = currDateObj.getDay();
-                const isReplacement = isTanggalKelasPengganti(dateKey); // Mendeteksi hari kelas pengganti
-                const isRegularClass = (dayOfWeek === 1 || dayOfWeek === 4);
+    while (currDateObj <= endDate) {
+        const dateKey = getFormattedDate(currDateObj);
+        const dayOfWeek = currDateObj.getDay();
+        const isReplacement = isTanggalKelasPengganti(dateKey); // Mendeteksi hari kelas pengganti
+        const isRegularClass = (dayOfWeek === 1 || dayOfWeek === 4);
 
-                // Menampilkan tabel rekap jika hari reguler atau hari kelas pengganti dicentang
-                if (isRegularClass || isReplacement) {
-                    const dayName = daysName[dayOfWeek];
-                    const isNasionalLibur = isHariLiburNasional(dateKey) && !isReplacement;
+        // Menampilkan tabel rekap jika hari reguler ATAU hari kelas pengganti dicentang
+        if (isRegularClass || isReplacement) {
+            const dayName = daysName[dayOfWeek];
+            const isNasionalLibur = isHariLiburNasional(dateKey) && !isReplacement;
 
-                    let evaluatedList = targetSiswaList.map(s => {
-                        let log = db.absensiSiswa.find(a => a.id === s.id && a.tanggal === dateKey);
-                        let isHadir = (log && log.masuk && log.masuk !== "-");
-                        return { s, log, isHadir };
-                    });
+            let evaluatedList = targetSiswaList.map(s => {
+                let log = db.absensiSiswa.find(a => a.id === s.id && a.tanggal === dateKey);
+                let isHadir = (log && log.masuk && log.masuk !== "-");
+                return { s, log, isHadir };
+            });
 
-                    evaluatedList.sort((a, b) => {
-                        if (a.isHadir !== b.isHadir) {
-                            return a.isHadir ? -1 : 1;
-                        }
-                        return a.s.name.localeCompare(b.s.name);
-                    });
-
-                    evaluatedList.forEach(item => {
-                        const s = item.s;
-                        const log = item.log;
-                        const subjectText = Array.isArray(s.subject) ? s.subject.join(", ") : (s.subject || "-");
-
-                        let jamMasuk = "-", statusBadge = "", ketValue = "-";
-
-                        if (isNasionalLibur) {
-                            statusBadge = `<span class="bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-bold">Libur Nasional 🌴</span>`;
-                        } else {
-                            if (log && log.masuk && log.masuk !== "-") {
-                                jamMasuk = log.masuk;
-                                statusBadge = `<span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">Hadir ✨</span>`;
-                                if (log.keterangan) ketValue = log.keterangan;
-                            } else {
-                                statusBadge = `<span class="bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full font-bold">Tidak Hadir ❌</span>`;
-                                if (log && log.keterangan) ketValue = log.keterangan;
-                            }
-                        }
-
-                        let ketDropdown = `
-                            <select onchange="updateSiswaKeterangan('${dateKey}', '${s.id}', this.value)" class="p-1 border rounded-xl bg-pink-50 text-xs font-semibold text-slate-700 focus:outline-none">
-                                <option value="-" ${ketValue === '-' ? 'selected' : ''}>-</option>
-                                <option value="Ambil PR" ${ketValue === 'Ambil PR' ? 'selected' : ''}>Ambil PR</option>
-                                <option value="Tidak Ambil PR" ${ketValue === 'Tidak Ambil PR' ? 'selected' : ''}>Tidak Ambil PR</option>
-                                <option value="Tidak Bawa PR" ${ketValue === 'Tidak Bawa PR' ? 'selected' : ''}>Tidak Bawa PR</option>
-                            </select>
-                        `;
-
-                        tbody.innerHTML += `
-                            <tr class="hover:bg-pink-50/50">
-                                <td class="p-2 font-bold">${no++}</td>
-                                <td class="p-2">${dateKey.split('-').reverse().join('/')}</td>
-                                <td class="p-2 font-semibold text-pink-600">${dayName} ${isReplacement ? '(Pengganti) ⭐' : ''}</td>
-                                <td class="p-2">${s.id}</td>
-                                <td class="p-2 font-bold">${s.name}</td>
-                                <td class="p-2">${s.kelas || '-'}</td>
-                                <td class="p-2">${subjectText}</td>
-                                <td class="p-2">${jamMasuk}</td>
-                                <td class="p-2">${statusBadge}</td>
-                                <td class="p-2">${ketDropdown}</td>
-                            </tr>
-                        `;
-                    });
+            evaluatedList.sort((a, b) => {
+                if (a.isHadir !== b.isHadir) {
+                    return a.isHadir ? -1 : 1;
                 }
-                currDateObj.setDate(currDateObj.getDate() + 1);
-            }
-            updateSiswaSummary();
+                return a.s.name.localeCompare(b.s.name);
+            });
+
+            evaluatedList.forEach(item => {
+                const s = item.s;
+                const log = item.log;
+                const subjectText = Array.isArray(s.subject) ? s.subject.join(", ") : (s.subject || "-");
+
+                let jamMasuk = "-", statusBadge = "", ketValue = "-";
+
+                if (isNasionalLibur) {
+                    statusBadge = `<span class="bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-bold">Libur Nasional 🌴</span>`;
+                } else {
+                    if (log && log.masuk && log.masuk !== "-") {
+                        jamMasuk = log.masuk;
+                        statusBadge = `<span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">Hadir ✨</span>`;
+                        if (log.keterangan) ketValue = log.keterangan;
+                    } else {
+                        statusBadge = `<span class="bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full font-bold">Tidak Hadir ❌</span>`;
+                        if (log && log.keterangan) ketValue = log.keterangan;
+                    }
+                }
+
+                let ketDropdown = `
+                    <select onchange="updateSiswaKeterangan('${dateKey}', '${s.id}', this.value)" class="p-1 border rounded-xl bg-pink-50 text-xs font-semibold text-slate-700 focus:outline-none">
+                        <option value="-" ${ketValue === '-' ? 'selected' : ''}>-</option>
+                        <option value="Ambil PR" ${ketValue === 'Ambil PR' ? 'selected' : ''}>Ambil PR</option>
+                        <option value="Tidak Ambil PR" ${ketValue === 'Tidak Ambil PR' ? 'selected' : ''}>Tidak Ambil PR</option>
+                        <option value="Tidak Bawa PR" ${ketValue === 'Tidak Bawa PR' ? 'selected' : ''}>Tidak Bawa PR</option>
+                    </select>
+                `;
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-pink-50/50">
+                        <td class="p-2 font-bold">${no++}</td>
+                        <td class="p-2">${dateKey.split('-').reverse().join('/')}</td>
+                        <td class="p-2 font-semibold text-pink-600">${dayName} ${isReplacement ? '(Pengganti) ⭐' : ''}</td>
+                        <td class="p-2">${s.id}</td>
+                        <td class="p-2 font-bold">${s.name}</td>
+                        <td class="p-2">${s.kelas || '-'}</td>
+                        <td class="p-2">${subjectText}</td>
+                        <td class="p-2">${jamMasuk}</td>
+                        <td class="p-2">${statusBadge}</td>
+                        <td class="p-2">${ketDropdown}</td>
+                    </tr>
+                `;
+            });
         }
+        currDateObj.setDate(currDateObj.getDate() + 1);
+    }
+    updateSiswaSummary();
+}
 
         function renderPaymentTable() {
             const tbody = document.getElementById('payment-table-body');
