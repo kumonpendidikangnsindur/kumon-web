@@ -1167,7 +1167,7 @@
             if (log && log.masuk !== "-") return alert("Anda sudah Check In hari ini!");
 
             const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-            const isLate = (now.getHours() > 11) || (now.getHours() === 11 && now.getMinutes() >= 1);
+            const isLate = (now.getHours() > 11) || (now.getHours() === 11 && now.getMinutes() >= 16);
             let keteranganText = isLate ? "Terlambat ⚠️" : "-";
 
             if (!log) {
