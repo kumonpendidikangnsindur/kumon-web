@@ -1821,6 +1821,7 @@
             document.getElementById('kwitansi-total-payment').innerText = `Rp ${finalTotal.toLocaleString('id-ID')}`;
         }
 
+        // FUNGSI UTAMA YANG DIPERBAIKI: SHARE KWITANSI DALAM BENTUK GAMBAR PNG KE WHATSAPP (LAPTOP, TAB, HP)
         function downloadAndShareKwitansiWhatsApp() {
             if (currentKwitansiStudentIndex === null) return;
             const s = db.siswa[currentKwitansiStudentIndex];
@@ -1837,6 +1838,7 @@
                             text: `Berikut terlampir kwitansi pembayaran SPP Kumon atas nama ${s.name}. Terima kasih.`
                         }).catch(err => console.log('Share error:', err));
                     } else {
+                        // Solusi lintas platform (Laptop/Tab/HP): Unduh otomatis gambar PNG dan arahkan ke chat WhatsApp orang tua
                         const link = document.createElement('a');
                         link.download = `Kwitansi_${s.name.replace(/\s+/g, '_')}.png`;
                         link.href = URL.createObjectURL(blob);
@@ -1845,7 +1847,7 @@
                         if (s.phone) {
                             let phone = s.phone.replace(/[^0-9]/g, '');
                             if (phone.startsWith('0')) phone = '62' + phone.slice(1);
-                            const msg = `Halo Ayah/Bunda *${s.name}*, berikut kami kirimkan bukti kwitansi pembayaran SPP Kumon. Gambar kwitansi telah terunduh ke perangkat Anda. Terima kasih. _Kumon Pendidikan - Gunung Sindur_`;
+                            const msg = `Halo Ayah/Bunda *${s.name}*, berikut kami kirimkan bukti kwitansi pembayaran SPP Kumon. Gambar kwitansi telah terunduh ke perangkat Anda. Silakan lampirkan gambar tersebut di chat ini ya Ayah/Bunda. Terima kasih. _Kumon Pendidikan - Gunung Sindur_`;
                             window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
                         } else {
                             alert("Kwitansi berhasil diunduh sebagai gambar PNG!");
@@ -1855,12 +1857,7 @@
             });
         }
 
-        // ==========================================
-        // PERBAIKAN UTAMA: MENU INSTRUCTOR & QR
-        // ==========================================
-
         function renderLists() {
-            // 1. List Daftar Assistant (Diurutkan berdasarkan abjad)[cite: 6]
             const listAst = document.getElementById('list-assistant');
             const searchAstInput = document.getElementById('search-instructor-ast');
             if (listAst) {
@@ -1887,7 +1884,6 @@
                 });
             }
 
-            // 2. List Daftar Student (Diurutkan berdasarkan abjad & Nama saja, Kelas/Subject di bawah nama)[cite: 6]
             const listSiswa = document.getElementById('list-siswa');
             const searchSiswaInput = document.getElementById('search-instructor-siswa');
             if (listSiswa) {
@@ -1917,15 +1913,11 @@
                 });
             }
 
-            // Update dropdown Assistant login
             const astNames = db.assistants.map(a => a.name);
             setupCustomDropdown('input-search-assistant', 'dropdown-assistant', astNames);
-
-            // Update dropdown QR student (Diurutkan berdasar abjad dan tampilkan nama saja)[cite: 6]
             loadQRSelect();
         }
 
-        // Listener search di Panel Instructor
         document.addEventListener('DOMContentLoaded', () => {
             const searchAstEl = document.getElementById('search-instructor-ast');
             if (searchAstEl) searchAstEl.addEventListener('input', renderLists);
@@ -1935,11 +1927,8 @@
         });
 
         function loadQRSelect() {
-            // Dropdown QR Student hanya menampilkan nama dan diurutkan berdasar abjad[cite: 6]
             const siswaNames = db.siswa.map(s => s.name);
-            setupCustomDropdown('input-search-qr-siswa', 'dropdown-qr-siswa', siswaNames, (selectedName) => {
-                // Callback opsional saat nama dipilih dari dropdown QR
-            });
+            setupCustomDropdown('input-search-qr-siswa', 'dropdown-qr-siswa', siswaNames, (selectedName) => {});
         }
 
         function generateQR() {
@@ -1975,7 +1964,6 @@
             link.click();
         }
 
-        // Manajemen Assistant & Student Tambahan
         function addAssistant() {
             const name = document.getElementById('new-ast-name').value.trim();
             const username = document.getElementById('new-ast-username').value.trim().toLowerCase();
@@ -2001,44 +1989,6 @@
             document.getElementById('new-ast-phone').value = '';
             document.getElementById('new-ast-pass').value = '';
             alert("Assistant berhasil ditambahkan!");
-        }
-
-        function deleteAssistant(name) {
-            if (!confirm(`Hapus assistant ${name}?`)) return;
-            db.assistants = db.assistants.filter(a => a.name !== name);
-            saveDB();
-        }
-
-        function openEditAssistant(name) {
-            const ast = db.assistants.find(a => a.name === name);
-            if (!ast) return;
-            document.getElementById('edit-ast-old-name').value = ast.name;
-            document.getElementById('edit-ast-name').value = ast.name;
-            document.getElementById('edit-ast-username').value = ast.username || '';
-            document.getElementById('edit-ast-email').value = ast.email || '';
-            document.getElementById('edit-ast-phone').value = ast.phone || '';
-            document.getElementById('edit-ast-pass').value = ast.pass || '';
-            document.getElementById('modal-edit-assistant').classList.remove('hidden');
-        }
-
-        function closeModalEditAssistant() {
-            document.getElementById('modal-edit-assistant').classList.add('hidden');
-        }
-
-        function saveEditAssistant() {
-            const oldName = document.getElementById('edit-ast-old-name').value;
-            const ast = db.assistants.find(a => a.name === oldName);
-            if (!ast) return;
-
-            ast.name = document.getElementById('edit-ast-name').value.trim();
-            ast.username = document.getElementById('edit-ast-username').value.trim().toLowerCase();
-            ast.email = document.getElementById('edit-ast-email').value.trim().toLowerCase();
-            ast.phone = document.getElementById('edit-ast-phone').value.trim();
-            ast.pass = document.getElementById('edit-ast-pass').value.trim();
-
-            saveDB();
-            closeModalEditAssistant();
-            alert("Data assistant berhasil diperbarui!");
         }
 
         function addSiswa() {
@@ -2068,9 +2018,9 @@
                 rate,
                 totalPayment,
                 phone,
-                status: 'UNPAID',
-                payDate: '',
-                periode: 'Agustus'
+                status: "UNPAID",
+                payDate: "",
+                periode: "Agustus"
             });
 
             saveDB();
@@ -2082,10 +2032,64 @@
             alert("Student berhasil ditambahkan!");
         }
 
+        function deleteAssistant(name) {
+            if (!confirm(`Hapus assistant ${name}?`)) return;
+            db.assistants = db.assistants.filter(a => a.name !== name);
+            db.users = db.users.filter(u => u.name !== name);
+            saveDB();
+        }
+
         function deleteSiswa(index) {
             if (!confirm(`Hapus student ${db.siswa[index].name}?`)) return;
             db.siswa.splice(index, 1);
             saveDB();
+        }
+
+        function openEditAssistant(name) {
+            const ast = db.assistants.find(a => a.name === name);
+            if (!ast) return;
+            document.getElementById('edit-ast-old-name').value = ast.name;
+            document.getElementById('edit-ast-name').value = ast.name;
+            document.getElementById('edit-ast-username').value = ast.username || '';
+            document.getElementById('edit-ast-email').value = ast.email || '';
+            document.getElementById('edit-ast-phone').value = ast.phone || '';
+            document.getElementById('edit-ast-pass').value = ast.pass || ast.password || '';
+            document.getElementById('modal-edit-assistant').classList.remove('hidden');
+        }
+
+        function closeModalEditAssistant() {
+            document.getElementById('modal-edit-assistant').classList.add('hidden');
+        }
+
+        function saveEditAssistant() {
+            const oldName = document.getElementById('edit-ast-old-name').value;
+            const name = document.getElementById('edit-ast-name').value.trim();
+            const username = document.getElementById('edit-ast-username').value.trim().toLowerCase();
+            const email = document.getElementById('edit-ast-email').value.trim().toLowerCase();
+            const phone = document.getElementById('edit-ast-phone').value.trim();
+            const pass = document.getElementById('edit-ast-pass').value.trim();
+
+            let ast = db.assistants.find(a => a.name === oldName);
+            if (ast) {
+                ast.name = name;
+                ast.username = username;
+                ast.email = email;
+                ast.phone = phone;
+                ast.pass = pass;
+            }
+
+            let user = db.users.find(u => u.name === oldName);
+            if (user) {
+                user.name = name;
+                user.username = username;
+                user.email = email;
+                user.phone = phone;
+                user.password = pass;
+            }
+
+            saveDB();
+            closeModalEditAssistant();
+            alert("Data assistant berhasil diperbarui!");
         }
 
         function openEditSiswa(index) {
@@ -2098,9 +2102,9 @@
             document.getElementById('edit-siswa-phone').value = s.phone || '';
             document.getElementById('edit-siswa-rate').value = s.rate || 525000;
 
-            const subArr = Array.isArray(s.subject) ? s.subject : [s.subject];
-            document.querySelectorAll('input[name="edit-subject-choice"]').forEach(cb => {
-                cb.checked = subArr.includes(cb.value);
+            const checkboxes = document.querySelectorAll('input[name="edit-subject-choice"]');
+            checkboxes.forEach(cb => {
+                cb.checked = Array.isArray(s.subject) && s.subject.includes(cb.value);
             });
 
             document.getElementById('modal-edit-siswa').classList.remove('hidden');
@@ -2112,21 +2116,30 @@
 
         function saveEditSiswa() {
             const index = Number(document.getElementById('edit-siswa-index').value);
-            const s = db.siswa[index];
-            if (!s) return;
-
-            s.id = document.getElementById('edit-siswa-id').value.trim();
-            s.name = document.getElementById('edit-siswa-name').value.trim();
-            s.kelas = document.getElementById('edit-siswa-kelas').value.trim();
-            s.phone = document.getElementById('edit-siswa-phone').value.trim();
-            s.rate = Number(document.getElementById('edit-siswa-rate').value);
+            const id = document.getElementById('edit-siswa-id').value.trim();
+            const name = document.getElementById('edit-siswa-name').value.trim();
+            const kelas = document.getElementById('edit-siswa-kelas').value.trim();
+            const phone = document.getElementById('edit-siswa-phone').value.trim();
+            const rate = Number(document.getElementById('edit-siswa-rate').value);
 
             const checkboxes = document.querySelectorAll('input[name="edit-subject-choice"]:checked');
             let subjects = [];
             checkboxes.forEach(cb => subjects.push(cb.value));
 
-            if (subjects.length > 0) s.subject = subjects;
-            s.totalPayment = (Array.isArray(s.subject) ? s.subject.length : 1) * s.rate;
+            if (!id || !name || subjects.length === 0) return alert("ID, Nama, dan minimal 1 Subject wajib diisi!");
+
+            const totalPayment = subjects.length * rate;
+
+            db.siswa[index] = {
+                ...db.siswa[index],
+                id,
+                name,
+                kelas,
+                subject: subjects,
+                rate,
+                totalPayment,
+                phone
+            };
 
             saveDB();
             closeModalEditSiswa();
@@ -2135,37 +2148,62 @@
 
         function exportExcel(type) {
             let dataToExport = [];
-            let filename = "Rekap_Kumon.xlsx";
+            let fileName = "Rekap_Kumon.xlsx";
 
             const month = document.getElementById('export-month').value;
             const year = document.getElementById('export-year').value;
 
             if (type === 'assistant') {
-                filename = `Rekap_Assistant_${month}_${year}.xlsx`;
-                dataToExport = db.absensiAst.filter(a => a.tanggal.startsWith(`${year}-${month}`));
+                fileName = `Rekap_Assistant_${month}_${year}.xlsx`;
+                dataToExport = (db.absensiAst || []).filter(a => {
+                    if (!a.tanggal) return false;
+                    const [y, m] = a.tanggal.split('-');
+                    return y === year && m === month;
+                }).map(a => ({
+                    "Tanggal": a.tanggal,
+                    "Nama Assistant": a.nama,
+                    "Jam Masuk": a.masuk,
+                    "Jam Keluar": a.keluar,
+                    "Durasi Kerja": a.totalJam,
+                    "Status": a.status,
+                    "Keterangan": a.keterangan
+                }));
             } else if (type === 'siswa') {
-                filename = `Rekap_Absensi_Student_${month}_${year}.xlsx`;
-                dataToExport = db.absensiSiswa.filter(a => a.tanggal.startsWith(`${year}-${month}`));
+                fileName = `Rekap_Absensi_Student_${month}_${year}.xlsx`;
+                dataToExport = (db.absensiSiswa || []).filter(a => {
+                    if (!a.tanggal) return false;
+                    const [y, m] = a.tanggal.split('-');
+                    return y === year && m === month;
+                }).map(a => ({
+                    "Tanggal": a.tanggal,
+                    "ID Student": a.id,
+                    "Nama Student": a.nama,
+                    "Kelas": a.kelas,
+                    "Subject": a.subject,
+                    "Jam Kedatangan": a.masuk,
+                    "Status": a.status,
+                    "Keterangan": a.keterangan
+                }));
             } else if (type === 'payment') {
-                filename = `Rekap_Payment_Student.xlsx`;
-                dataToExport = db.siswa.map(s => ({
-                    ID: s.id,
-                    Nama: s.name,
-                    Kelas: s.kelas || '-',
-                    Subject: Array.isArray(s.subject) ? s.subject.join(", ") : s.subject,
-                    TotalSPP: s.totalPayment || 0,
-                    Status: s.status || 'UNPAID',
-                    TanggalBayar: s.payDate || '-',
-                    Periode: s.periode || '-'
+                fileName = `Rekap_Payment_${month}_${year}.xlsx`;
+                dataToExport = (db.siswa || []).map(s => ({
+                    "ID Student": s.id,
+                    "Nama Student": s.name,
+                    "Kelas": s.kelas || "-",
+                    "Subject": Array.isArray(s.subject) ? s.subject.join(", ") : (s.subject || "-"),
+                    "Total SPP": s.totalPayment || 0,
+                    "Tanggal Pembayaran": s.payDate || "-",
+                    "Periode": s.periode || "-",
+                    "Status": s.status || "UNPAID"
                 }));
             }
 
-            if (dataToExport.length === 0) return alert("Tidak ada data untuk diexport pada periode tersebut!");
+            if (dataToExport.length === 0) return alert("Tidak ada data untuk diexport pada periode ini!");
 
             const worksheet = XLSX.utils.json_to_sheet(dataToExport);
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "Rekap");
-            XLSX.writeFile(workbook, filename);
+            XLSX.writeFile(workbook, fileName);
         }
     </script>
 </body>
