@@ -1435,12 +1435,17 @@
         }
 
        // Tambahkan / perbarui fungsi ini di bagian script Anda
+// Fungsi mendeteksi apakah suatu tanggal diatur sebagai hari kelas pengganti
 function isTanggalKelasPengganti(dateKey) {
             const checkbox = document.getElementById('check-kelas-pengganti');
             const startDateVal = document.getElementById('filter-siswa-start-date').value;
-            // Jika checkbox kelas pengganti dicentang dan tanggal pada filter sesuai dengan tanggal yang dipilih/aktif
-            if (checkbox && checkbox.checked && startDateVal === dateKey) {
-                return true;
+            const endDateVal = document.getElementById('filter-siswa-end-date').value;
+            
+            // Cek jika checkbox kelas pengganti dicentang dan dateKey berada dalam rentang filter tanggal atau sama dengan tanggal mulai
+            if (checkbox && checkbox.checked) {
+                if (startDateVal === dateKey || (startDateVal <= dateKey && dateKey <= endDateVal)) {
+                    return true;
+                }
             }
             return false;
         }
