@@ -409,48 +409,60 @@
 
         <!-- TAB 3: PAYMENT -->
         <div id="tab-payment" class="tab-content hidden max-w-6xl mx-auto card-cute p-6 border-emerald-400">
-            <h2 class="text-xl font-bold text-emerald-600 mb-4 text-center border-b-2 border-emerald-100 pb-2">Status Pembayaran SPP Student 💳</h2>
+    <h2 class="text-xl font-bold text-emerald-600 mb-4 text-center border-b-2 border-emerald-100 pb-2">Status Pembayaran SPP Student 💳</h2>
 
-            <div class="flex flex-col sm:flex-row justify-between items-center gap-2 mb-4 bg-emerald-50/50 p-3 rounded-2xl border border-emerald-200">
-                <h4 class="font-bold text-xs text-emerald-700">🔍 Filter Pembayaran</h4>
-                <div class="flex items-center gap-2 text-xs flex-wrap">
-                    <select id="filter-payment-month" class="p-1.5 border rounded-xl bg-white font-semibold text-emerald-700 focus:outline-none">
-                        <option value="01">Januari</option><option value="02">Februari</option><option value="03">Maret</option>
-                        <option value="04">April</option><option value="05">Mei</option><option value="06">Juni</option>
-                        <option value="07">Juli</option><option value="08">Agustus</option><option value="09">September</option>
-                        <option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
-                    </select>
-                    <select id="filter-payment-year" class="p-1.5 border rounded-xl bg-white font-semibold text-emerald-700 focus:outline-none">
-                        <option value="2026">2026</option><option value="2027">2027</option>
-                    </select>
-                    <div class="relative">
-                        <input type="text" id="filter-payment-input" oninput="renderPaymentTable()" placeholder="Cari nama student..." class="p-1.5 border rounded-xl bg-white font-semibold text-emerald-700 focus:outline-none w-44" autocomplete="off">
-                    </div>
-                    <button onclick="renderPaymentTable()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-3 py-1.5 rounded-xl shadow transition">🔍 Search</button>
-                </div>
-            </div>
-
-            <div tabindex="0" class="overflow-x-auto max-h-96 focus:outline-none focus:ring-2 focus:ring-emerald-300 rounded-2xl">
-                <table class="w-full text-xs text-left text-slate-600">
-                    <thead class="text-xs uppercase bg-emerald-100 text-emerald-700 sticky top-0 z-10">
-                        <tr>
-                            <th class="p-3 rounded-l-xl">No</th>
-                            <th class="p-3">ID Student</th>
-                            <th class="p-3">Nama Student</th>
-                            <th class="p-3">Kelas</th>
-                            <th class="p-3 min-w-[160px]">Subject</th>
-                            <th class="p-3 min-w-[130px]">Total SPP</th>
-                            <th class="p-3">Tanggal Pembayaran</th>
-                            <th class="p-3">Periode Pembayaran</th>
-                            <th class="p-3 text-center">Status</th>
-                            <th class="p-3 text-center">Kwitansi SPP</th>
-                            <th class="p-3 text-center rounded-r-xl">Reminder</th>
-                        </tr>
-                    </thead>
-                    <tbody id="payment-table-body" class="divide-y divide-emerald-50"></tbody>
-                </table>
-            </div>
+    <!-- Ringkasan Total Siswa Paid & Unpaid (Ukuran Ringkas) -->
+    <div class="grid grid-cols-2 sm:grid-cols-2 gap-3 mb-4">
+        <div class="bg-emerald-50 px-4 py-2.5 rounded-2xl border-2 border-emerald-200 flex items-center justify-between shadow-sm">
+            <span class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Total Paid</span>
+            <h3 id="stat-payment-paid" class="text-lg font-extrabold text-emerald-800">0</h3>
         </div>
+        <div class="bg-rose-50 px-4 py-2.5 rounded-2xl border-2 border-rose-200 flex items-center justify-between shadow-sm">
+            <span class="text-xs font-bold text-rose-700 uppercase tracking-wider">Total Unpaid</span>
+            <h3 id="stat-payment-unpaid" class="text-lg font-extrabold text-rose-800">0</h3>
+        </div>
+    </div>
+
+    <div class="flex flex-col sm:flex-row justify-between items-center gap-2 mb-4 bg-emerald-50/50 p-3 rounded-2xl border border-emerald-200">
+        <h4 class="font-bold text-xs text-emerald-700">🔍 Filter Pembayaran</h4>
+        <div class="flex items-center gap-2 text-xs flex-wrap">
+            <select id="filter-payment-month" class="p-1.5 border rounded-xl bg-white font-semibold text-emerald-700 focus:outline-none">
+                <option value="01">Januari</option><option value="02">Februari</option><option value="03">Maret</option>
+                <option value="04">April</option><option value="05">Mei</option><option value="06">Juni</option>
+                <option value="07">Juli</option><option value="08">Agustus</option><option value="09">September</option>
+                <option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
+            </select>
+            <select id="filter-payment-year" class="p-1.5 border rounded-xl bg-white font-semibold text-emerald-700 focus:outline-none">
+                <option value="2026">2026</option><option value="2027">2027</option>
+            </select>
+            <div class="relative">
+                <input type="text" id="filter-payment-input" oninput="renderPaymentTable()" placeholder="Cari nama student..." class="p-1.5 border rounded-xl bg-white font-semibold text-emerald-700 focus:outline-none w-44" autocomplete="off">
+            </div>
+            <button onclick="renderPaymentTable()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-3 py-1.5 rounded-xl shadow transition">🔍 Search</button>
+        </div>
+    </div>
+
+    <div tabindex="0" class="overflow-x-auto max-h-96 focus:outline-none focus:ring-2 focus:ring-emerald-300 rounded-2xl">
+        <table class="w-full text-xs text-left text-slate-600">
+            <thead class="text-xs uppercase bg-emerald-100 text-emerald-700 sticky top-0 z-10">
+                <tr>
+                    <th class="p-3 rounded-l-xl">No</th>
+                    <th class="p-3">ID Student</th>
+                    <th class="p-3">Nama Student</th>
+                    <th class="p-3">Kelas</th>
+                    <th class="p-3 min-w-[160px]">Subject</th>
+                    <th class="p-3 min-w-[130px]">Total SPP</th>
+                    <th class="p-3">Tanggal Pembayaran</th>
+                    <th class="p-3">Periode Pembayaran</th>
+                    <th class="p-3 text-center">Status</th>
+                    <th class="p-3 text-center">Kwitansi SPP</th>
+                    <th class="p-3 text-center rounded-r-xl">Reminder</th>
+                </tr>
+            </thead>
+            <tbody id="payment-table-body" class="divide-y divide-emerald-50"></tbody>
+        </table>
+    </div>
+</div>
 
         <!-- TAB 4: OWNER / INSTRUCTOR -->
         <div id="tab-owner" class="tab-content hidden max-w-5xl mx-auto card-cute p-6 border-purple-400">
@@ -1658,62 +1670,71 @@ function updateSiswaSummary() {
 }
 
         function renderPaymentTable() {
-            const tbody = document.getElementById('payment-table-body');
-            if(!tbody) return;
-            tbody.innerHTML = '';
+    const tbody = document.getElementById('payment-table-body');
+    if(!tbody) return;
+    tbody.innerHTML = '';
 
-            const inputVal = document.getElementById('filter-payment-input').value.trim();
+    const inputVal = document.getElementById('filter-payment-input').value.trim();
 
-            let targetSiswaList = [...db.siswa];
-            if (inputVal !== "") {
-                targetSiswaList = targetSiswaList.filter(s =>
-                    s.id.toLowerCase().includes(inputVal.toLowerCase()) ||
-                    s.name.toLowerCase().includes(inputVal.toLowerCase())
-                );
-            }
+    let targetSiswaList = [...db.siswa];
+    if (inputVal !== "") {
+        targetSiswaList = targetSiswaList.filter(s =>
+            s.id.toLowerCase().includes(inputVal.toLowerCase()) ||
+            s.name.toLowerCase().includes(inputVal.toLowerCase())
+        );
+    }
 
-            targetSiswaList.sort((a, b) => a.name.localeCompare(b.name));
+    targetSiswaList.sort((a, b) => a.name.localeCompare(b.name));
 
-            const monthsList = [
-                { val: "01", name: "Januari" }, { val: "02", name: "Februari" },
-                { val: "03", name: "Maret" }, { val: "04", name: "April" },
-                { val: "05", name: "Mei" }, { val: "06", name: "Juni" },
-                { val: "07", name: "Juli" }, { val: "08", name: "Agustus" },
-                { val: "09", name: "September" }, { val: "10", name: "Oktober" },
-                { val: "11", name: "November" }, { val: "12", name: "Desember" }
-            ];
+    // Hitung total Paid dan Unpaid dari seluruh data siswa
+    let totalPaid = (db.siswa || []).filter(s => s.status === 'PAID').length;
+    let totalUnpaid = (db.siswa || []).length - totalPaid;
 
-            targetSiswaList.forEach((s, index) => {
-                const globalIndex = db.siswa.findIndex(item => item.id === s.id);
-                const isPaid = s.status === 'PAID';
-                const subjectStr = Array.isArray(s.subject) ? s.subject.join(", ") : (s.subject || '-');
-                const currentPeriode = s.periode || "Agustus";
+    const elPaid = document.getElementById('stat-payment-paid');
+    const elUnpaid = document.getElementById('stat-payment-unpaid');
+    if (elPaid) elPaid.innerText = totalPaid;
+    if (elUnpaid) elUnpaid.innerText = totalUnpaid;
 
-                let optionsHtml = '';
-                monthsList.forEach(m => {
-                    optionsHtml += `<option value="${m.name}" ${currentPeriode === m.name ? 'selected' : ''}>${m.name}</option>`;
-                });
+    const monthsList = [
+        { val: "01", name: "Januari" }, { val: "02", name: "Februari" },
+        { val: "03", name: "Maret" }, { val: "04", name: "April" },
+        { val: "05", name: "Mei" }, { val: "06", name: "Juni" },
+        { val: "07", name: "Juli" }, { val: "08", name: "Agustus" },
+        { val: "09", name: "September" }, { val: "10", name: "Oktober" },
+        { val: "11", name: "November" }, { val: "12", name: "Desember" }
+    ];
 
-                tbody.innerHTML += `
-                    <tr class="hover:bg-emerald-50/50">
-                        <td class="p-3 font-bold">${index + 1}</td>
-                        <td class="p-3">${s.id}</td>
-                        <td class="p-3 font-bold text-slate-700">${s.name}</td>
-                        <td class="p-3">${s.kelas || '-'}</td>
-                        <td class="p-3 min-w-[160px]">${subjectStr}</td>
-                        <td class="p-3 min-w-[130px] font-semibold text-emerald-700">Rp ${(s.totalPayment || 0).toLocaleString('id-ID')}</td>
-                        <td class="p-3"><input type="date" value="${s.payDate || ''}" onchange="updatePayField(${globalIndex}, 'payDate', this.value)" class="p-1 border rounded-lg bg-white text-xs text-slate-600 focus:outline-none"></td>
-                        <td class="p-3">
-                            <select onchange="updatePayField(${globalIndex}, 'periode', this.value)" class="p-1.5 border rounded-xl bg-white text-xs font-semibold text-emerald-700 focus:outline-none">
-                                ${optionsHtml}
-                            </select>
-                        </td>
-                        <td class="p-3 text-center"><button onclick="togglePaymentStatus(${globalIndex})" class="px-3 py-1 rounded-full text-[10px] font-bold ${isPaid ? 'bg-emerald-100 text-emerald-600 border border-emerald-300' : 'bg-rose-100 text-rose-600 border border-rose-300'}">${s.status || 'UNPAID'}</button></td>
-                        <td class="p-3 text-center"><button onclick="openKwitansiModal(${globalIndex})" class="bg-sky-500 hover:bg-sky-600 text-white font-bold px-3 py-1.5 rounded-xl text-xs shadow mx-auto">🧾 Kirim</button></td>
-                        <td class="p-3 text-center"><button onclick="sendWAReminder(${globalIndex})" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-3 py-1.5 rounded-xl text-xs shadow mx-auto">💬 WA</button></td>
-                    </tr>`;
-            });
-        }
+    targetSiswaList.forEach((s, index) => {
+        const globalIndex = db.siswa.findIndex(item => item.id === s.id);
+        const isPaid = s.status === 'PAID';
+        const subjectStr = Array.isArray(s.subject) ? s.subject.join(", ") : (s.subject || '-');
+        const currentPeriode = s.periode || "Agustus";
+
+        let optionsHtml = '';
+        monthsList.forEach(m => {
+            optionsHtml += `<option value="${m.name}" ${currentPeriode === m.name ? 'selected' : ''}>${m.name}</option>`;
+        });
+
+        tbody.innerHTML += `
+            <tr class="hover:bg-emerald-50/50">
+                <td class="p-3 font-bold">${index + 1}</td>
+                <td class="p-3">${s.id}</td>
+                <td class="p-3 font-bold text-slate-700">${s.name}</td>
+                <td class="p-3">${s.kelas || '-'}</td>
+                <td class="p-3 min-w-[160px]">${subjectStr}</td>
+                <td class="p-3 min-w-[130px] font-semibold text-emerald-700">Rp ${(s.totalPayment || 0).toLocaleString('id-ID')}</td>
+                <td class="p-3"><input type="date" value="${s.payDate || ''}" onchange="updatePayField(${globalIndex}, 'payDate', this.value)" class="p-1 border rounded-lg bg-white text-xs text-slate-600 focus:outline-none"></td>
+                <td class="p-3">
+                    <select onchange="updatePayField(${globalIndex}, 'periode', this.value)" class="p-1.5 border rounded-xl bg-white text-xs font-semibold text-emerald-700 focus:outline-none">
+                        ${optionsHtml}
+                    </select>
+                </td>
+                <td class="p-3 text-center"><button onclick="togglePaymentStatus(${globalIndex})" class="px-3 py-1 rounded-full text-[10px] font-bold ${isPaid ? 'bg-emerald-100 text-emerald-600 border border-emerald-300' : 'bg-rose-100 text-rose-600 border border-rose-300'}">${s.status || 'UNPAID'}</button></td>
+                <td class="p-3 text-center"><button onclick="openKwitansiModal(${globalIndex})" class="bg-sky-500 hover:bg-sky-600 text-white font-bold px-3 py-1.5 rounded-xl text-xs shadow mx-auto">🧾 Kirim</button></td>
+                <td class="p-3 text-center"><button onclick="sendWAReminder(${globalIndex})" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-3 py-1.5 rounded-xl text-xs shadow mx-auto">💬 WA</button></td>
+            </tr>`;
+    });
+}
 
         function updatePayField(index, field, val) {
             db.siswa[index][field] = val;
